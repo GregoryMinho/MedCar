@@ -4,168 +4,143 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Medical Transport - Menu Principal</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        :root {
-            --primary-color: #1a365d;
-            --secondary-color: #2a4f7e;
-            --accent-color: #38b2ac;
+        .mobile-menu {
+            transition: transform 0.3s ease-in-out;
+            transform: translateX(100%);
         }
-
-        .hero-section {
-            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            padding: 100px 0 50px;
-            margin-bottom: 30px;
+        .mobile-menu.open {
+            transform: translateX(0);
         }
-
-        .hero-section h1 {
-            font-size: 3rem;
-            font-weight: bold;
-            margin-bottom: 20px;
-        }
-
-        .hero-section p {
-            font-size: 1.2rem;
-            margin-bottom: 30px;
-        }
-
-        .btn-hero {
-            background: var(--accent-color);
-            color: white;
-            padding: 15px 30px;
-            border-radius: 10px;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-
-        .btn-hero:hover {
-            background: #2c7a7b;
-            color: white;
-            transform: scale(1.05);
-        }
-
-        .feature-card {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            transition: all 0.3s;
-            margin-bottom: 25px;
-        }
-
-        .feature-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-        }
-
-        .feature-icon {
-            font-size: 2rem;
-            color: var(--accent-color);
-            margin-bottom: 20px;
-        }
-
-        .feature-title {
-            font-size: 1.2rem;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-
-        .feature-description {
-            font-size: 1rem;
-            color: #666;
-            margin-bottom: 20px;
-        }
-
-        .btn-feature {
-            background: var(--accent-color);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 10px;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-
-        .btn-feature:hover {
-            background: #2c7a7b;
-            color: white;
-            transform: scale(1.05);
-        }
-        
     </style>
 </head>
-<body>
+<body class="min-h-screen bg-white">
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark fixed-top"> 
-        <div class="container">
-            <a class="navbar-brand" href="#">
-                <i class="fas fa-ambulance me-2"></i>
-                MedQ
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="#">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="aba_entrar.php">Entrar</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Empresas</a>
-                    </li>
-                </ul>
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-blue-900 to-blue-800 text-white shadow-md">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between h-16">
+                <a href="#" class="flex items-center space-x-2 text-xl font-bold">
+                    <i data-lucide="ambulance" class="h-6 w-6"></i>
+                    <span>MedQ</span>
+                </a>
+                
+                <div class="hidden md:flex space-x-6">
+                    <a href="#" class="font-medium hover:text-teal-300 transition">Home</a>
+                    <a href="aba_entrar.php" class="font-medium hover:text-teal-300 transition">Entrar</a>
+                    <a href="#" class="font-medium hover:text-teal-300 transition">Empresas</a>
+                </div>
+                
+                <button id="mobile-menu-button" class="md:hidden text-white">
+                    <i data-lucide="menu" class="h-6 w-6"></i>
+                </button>
             </div>
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <div class="hero-section">
-        <div class="container text-center">
-            <h1>Transporte médico seguro e confiável</h1>
-            <p>Conectamos pacientes a empresas de transporte especializado</p>
-            <button class="btn btn-hero">Agendar Agora</button>
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="fixed inset-0 z-50 bg-blue-900 bg-opacity-95 flex flex-col text-white p-6 mobile-menu">
+        <div class="flex justify-end">
+            <button id="close-menu-button" class="text-white">
+                <i data-lucide="x" class="h-6 w-6"></i>
+            </button>
+        </div>
+        
+        <div class="flex flex-col items-center justify-center space-y-8 flex-grow text-xl">
+            <a href="#" class="font-medium hover:text-teal-300 transition">Home</a>
+            <a href="aba_entrar.php" class="font-medium hover:text-teal-300 transition">Entrar</a>
+            <a href="#" class="font-medium hover:text-teal-300 transition">Empresas</a>
         </div>
     </div>
+
+    <!-- Hero Section -->
+    <section class="pt-32 pb-16 bg-gradient-to-r from-blue-900 to-blue-800 text-white">
+        <div class="container mx-auto px-4 text-center">
+            <h1 class="text-4xl md:text-5xl font-bold mb-6">
+                Transporte médico seguro e confiável
+            </h1>
+            <p class="text-xl mb-8 max-w-2xl mx-auto">
+                Conectamos pacientes a empresas de transporte especializado
+            </p>
+            <button class="bg-teal-500 hover:bg-teal-600 text-white font-semibold py-3 px-8 rounded-lg transform transition-all hover:scale-105 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50">
+                Agendar Agora
+            </button>
+        </div>
+    </section>
 
     <!-- Features Section -->
-    <div class="container">
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="feature-card p-4">
-                    <div class="feature-icon">
-                        <i class="fas fa-user-clock"></i>
+    <section class="py-16 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Feature 1 -->
+                <div class="bg-white rounded-xl shadow-lg p-6 transition-all hover:-translate-y-1 hover:shadow-xl">
+                    <div class="text-teal-500 mb-4">
+                        <i data-lucide="clock" class="h-10 w-10"></i>
                     </div>
-                    <h2 class="feature-title">Agendamento Rápido</h2>
-                    <p class="feature-description">Agende seu transporte em poucos minutos</p>
-                    <button class="btn btn-feature">Saiba Mais</button>
+                    <h2 class="text-xl font-bold text-gray-800 mb-3">
+                        Agendamento Rápido
+                    </h2>
+                    <p class="text-gray-600 mb-6">
+                        Agende seu transporte em poucos minutos
+                    </p>
+                    <button class="bg-teal-500 hover:bg-teal-600 text-white font-medium py-2 px-4 rounded-lg transition-all hover:scale-105">
+                        Saiba Mais
+                    </button>
                 </div>
-            </div>
-            <div class="col-md-4">
-                <div class="feature-card p-4">
-                    <div class="feature-icon">
-                        <i class="fas fa-shield-alt"></i>
+
+                <!-- Feature 2 -->
+                <div class="bg-white rounded-xl shadow-lg p-6 transition-all hover:-translate-y-1 hover:shadow-xl">
+                    <div class="text-teal-500 mb-4">
+                        <i data-lucide="shield" class="h-10 w-10"></i>
                     </div>
-                    <h2 class="feature-title">Segurança Garantida</h2>
-                    <p class="feature-description">Profissionais treinados e veículos adaptados</p>
-                    <button class="btn btn-feature">Saiba Mais</button>
+                    <h2 class="text-xl font-bold text-gray-800 mb-3">
+                        Segurança Garantida
+                    </h2>
+                    <p class="text-gray-600 mb-6">
+                        Profissionais treinados e veículos adaptados
+                    </p>
+                    <button class="bg-teal-500 hover:bg-teal-600 text-white font-medium py-2 px-4 rounded-lg transition-all hover:scale-105">
+                        Saiba Mais
+                    </button>
                 </div>
-            </div>
-            <div class="col-md-4">
-                <div class="feature-card p-4">
-                    <div class="feature-icon">
-                        <i class="fas fa-map-marker-alt"></i>
+
+                <!-- Feature 3 -->
+                <div class="bg-white rounded-xl shadow-lg p-6 transition-all hover:-translate-y-1 hover:shadow-xl">
+                    <div class="text-teal-500 mb-4">
+                        <i data-lucide="map-pin" class="h-10 w-10"></i>
                     </div>
-                    <h2 class="feature-title">Rastreamento em Tempo Real</h2>
-                    <p class="feature-description">Acompanhe seu transporte em tempo real</p>
-                    <button class="btn btn-feature">Saiba Mais</button>
+                    <h2 class="text-xl font-bold text-gray-800 mb-3">
+                        Rastreamento em Tempo Real
+                    </h2>
+                    <p class="text-gray-600 mb-6">
+                        Acompanhe seu transporte em tempo real
+                    </p>
+                    <button class="bg-teal-500 hover:bg-teal-600 text-white font-medium py-2 px-4 rounded-lg transition-all hover:scale-105">
+                        Saiba Mais
+                    </button>
                 </div>
             </div>
         </div>
-    </div>
+    </section>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Mobile menu functionality
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const closeMenuButton = document.getElementById('close-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.add('open');
+        });
+
+        closeMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.remove('open');
+        });
+    </script>
 </body>
 </html>
