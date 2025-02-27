@@ -24,12 +24,12 @@
             <div class="flex items-center justify-between h-16">
                 <a href="#" class="flex items-center space-x-2 text-xl font-bold">
                     <i data-lucide="ambulance" class="h-6 w-6"></i>
-                    <span>MedQ</span>
+                    <span>MedCar</span>
                 </a>
                 
                 <div class="hidden md:flex space-x-6">
-                    <a href="#" class="font-medium hover:text-teal-300 transition">Home</a>
-                    <a href="#" class="font-medium hover:text-teal-300 transition">Empresas</a>
+                    <a href="../paginas/menu_principal.php" class="font-medium hover:text-teal-300 transition">Home</a>
+                    <a href="../paginas/abas_menu_principal/aba_empresas.php" class="font-medium hover:text-teal-300 transition">Empresas</a>
                     <a href="#" class="font-medium hover:text-teal-300 transition">Contato</a>
                 </div>
                 
@@ -69,11 +69,11 @@
                         <form id="login-form" class="space-y-6">
                             <div>
                                 <label for="email" class="block text-sm font-medium text-gray-700">E-mail</label>
-                                <input type="email" id="email" name="email" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500">
+                                <input type="email" id="email" name="email" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" placeholder="seunome@exemplo.com" required>
                             </div>
                             <div>
                                 <label for="password" class="block text-sm font-medium text-gray-700">Senha</label>
-                                <input type="password" id="password" name="password" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500">
+                                <input type="password" id="password" name="password" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" placeholder="••••••••" required>
                             </div>
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center">
@@ -100,7 +100,7 @@
                             <li>Agendamento rápido e seguro</li>
                             <li>Histórico de transportes</li>
                             <li>Acompanhamento em tempo real</li>
-                            <li>Promoções exclusivas</li>
+                            <li>Cupons de desconto para clientes frequentes</li>
                             <li>Suporte 24 horas</li>
                         </ul>
                         <div class="mt-8">

@@ -24,13 +24,13 @@
             <div class="flex items-center justify-between h-16">
                 <a href="#" class="flex items-center space-x-2 text-xl font-bold">
                     <i data-lucide="ambulance" class="h-6 w-6"></i>
-                    <span>MedQ</span>
+                    <span>MedCar</span>
                 </a>
                 
                 <div class="hidden md:flex space-x-6">
-                    <a href="#" class="font-medium hover:text-teal-300 transition">Home</a>
-                    <a href="aba_entrar.php" class="font-medium hover:text-teal-300 transition">Entrar</a>
-                    <a href="#" class="font-medium hover:text-teal-300 transition">Empresas</a>
+                    <a href="../paginas/menu_principal.php" class="font-medium hover:text-teal-300 transition">Home</a>
+                    <a href="../paginas/abas_menu_principal/aba_entrar.php" class="font-medium hover:text-teal-300 transition">Entrar</a>
+                    <a href="../paginas/abas_menu_principal/aba_empresas.php" class="font-medium hover:text-teal-300 transition">Empresas</a>
                 </div>
                 
                 <button id="mobile-menu-button" class="md:hidden text-white">

@@ -3,133 +3,132 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Medical Transport - Empresas</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>Medical Transport - Escolha como entrar</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        :root {
-            --primary-color: #1a365d;
-            --secondary-color: #2a4f7e;
-            --accent-color: #38b2ac;
+        .mobile-menu {
+            transition: transform 0.3s ease-in-out;
+            transform: translateX(100%);
         }
-
+        .mobile-menu.open {
+            transform: translateX(0);
+        }
         .choice-card {
-            background: white;
-            border: none;
-            border-radius: 15px;
             transition: all 0.3s ease;
-            min-height: 400px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
-
         .choice-card:hover {
             transform: translateY(-10px);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
-        }
-
-        .choice-icon {
-            font-size: 4rem;
-            color: var(--accent-color);
-            margin-bottom: 2rem;
-        }
-
-        .choice-btn {
-            background: var(--accent-color);
-            color: white;
-            padding: 12px 30px;
-            border-radius: 30px;
-            transition: all 0.3s;
-            position: absolute;
-            bottom: 40px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-
-        .choice-btn:hover {
-            background: #2c7a7b;
-            color: white;
-            transform: translateX(-50%) scale(1.05);
-        }
-
-        .section-header {
-            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            padding: 100px 0 60px 0;
-            margin-bottom: 60px;
         }
     </style>
 </head>
-<body>
-    <!-- Navbar (mantendo a mesma do código anterior) -->
-    <nav class="navbar navbar-expand-lg navbar-dark fixed-top"> 
-    <div class="container">
-        <a class="navbar-brand" href="#">
-            <i class="fas fa-ambulance me-2"></i>
-            MedQ
-        </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item">
-                    <a class="nav-link active" href="#">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="quando_usuario_clica_em_entrar.php">Entrar</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Empresas</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Agendamentos</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Contato</a>
-                </li>
-            </ul>
+<body class="min-h-screen bg-white">
+    <!-- Navbar -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-blue-900 to-blue-800 text-white shadow-md">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between h-16">
+                <a href="#" class="flex items-center space-x-2 text-xl font-bold">
+                    <i data-lucide="ambulance" class="h-6 w-6"></i>
+                    <span>MedCar</span>
+                </a>
+                
+                <div class="hidden md:flex space-x-6">
+                    <a href="../menu_principal.php" class="font-medium hover:text-teal-300 transition">Home</a>
+                    <a href="aba_empresas.php" class="font-medium hover:text-teal-300 transition">Empresas</a>
+                    <a href="#" class="font-medium hover:text-teal-300 transition">Contato</a>
+                </div>
+                
+                <button id="mobile-menu-button" class="md:hidden text-white">
+                    <i data-lucide="menu" class="h-6 w-6"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="fixed inset-0 z-50 bg-blue-900 bg-opacity-95 flex flex-col text-white p-6 mobile-menu">
+        <div class="flex justify-end">
+            <button id="close-menu-button" class="text-white">
+                <i data-lucide="x" class="h-6 w-6"></i>
+            </button>
+        </div>
+        
+        <div class="flex flex-col items-center justify-center space-y-8 flex-grow text-xl">
+            <a href="../menu_principal.php" class="font-medium hover:text-teal-300 transition">Home</a>
+            <a href="aba_empresas.php" class="font-medium hover:text-teal-300 transition">Empresas</a>
+            <a href="#" class="font-medium hover:text-teal-300 transition">Contato</a>
         </div>
     </div>
-</nav>
-
 
     <!-- Header Section -->
-    <div class="section-header">
-        <div class="container text-center">
-            <h1 class="display-4 mb-3">Escolha como deseja entrar</h1>
-            <p class="lead">Selecione seu perfil para continuar</p>
+    <section class="pt-32 pb-16 bg-gradient-to-r from-blue-900 to-blue-800 text-white">
+        <div class="container mx-auto px-4 text-center">
+            <h1 class="text-4xl md:text-5xl font-bold mb-3">
+                Escolha como deseja entrar
+            </h1>
+            <p class="text-xl mb-4">
+                Selecione seu perfil para continuar
+            </p>
         </div>
-    </div>
+    </section>
 
     <!-- Choice Cards -->
-    <div class="container">
-        <div class="row g-5 justify-content-center">
-            <!-- Card Empresa -->
-            <div class="col-md-6">
-                <div class="choice-card position-relative text-center p-5">
-                    <div class="card-content">
-                        <i class="fas fa-building choice-icon"></i>
-                        <h3 class="mb-4">Represento uma Empresa</h3>
-                        <p class="text-muted">Cadastre sua empresa de transporte médico na nossa plataforma e aumente sua visibilidade para pacientes que necessitam de seus serviços.</p>
-                        <a href="../login_empresas.php" class="btn choice-btn">Acessar Área da Empresa</a>
+    <section class="py-16 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Card Empresa -->
+                <div class="choice-card bg-white rounded-xl shadow-lg p-8 min-h-[400px] relative flex flex-col items-center text-center">
+                    <div class="text-teal-500 mb-6">
+                        <i data-lucide="building" class="h-16 w-16"></i>
                     </div>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">
+                        Represento uma Empresa
+                    </h3>
+                    <p class="text-gray-600 mb-12">
+                        Cadastre sua empresa de transporte médico na nossa plataforma e aumente sua visibilidade para pacientes que necessitam de seus serviços.
+                    </p>
+                    <a href="../login_empresas.php" class="absolute bottom-8 bg-teal-500 hover:bg-teal-600 text-white font-medium py-3 px-8 rounded-full transition-all hover:scale-105 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50">
+                        Acessar Área da Empresa
+                    </a>
                 </div>
-            </div>
 
-            <!-- Card Cliente -->
-            <div class="col-md-6">
-                <div class="choice-card position-relative text-center p-5">
-                    <div class="card-content">
-                        <i class="fas fa-user choice-icon"></i>
-                        <h3 class="mb-4">Sou um Cliente</h3>
-                        <p class="text-muted">Encontre a melhor empresa de transporte médico para suas necessidades. Agende seu transporte com segurança e praticidade.</p>
-                        <a href="../login_clientes.php" class="btn choice-btn">Buscar Transporte</a>
+                <!-- Card Cliente -->
+                <div class="choice-card bg-white rounded-xl shadow-lg p-8 min-h-[400px] relative flex flex-col items-center text-center">
+                    <div class="text-teal-500 mb-6">
+                        <i data-lucide="user" class="h-16 w-16"></i>
                     </div>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">
+                        Sou um Cliente
+                    </h3>
+                    <p class="text-gray-600 mb-12">
+                        Encontre a melhor empresa de transporte médico para suas necessidades. Agende seu transporte com segurança e praticidade.
+                    </p>
+                    <a href="../login_clientes.php" class="absolute bottom-8 bg-teal-500 hover:bg-teal-600 text-white font-medium py-3 px-8 rounded-full transition-all hover:scale-105 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50">
+                        Buscar Transporte
+                    </a>
                 </div>
             </div>
         </div>
-    </div>
+    </section>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Mobile menu functionality
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const closeMenuButton = document.getElementById('close-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.add('open');
+        });
+
+        closeMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.remove('open');
+        });
+    </script>
 </body>
 </html>
+
