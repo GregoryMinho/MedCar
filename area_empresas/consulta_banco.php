@@ -42,5 +42,5 @@ if (count($pacientes) > 0) {
 }
 
 // Fecha a conexão
-$conn->close();
+$conn = null; // Fecha a conexão manualmente (opcional)
 ?>
