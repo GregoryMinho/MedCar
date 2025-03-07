@@ -2,7 +2,7 @@
 // Conexão com o banco de dados
 $servername = "localhost";
 $username   = "root";
-$password   = "";
+$password   = "cimatec"; // Senha do banco de dados que botei temporariamente no meu note, caso necessario retirar, ass:Lukas
 $dbname     = "medcar_financeiro";
 
 $conn = new mysqli($servername, $username, $password, $dbname);
