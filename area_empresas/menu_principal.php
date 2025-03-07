@@ -138,7 +138,7 @@
                     <a class="nav-link" href="#">
                         <i class="fas fa-users me-2"></i>Motoristas
                     </a>
-                    <a class="nav-link" href="#">
+                    <a class="nav-link" href="relatorios_financeiros.php">
                         <i class="fas fa-chart-line me-2"></i>Financeiro
                     </a>
                     <a class="nav-link" href="relatorios.php">
