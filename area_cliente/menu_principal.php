@@ -84,7 +84,7 @@
 
                 <div class="flex items-center space-x-6">
                     <a href="menu_principal.php" class="font-medium hover:text-teal-300 transition">Home</a>
-                    <a href="aba_empresas.php" class="font-medium hover:text-teal-300 transition">Empresas</a>
+                    <a href="/MedQ-2/paginas/abas_menu_principal/aba_empresas.php" class="font-medium hover:text-teal-300 transition">Empresas</a>  <!-- conectado as empresas , checa os outros butooes estao funcionando. -->
                     <a href="#" class="font-medium hover:text-teal-300 transition">Contato</a>
                     <button id="mobile-menu-button" class="md:hidden text-white ml-2">
                         <i data-lucide="menu" class="h-6 w-6"></i>

@@ -62,9 +62,9 @@
                     <a href="#funcionalidades" class="font-medium hover:text-teal-300 transition">Funcionalidades</a>
                     <a href="#vantagens" class="font-medium hover:text-teal-300 transition">Vantagens</a>
                     <a href="#contato" class="font-medium hover:text-teal-300 transition">Contato</a>
-                    <a href="aba_entrar.php" class="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg transition-all hover:scale-105 hidden md:block">
+                    <a href="/MedQ-2/paginas/abas_menu_principal/aba_entrar.php" class="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg transition-all hover:scale-105 hidden md:block">
                         Entrar
-                    </a>
+                    </a> <!-- conectado a aba entrar, depois ver de botar a aba de cadastros -->
                     <button id="mobile-menu-button" class="md:hidden text-white ml-2">
                         <i data-lucide="menu" class="h-6 w-6"></i>
                     </button>
