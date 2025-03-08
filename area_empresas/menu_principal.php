@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MedQ - Área da Empresa</title>
+    <title>MedCar - Área da Empresa</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -111,10 +111,10 @@
         <div class="container">
             <a class="navbar-brand" href="#">
                 <i class="fas fa-ambulance me-2"></i>
-                Transporte Saúde
+                MedCar
             </a>
             <div class="d-flex align-items-center">
-                <div class="text-white me-3">Bem-vindo, Resgate Médico Express</div>
+                <div class="text-white me-3">Bem-vindo, nome da empresa</div>
                 <img src="https://source.unsplash.com/random/40x40/?logo" class="rounded-circle" alt="Logo">
             </div>
         </div>
@@ -152,7 +152,7 @@
                 <!-- Header -->
                  
                 <div class="company-header">
-                <h1 class="display-5">Resgate Médico Express</h1>
+                <h1 class="display-5">Relatório </h1>
                     <div class="container">
                         
                         <div class="row g-4">
