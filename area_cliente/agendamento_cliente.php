@@ -1,8 +1,7 @@
 <?php // essa pagina é acessa apos o usuario selecionar a empresa 
-// logica de validação de login para impedir acesso sem estar logado
-// if (!isset($_SESSION['id'])) {
-//     header('Location: index.php'); pagina de login
-//     exit();
+require '../includes/valida_login.php'; // inclui o arquivo de validação de login
+
+verificarPermissao('CLIENTE'); // verifica se o usuario logado é um cliente
 
 // logica para pegar dados basicos da empresa para enviar a solicitação de agendamento
 ?>
