@@ -28,8 +28,8 @@
                 </a>
                 
                 <div class="hidden md:flex space-x-6">
-                    <a href="#" class="font-medium hover:text-teal-300 transition">Home</a>
-                    <a href="#" class="font-medium hover:text-teal-300 transition">Empresas</a>
+                    <a href="/MedQ-2/area_cliente/menu_principal.php" class="font-medium hover:text-teal-300 transition">Home</a>
+                    <a href="aba_empresas.php" class="font-medium hover:text-teal-300 transition">Empresas</a>
                     <a href="#" class="font-medium hover:text-teal-300 transition">Contato</a>
                 </div>
                 
@@ -89,7 +89,7 @@
                         <div class="mt-6 text-center">
                             <p class="text-sm text-gray-600">
                                 Não tem conta? 
-                                <a href="#" class="font-medium text-teal-500 hover:text-teal-600">Cadastre sua empresa</a>
+                                <a href="/MedQ-2/paginas/cadastro_empresas.php" class="font-medium text-teal-500 hover:text-teal-600">Cadastre sua empresa</a>
                             </p>
                         </div>
                     </div>
