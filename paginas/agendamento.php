@@ -1,3 +1,12 @@
+<?php // essa pagina é acessa apos o usuario selecionar a empresa 
+// logica de validação de login para impedir acesso sem estar logado
+// if (!isset($_SESSION['id'])) {
+//     header('Location: index.php'); pagina de login
+//     exit();
+
+// logica para pegar dados basicos da empresa para enviar a solicitação de agendamento
+?>
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -382,7 +391,7 @@
                             <div class="space-y-4">
                                 <div>
                                     <label for="additional_info" class="block text-gray-700 font-medium mb-1">Observações</label>
-                                    <textarea id="additional_info" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Informações adicionais que possam ser relevantes para o transporte..."></textarea>
+                                    <textarea id="additional_info" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Informações adicionais que possam ser relevantes para o transporte. Motivo da viagem."></textarea>
                                 </div>
                                 
                                 <div>
@@ -457,7 +466,7 @@
         const calendarDaysContainer = document.getElementById('calendar-days');
 
         // Populate year select
-        const startYear = currentYear - 2;
+        const startYear = currentYear;
         const endYear = currentYear + 5;
         for (let year = startYear; year <= endYear; year++) {
             const option = document.createElement('option');

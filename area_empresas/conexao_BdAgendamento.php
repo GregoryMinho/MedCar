@@ -1,8 +1,8 @@
 <?php
-$servidor = "localhost";
+$servidor = "localhost"; 
 $usuario = "root";
-$senha = "cimatec";
-$banco = "medcar";
+$senha = "OgtoQmorr10#000***"; // cimatec
+$banco = "medcar_agendamentos";
 
 $conn = new mysqli($servidor, $usuario, $senha, $banco);
 

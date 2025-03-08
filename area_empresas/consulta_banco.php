@@ -1,13 +1,11 @@
 <?php
 // Inclui a conexão
-include 'conexao.php';
+require 'conexao_BdAgendamento.php';
 
 // Função para buscar todos os registros
-function buscarPacientes() {
-    global $conn;
-
+function buscarPacientes($conn) {
     // Consulta SQL para buscar todos os registros
-    $sql = "SELECT * FROM pacientes_registros";
+    $sql = "SELECT * FROM agendamentos";
     $result = $conn->query($sql);
 
     // Verifica se há registros
@@ -29,7 +27,7 @@ function buscarPacientes() {
 }
 
 // Chama a função para obter os dados
-$pacientes = buscarPacientes();
+$pacientes = buscarPacientes($conn);
 
 // Exemplo de como usar os dados retornados
 // Por exemplo, você pode imprimir ou processar os dados em outra parte do seu código.
@@ -41,6 +39,5 @@ if (count($pacientes) > 0) {
     // Exemplo: echo "Nenhum paciente encontrado.";
 }
 
-// Fecha a conexão
-$conn = null; // Fecha a conexão manualmente (opcional)
+$conn->close(); // Fecha a conexão manualmente (opcional)
 ?>

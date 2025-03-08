@@ -1,21 +1,20 @@
 <?php
-// Configurações do banco de dados
-$servername = "localhost";
-$username   = "root";
-$password   = "cimatec"; // Senha do banco de dados que botei temporariamente no meu note, caso necessario retirar, ass:Lukas
-$dbname     = "medcar";
-
-$conn = new mysqli($servername, $username, $password, $dbname);
-if ($conn->connect_error) {
-    die("Conexão falhou: " . $conn->connect_error);
-}
+require 'conexao_BdAgendamento.php';
 
 // Recupera o mês selecionado via GET
 $selectedMonth = isset($_GET['month']) ? $_GET['month'] : '2024-03';
 
-// Query com filtro por mês
-$sql = "SELECT * FROM pacientes_registros WHERE DATE_FORMAT(data_consulta, '%Y-%m') = '$selectedMonth' ORDER BY data_consulta DESC, horario DESC";
-$result = $conn->query($sql);
+// Verifica a conexão
+if ($conn->connect_error) {
+    die("Falha na conexão: " . $conn->connect_error);
+}
+
+// Query com filtro por mês usando consulta preparada
+$sql = "SELECT * FROM agendamentos WHERE DATE_FORMAT(data_consulta, '%Y-%m') = ? ORDER BY data_consulta DESC, horario DESC";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("s", $selectedMonth);
+$stmt->execute();
+$result = $stmt->get_result();
 
 $patients = [];
 if ($result->num_rows > 0) {
@@ -35,9 +34,13 @@ $completionRate = ($totalPatients > 0) ? round(($completedCount / $totalPatients
 
 $dailyAverage = ($totalPatients / 30);
 $dailyAverage = number_format($dailyAverage, 1);
+
+$stmt->close();
+$conn->close();
 ?>
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -50,28 +53,33 @@ $dailyAverage = number_format($dailyAverage, 1);
             --secondary-color: #2a4f7e;
             --accent-color: #38b2ac;
         }
+
         .reports-page {
             background: #f8f9fa;
             min-height: 100vh;
         }
+
         .reports-sidebar {
             background: var(--primary-color);
             color: white;
             min-height: 100vh;
             padding: 20px;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
         }
+
         .patient-card {
             background: white;
             border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
             transition: all 0.3s;
             margin-bottom: 20px;
         }
+
         .patient-card:hover {
             transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
         }
+
         .month-selector {
             background: var(--secondary-color);
             color: white;
@@ -79,14 +87,28 @@ $dailyAverage = number_format($dailyAverage, 1);
             padding: 20px;
             margin-bottom: 30px;
         }
+
         .status-badge {
             padding: 8px 15px;
             border-radius: 20px;
             font-size: 0.9em;
         }
-        .status-agendado { background: #ffc107; color: black; }
-        .status-concluido { background: #28a745; color: white; }
-        .status-cancelado { background: #dc3545; color: white; }
+
+        .status-agendado {
+            background: #ffc107;
+            color: black;
+        }
+
+        .status-concluido {
+            background: #28a745;
+            color: white;
+        }
+
+        .status-cancelado {
+            background: #dc3545;
+            color: white;
+        }
+
         .filter-btn {
             background: var(--accent-color);
             color: white;
@@ -95,12 +117,14 @@ $dailyAverage = number_format($dailyAverage, 1);
             border-radius: 8px;
             transition: all 0.3s;
         }
+
         .filter-btn:hover {
             background: #2c7a7b;
             color: white;
         }
     </style>
 </head>
+
 <body>
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top" style="background: var(--primary-color);">
@@ -131,7 +155,7 @@ $dailyAverage = number_format($dailyAverage, 1);
                             <option value="2024-03" <?= $selectedMonth == '2024-03' ? 'selected' : '' ?>>Março 2024</option>
                         </select>
                     </div>
-                    
+
                     <h6 class="mt-4 mb-3">Status do Transporte</h6>
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" value="Agendado" name="status[]" id="status1" checked>
@@ -161,8 +185,8 @@ $dailyAverage = number_format($dailyAverage, 1);
                             <div>
                                 <h3><i class="fas fa-calendar-alt me-2"></i>
                                     <?php
-                                        $dataObj = DateTime::createFromFormat('Y-m', $selectedMonth);
-                                        echo $dataObj ? $dataObj->format('F Y') : $selectedMonth;
+                                    $dataObj = DateTime::createFromFormat('Y-m', $selectedMonth);
+                                    echo $dataObj ? $dataObj->format('F Y') : $selectedMonth;
                                     ?>
                                 </h3>
                                 <p class="mb-0">Total de pacientes: <?= $totalPatients ?></p>
@@ -177,70 +201,73 @@ $dailyAverage = number_format($dailyAverage, 1);
 
                     <!-- Patient List -->
                     <div class="row" id="patientList">
-                        <?php foreach ($patients as $patient): 
+                        <?php foreach ($patients as $patient) :
                             $dataFormatada = date("d/m/Y", strtotime($patient['data_consulta']));
                             $horarioFormatado = date("H:i", strtotime($patient['horario']));
-                            $statusClass = match($patient['status']) {
-                                'Agendado' => 'status-agendado',
-                                'Concluído' => 'status-concluido',
-                                'Cancelado' => 'status-cancelado',
-                                default => ''
-                            };
+                            if ($patient['status'] == 'Agendado') {
+                                $statusClass = 'status-agendado';
+                            } elseif ($patient['status'] == 'Concluído') {
+                                $statusClass = 'status-concluido';
+                            } elseif ($patient['status'] == 'Cancelado') {
+                                $statusClass = 'status-cancelado';
+                            } else {
+                                $statusClass = '';
+                            }
                         ?>
-                        <div class="col-md-6">
-                            <!-- Patient Card -->
-                            <div class="patient-card p-3">
-                                <div class="d-flex justify-content-between align-items-start">
-                                    <div>
-                                        <h5><?= htmlspecialchars($patient['nome']) ?></h5>
-                                        <p class="mb-1"><i class="fas fa-calendar-day me-2"></i><?= "$dataFormatada - $horarioFormatado" ?></p>
-                                        <p class="mb-1"><i class="fas fa-map-marker-alt me-2"></i><?= htmlspecialchars($patient['hospital']) ?></p>
-                                    </div>
-                                    <span class="status-badge <?= $statusClass ?>"><?= $patient['status'] ?></span>
-                                </div>
-                                <hr>
-                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#detailsModal-<?= $patient['id'] ?>">
-                                    <i class="fas fa-file-alt me-2"></i>Detalhes
-                                </button>
-                            </div>
-
-                            <!-- Modal - Agora posicionado fora do card mas na mesma coluna -->
-                            <div class="modal fade" id="detailsModal-<?= $patient['id'] ?>" tabindex="-1" aria-labelledby="detailsModalLabel-<?= $patient['id'] ?>" aria-hidden="true">
-                                <div class="modal-dialog modal-dialog-centered">
-                                    <div class="modal-content">
-                                        <div class="modal-header bg-primary text-white">
-                                            <h5 class="modal-title" id="detailsModalLabel-<?= $patient['id'] ?>">
-                                                <i class="fas fa-info-circle me-2"></i>Opções de Detalhes
-                                            </h5>
-                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                            <div class="col-md-6">
+                                <!-- Patient Card -->
+                                <div class="patient-card p-3">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h5><?= htmlspecialchars($patient['nome']) ?></h5>
+                                            <p class="mb-1"><i class="fas fa-calendar-day me-2"></i><?= "$dataFormatada - $horarioFormatado" ?></p>
+                                            <p class="mb-1"><i class="fas fa-map-marker-alt me-2"></i><?= htmlspecialchars($patient['destino']) ?></p>
                                         </div>
-                                        <div class="modal-body p-0">
-                                            <div class="list-group list-group-flush">
-                                                <a href="#" class="list-group-item list-group-item-action d-flex align-items-center">
-                                                    <i class="fas fa-calendar-check me-3 fa-fw text-primary"></i>
-                                                    Detalhes da Consulta
-                                                </a>
-                                                <a href="#" class="list-group-item list-group-item-action d-flex align-items-center">
-                                                    <i class="fas fa-user-injured me-3 fa-fw text-success"></i>
-                                                    Tabela de Pacientes
-                                                </a>
-                                                <a href="#" class="list-group-item list-group-item-action d-flex align-items-center">
-                                                    <i class="fas fa-truck-moving me-3 fa-fw text-warning"></i>
-                                                    Tabela de Empresas de Transporte
-                                                </a>
-                                                <a href="#" class="list-group-item list-group-item-action d-flex align-items-center">
-                                                    <i class="fas fa-calendar-alt me-3 fa-fw text-info"></i>
-                                                    Tabela de Reservas/Agendamentos
-                                                </a>
+                                        <span class="status-badge <?= $statusClass ?>"><?= $patient['status'] ?></span>
+                                    </div>
+                                    <hr>
+                                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#detailsModal-<?= $patient['id'] ?>">
+                                        <i class="fas fa-file-alt me-2"></i>Detalhes
+                                    </button>
+                                </div>
+
+                                <!-- Modal - Agora posicionado fora do card mas na mesma coluna -->
+                                <div class="modal fade" id="detailsModal-<?= $patient['id'] ?>" tabindex="-1" aria-labelledby="detailsModalLabel-<?= $patient['id'] ?>" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <div class="modal-content">
+                                            <div class="modal-header bg-primary text-white">
+                                                <h5 class="modal-title" id="detailsModalLabel-<?= $patient['id'] ?>">
+                                                    <i class="fas fa-info-circle me-2"></i>Opções de Detalhes
+                                                </h5>
+                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                                            </div>
+                                            <div class="modal-body p-0">
+                                                <div class="list-group list-group-flush">
+                                                    <a href="#" class="list-group-item list-group-item-action d-flex align-items-center">
+                                                        <i class="fas fa-calendar-check me-3 fa-fw text-primary"></i>
+                                                        Detalhes da Consulta
+                                                    </a>
+                                                    <a href="#" class="list-group-item list-group-item-action d-flex align-items-center">
+                                                        <i class="fas fa-user-injured me-3 fa-fw text-success"></i>
+                                                        Tabela de Pacientes
+                                                    </a>
+                                                    <a href="#" class="list-group-item list-group-item-action d-flex align-items-center">
+                                                        <i class="fas fa-truck-moving me-3 fa-fw text-warning"></i>
+                                                        Tabela de Empresas de Transporte
+                                                    </a>
+                                                    <a href="#" class="list-group-item list-group-item-action d-flex align-items-center">
+                                                        <i class="fas fa-calendar-alt me-3 fa-fw text-info"></i>
+                                                        Tabela de Reservas/Agendamentos
+                                                    </a>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
                                             </div>
                                         </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
                         <?php endforeach; ?>
                     </div>
 
@@ -272,7 +299,5 @@ $dailyAverage = number_format($dailyAverage, 1);
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>
-<?php
-$conn->close();
-?>
