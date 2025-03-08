@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,23 +13,37 @@
             transition: transform 0.3s ease-in-out;
             transform: translateX(100%);
         }
+
         .mobile-menu.open {
             transform: translateX(0);
         }
+
         .dashboard-card {
             transition: all 0.3s ease;
         }
+
         .dashboard-card:hover {
             transform: translateY(-5px);
         }
+
         .emergency-card {
             animation: pulse 2s infinite;
         }
+
         @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.02); }
-            100% { transform: scale(1); }
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.02);
+            }
+
+            100% {
+                transform: scale(1);
+            }
         }
+
         .dashboard-card::before {
             content: "";
             position: absolute;
@@ -40,15 +55,23 @@
             transform: rotate(45deg);
             transition: all 0.5s;
         }
+
         .dashboard-card:hover::before {
             animation: shine 1.5s;
         }
+
         @keyframes shine {
-            0% { transform: rotate(45deg) translate(-50%, -50%); }
-            100% { transform: rotate(45deg) translate(100%, 100%); }
+            0% {
+                transform: rotate(45deg) translate(-50%, -50%);
+            }
+
+            100% {
+                transform: rotate(45deg) translate(100%, 100%);
+            }
         }
     </style>
 </head>
+
 <body class="min-h-screen bg-gray-50">
     <!-- Navbar -->
     <nav class="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-blue-900 to-blue-800 text-white shadow-md">
@@ -58,7 +81,7 @@
                     <i data-lucide="ambulance" class="h-6 w-6"></i>
                     <span>MedCar</span>
                 </a>
-            
+
                 <div class="flex items-center space-x-6">
                     <a href="menu_principal.php" class="font-medium hover:text-teal-300 transition">Home</a>
                     <a href="aba_empresas.php" class="font-medium hover:text-teal-300 transition">Empresas</a>
@@ -78,7 +101,7 @@
                 <i data-lucide="x" class="h-6 w-6"></i>
             </button>
         </div>
-        
+
         <div class="flex flex-col items-center justify-center space-y-8 flex-grow text-xl">
             <a href="menu_principal.php" class="font-medium hover:text-teal-300 transition">Home</a>
             <a href="../paginas/abas_menu_principal/aba_empresas.php" class="font-medium hover:text-teal-300 transition">Empresas</a>
@@ -120,9 +143,9 @@
             <section class="pt-24 pb-16 bg-gradient-to-r from-blue-900 to-blue-800 text-white">
                 <div class="container mx-auto px-4">
                     <h1 class="text-3xl md:text-4xl font-bold mb-6">Área do Paciente</h1>
-                    
+
                     <!-- Stats Cards -->
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
                         <!-- Próximo Transporte -->
                         <div class="dashboard-card relative overflow-hidden bg-white text-blue-900 rounded-xl shadow-lg p-4 text-center">
                             <div class="mb-2">
@@ -161,19 +184,6 @@
                                 <i data-lucide="star-half" class="h-4 w-4 fill-current"></i>
                             </div>
                             <p class="text-xs text-gray-600">(18 avaliações)</p>
-                        </div>
-
-                        <!-- Emergência -->
-                        <div class="dashboard-card emergency-card relative overflow-hidden bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl shadow-lg p-4 text-center">
-                            <div class="mb-2">
-                                <i data-lucide="plus-circle" class="h-8 w-8 mx-auto"></i>
-                            </div>
-                            <h5 class="text-sm font-semibold mb-1">Emergência Médica</h5>
-                            <p class="text-xs mb-2">Solicitação Imediata</p>
-                            <button class="w-full bg-white text-red-600 text-xs font-medium py-1 px-2 rounded-lg flex items-center justify-center">
-                                <i data-lucide="phone" class="h-3 w-3 mr-1"></i>
-                                Ativar
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -295,5 +305,5 @@
         });
     </script>
 </body>
-</html>
 
+</html>
