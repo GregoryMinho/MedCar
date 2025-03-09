@@ -8,9 +8,9 @@ session_start();
     exit();
 }*/
 
+$_SESSION['usuario']['tipo'] = 'CLIENTE';
 // Verifica o tipo de usuário
-$tipoUsuario = $_SESSION['usuario']['CLIENTE'];
-// $tipoUsuario = $_SESSION['usuario']['tipo'];
+$tipoUsuario = $_SESSION['usuario']['tipo'];
 
 // Função para verificar permissões
 function verificarPermissao($tipoPermitido)

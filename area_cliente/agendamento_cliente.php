@@ -4,6 +4,8 @@ require '../includes/valida_login.php'; // inclui o arquivo de validação de lo
 verificarPermissao('CLIENTE'); // verifica se o usuario logado é um cliente
 
 // logica para pegar dados basicos da empresa para enviar a solicitação de agendamento
+//  e colocar no input hidden para enviar ao banco de dados
+ //$empresa_id = $_GET['empresa_id'];
 ?>
 
 <!DOCTYPE html>
@@ -58,6 +60,7 @@ verificarPermissao('CLIENTE'); // verifica se o usuario logado é um cliente
     </style>
 </head>
 <body class="min-h-screen bg-gray-50">
+    <input type="hidden" name="empresa_id" value="<?php echo $empresa_id; ?>">
     <!-- Navbar -->
     <nav class="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-blue-900 to-blue-800 text-white shadow-md">
         <div class="container mx-auto px-4">
