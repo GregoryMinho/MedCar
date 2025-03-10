@@ -1,40 +1,81 @@
 <?php
-require '../../includes/valida_login.php'; // Inclui o arquivo de validação de login
-verificarPermissao('CLIENTE'); // Verifica se o usuário logado é um cliente
+require '../../includes/valida_login.php'; // inclui o arquivo de validação de login
+require '../../includes/conexao_BdAgendamento.php'; // inclui o arquivo de conexão com o banco de dados
 
-require '../../includes/conexao_BdAgendamento.php'; // Inclui o arquivo de conexão com o banco de dados
+verificarPermissao('CLIENTE'); // verifica se o usuario logado é um cliente
 
-// Verifica se o formulário foi enviado
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Obtém os dados do formulário
-    $cliente_id = $_SESSION['usuario']['id'];
-    $empresa_id = $_POST['empresa_id'];
     $data_consulta = $_POST['data_consulta'];
-    $horario = $_POST['horario'];
-    $destino = $_POST['destino'];
-    $observacoes = $_POST['observacoes'];
+    $horario = $_POST['horario_selecionado'];
+    $rua_origem = $_POST['pickup_street'];
+    $numero_origem = $_POST['pickup_number'];
+    $complemento_origem = $_POST['pickup_complement'];
+    $cidade_origem = $_POST['pickup_city'];
+    $cep_origem = $_POST['pickup_zipcode'];
+    $rua_destino = $_POST['dest_street'];
+    $numero_destino = $_POST['dest_number'];
+    $complemento_destino = $_POST['dest_complement'];
+    $cidade_destino = $_POST['dest_city'];
+    $cep_destino = $_POST['dest_zipcode'];
+    $condicao_medica = $_POST['medical_condition'];
+    $precisa_oxigenio = isset($_POST['need_oxygen']) ? 1 : 0;
+    $precisa_assistencia = isset($_POST['need_assistance']) ? 1 : 0;
+    $precisa_monitor = isset($_POST['need_monitor']) ? 1 : 0;
+    $medicamentos = $_POST['medications'];
+    $alergias = $_POST['allergies'];
+    $contato_emergencia = $_POST['emergency_contact'];
+    $informacoes_adicionais = $_POST['additional_info'];
+    $acompanhante = $_POST['companion'];
+    $tipo_transporte = $_POST['hidden_transport_type'];
+    $situacao = 'Pendente'; // Situação inicial do agendamento
 
-    // Prepara a consulta SQL para inserir os dados na tabela agendamentos_registros
-    $sql = "INSERT INTO agendamentos_registros (cliente_id, empresa_id, data_consulta, horario, destino, observacoes, status) VALUES (?, ?, ?, ?, ?, ?, 'Agendado')";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("iissss", $cliente_id, $empresa_id, $data_consulta, $horario, $destino, $observacoes);
+    // Obtém o ID do cliente e da empresa 
+    $empresa_id = $_POST['empresa_id']; // O id vem da pagina de consulta de empresas
+   // $cliente_id = $_SESSION['usuario']['id'];
+    $cliente_id = 1; // temporário
 
-    // Executa a consulta e verifica se foi bem-sucedida
-    if ($stmt->execute()) {
-        // Redireciona para uma página de sucesso ou exibe uma mensagem de sucesso
-        header("Location: ../agendamento_sucesso.php");
-        exit();
-    } else {
-        // Exibe uma mensagem de erro
-        echo "Erro ao agendar transporte: " . $stmt->error;
+    try {
+        // Insere os dados na tabela agendamentos
+        $sql = "INSERT INTO agendamentos (cliente_id, empresa_id, data_consulta, horario, rua_origem, numero_origem, complemento_origem, cidade_origem, cep_origem, rua_destino, numero_destino, complemento_destino, cidade_destino, cep_destino, condicao_medica, precisa_oxigenio, precisa_assistencia, precisa_monitor, medicamentos, alergias, contato_emergencia, informacoes_adicionais, acompanhante, tipo_transporte, situacao) VALUES (:cliente_id, :empresa_id, :data_consulta, :horario, :rua_origem, :numero_origem, :complemento_origem, :cidade_origem, :cep_origem, :rua_destino, :numero_destino, :complemento_destino, :cidade_destino, :cep_destino, :condicao_medica, :precisa_oxigenio, :precisa_assistencia, :precisa_monitor, :medicamentos, :alergias, :contato_emergencia, :informacoes_adicionais, :acompanhante, :tipo_transporte, :situacao)";
+
+        $stmt = $conn->prepare($sql);
+        $stmt->bindValue(':cliente_id', $cliente_id, PDO::PARAM_INT);
+        $stmt->bindValue(':empresa_id', $empresa_id, PDO::PARAM_INT);
+        $stmt->bindValue(':data_consulta', $data_consulta, PDO::PARAM_STR);
+        $stmt->bindValue(':horario', $horario, PDO::PARAM_STR);
+        $stmt->bindValue(':rua_origem', $rua_origem, PDO::PARAM_STR);
+        $stmt->bindValue(':numero_origem', $numero_origem, PDO::PARAM_STR);
+        $stmt->bindValue(':complemento_origem', $complemento_origem, PDO::PARAM_STR);
+        $stmt->bindValue(':cidade_origem', $cidade_origem, PDO::PARAM_STR);
+        $stmt->bindValue(':cep_origem', $cep_origem, PDO::PARAM_STR);
+        $stmt->bindValue(':rua_destino', $rua_destino, PDO::PARAM_STR);
+        $stmt->bindValue(':numero_destino', $numero_destino, PDO::PARAM_STR);
+        $stmt->bindValue(':complemento_destino', $complemento_destino, PDO::PARAM_STR);
+        $stmt->bindValue(':cidade_destino', $cidade_destino, PDO::PARAM_STR);
+        $stmt->bindValue(':cep_destino', $cep_destino, PDO::PARAM_STR);
+        $stmt->bindValue(':condicao_medica', $condicao_medica, PDO::PARAM_STR);
+        $stmt->bindValue(':precisa_oxigenio', $precisa_oxigenio, PDO::PARAM_INT);
+        $stmt->bindValue(':precisa_assistencia', $precisa_assistencia, PDO::PARAM_INT);
+        $stmt->bindValue(':precisa_monitor', $precisa_monitor, PDO::PARAM_INT);
+        $stmt->bindValue(':medicamentos', $medicamentos, PDO::PARAM_STR);
+        $stmt->bindValue(':alergias', $alergias, PDO::PARAM_STR);
+        $stmt->bindValue(':contato_emergencia', $contato_emergencia, PDO::PARAM_STR);
+        $stmt->bindValue(':informacoes_adicionais', $informacoes_adicionais, PDO::PARAM_STR);
+        $stmt->bindValue(':acompanhante', $acompanhante, PDO::PARAM_INT);
+        $stmt->bindValue(':tipo_transporte', $tipo_transporte, PDO::PARAM_STR);
+        $stmt->bindValue(':situacao', $situacao, PDO::PARAM_STR);
+
+        if ($stmt->execute()) {
+            echo "Agendamento realizado com sucesso!";
+        } else {
+            echo "Erro ao realizar agendamento: " . $stmt->errorInfo()[2];
+        }
+    } catch (PDOException $e) {
+        echo "Erro: " . $e->getMessage();
     }
 
-    // Fecha a declaração e a conexão
-    $stmt->close();
-    $conn->close();
-} else {
-    // Redireciona para a página de agendamento se o formulário não foi enviado
-    header("Location: ../agendamento_cliente.php");
-    exit();
+    $conn = null;
 }
+// var_dump($data_consulta, $horario, $rua_origem, $numero_origem, $complemento_origem, $cidade_origem, $cep_origem, $rua_destino, $numero_destino, $complemento_destino, $cidade_destino, $cep_destino, $condicao_medica, $precisa_oxigenio, $precisa_assistencia, $precisa_monitor, $medicamentos, $alergias, $contato_emergencia, $informacoes_adicionais, $acompanhante, $tipo_transporte, $empresa_id, $cliente_id);
 ?>
