@@ -125,17 +125,11 @@
         <div class="row">
             <!-- Sidebar -->
             <div class="col-md-3 company-sidebar pt-5">
-                <nav class="nav flex-column nav-company">
-                    <a class="nav-link active" href="#">
-                        <i class="fas fa-tachometer-alt me-2"></i>Dashboard
-                    </a>
-                    <a class="nav-link" href="#">
+                <nav class="nav flex-column nav-company">             
+                    <a class="nav-link" href="agendamentos_pacientes.php">
                         <i class="fas fa-calendar-alt me-2"></i>Agendamentos
                     </a>
-                    <a class="nav-link" href="#">
-                        <i class="fas fa-ambulance me-2"></i>Frota
-                    </a>
-                    <a class="nav-link" href="#">
+                    <a class="nav-link" href="gestao_motoristas.php">
                         <i class="fas fa-users me-2"></i>Motoristas
                     </a>
                     <a class="nav-link" href="relatorios_financeiros.php">
