@@ -125,7 +125,10 @@
         <div class="row">
             <!-- Sidebar -->
             <div class="col-md-3 company-sidebar pt-5">
-                <nav class="nav flex-column nav-company">             
+                <nav class="nav flex-column nav-company">
+                    <a class="nav-link active" href="#">
+                        <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                    </a>
                     <a class="nav-link" href="agendamentos_pacientes.php">
                         <i class="fas fa-calendar-alt me-2"></i>Agendamentos
                     </a>

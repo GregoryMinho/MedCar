@@ -1,3 +1,21 @@
+<?php 
+$host = 'localhost';
+$dbname = 'Motoristas_MedCar';
+$user = 'root';
+$pass = '';
+
+try {
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $user, $pass);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch(PDOException $e) {
+    die("Não foi possível conectar ao banco de dados: " . $e->getMessage());
+}
+$sql = "SELECT m.*, v.placa, v.modelo 
+        FROM Motoristas m
+        LEFT JOIN Veiculos v ON m.id = v.motorista_id";
+$stmt = $pdo->prepare($sql);
+$stmt->execute();
+$motoristas = $stmt->fetchAll(PDO::FETCH_ASSOC); ?>
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -141,69 +159,55 @@
 
                     <!-- Driver List -->
                     <div class="row">
-                        <!-- Motorista 1 -->
-                        <div class="col-md-6">
+                        <?php foreach ($motoristas as $motorista): ?>
+                        <div class="col-md-6 mb-4">
                             <div class="driver-card">
                                 <div class="d-flex align-items-center mb-3">
-                                    <img src="https://source.unsplash.com/random/80x80/?person" class="driver-avatar me-3" alt="Motorista">
+                                    <img src="<?= $motorista['foto_url'] ?>" class="driver-avatar me-3" alt="Motorista">
                                     <div>
-                                        <h5>João Silva</h5>
-                                        <p class="mb-0">CNH: 123456789</p>
+                                        <h5><?= htmlspecialchars($motorista['nome']) ?></h5>
+                                        <p class="mb-0">CNH: <?= htmlspecialchars($motorista['cnh']) ?></p>
                                     </div>
                                 </div>
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <div>
-                                        <p class="mb-1"><i class="fas fa-map-marker-alt me-2"></i>São Paulo, SP</p>
-                                        <p class="mb-0"><i class="fas fa-car me-2"></i>ABC-1234</p>
+                                        <p class="mb-1">
+                                            <i class="fas fa-map-marker-alt me-2"></i>
+                                            <?= htmlspecialchars($motorista['cidade']) ?>, <?= $motorista['estado'] ?>
+                                        </p>
+                                        <p class="mb-0">
+                                            <i class="fas fa-car me-2"></i>
+                                            <?= htmlspecialchars($motorista['placa']) ?>
+                                        </p>
                                     </div>
-                                    <span class="status-badge status-active">Ativo</span>
+                                    <span class="status-badge status-<?= strtolower(str_replace(' ', '-', $motorista['status'])) ?>">
+                                        <?= $motorista['status'] ?>
+                                    </span>
                                 </div>
                                 <div class="d-flex gap-2">
-                                    <button class="btn btn-driver btn-sm w-100">
+                                    <a href="crud_motoristas/editar_motorista.php?id=<?= $motorista['id'] ?>" class="btn btn-driver btn-sm w-100">
                                         <i class="fas fa-edit me-2"></i>Editar
-                                    </button>
-                                    <button class="btn btn-danger btn-sm w-100">
+                                    </a>
+                                    <button class="btn btn-danger btn-sm w-100" 
+                                            onclick="confirmarExclusao(<?= $motorista['id'] ?>)">
                                         <i class="fas fa-trash me-2"></i>Remover
                                     </button>
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Motorista 2 -->
-                        <div class="col-md-6">
-                            <div class="driver-card">
-                                <div class="d-flex align-items-center mb-3">
-                                    <img src="https://source.unsplash.com/random/80x80/?person" class="driver-avatar me-3" alt="Motorista">
-                                    <div>
-                                        <h5>Maria Oliveira</h5>
-                                        <p class="mb-0">CNH: 987654321</p>
-                                    </div>
-                                </div>
-                                <div class="d-flex justify-content-between align-items-center mb-3">
-                                    <div>
-                                        <p class="mb-1"><i class="fas fa-map-marker-alt me-2"></i>Rio de Janeiro, RJ</p>
-                                        <p class="mb-0"><i class="fas fa-car me-2"></i>XYZ-5678</p>
-                                    </div>
-                                    <span class="status-badge status-on-duty">Em Serviço</span>
-                                </div>
-                                <div class="d-flex gap-2">
-                                    <button class="btn btn-driver btn-sm w-100">
-                                        <i class="fas fa-edit me-2"></i>Editar
-                                    </button>
-                                    <button class="btn btn-danger btn-sm w-100">
-                                        <i class="fas fa-trash me-2"></i>Remover
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Adicione mais motoristas conforme necessário -->
+                        <?php endforeach; ?>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    function confirmarExclusao(id) {
+        if (confirm('Tem certeza que deseja excluir este motorista?')) {
+            window.location.href = 'crud_motoristas/excluir_motorista.php?id=' + id;
+        }
+    }
+    </script>
 </body>
 </html>
