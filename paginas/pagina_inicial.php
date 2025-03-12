@@ -57,14 +57,15 @@
                     <span>MedCar</span>
                 </a>
                 
+    <!--seria interessante por essas partes como um menu lateral enves de como esta, seria legal ou nem ? -->
                 <div class="flex items-center space-x-6">
                     <a href="#" class="font-medium hover:text-teal-300 transition">Home</a>
                     <a href="#funcionalidades" class="font-medium hover:text-teal-300 transition">Funcionalidades</a>
                     <a href="#vantagens" class="font-medium hover:text-teal-300 transition">Vantagens</a>
                     <a href="#contato" class="font-medium hover:text-teal-300 transition">Contato</a>
-                    <a href="aba_entrar.php" class="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg transition-all hover:scale-105 hidden md:block">
+                    <a href="/MedQ-2/paginas/abas_menu_principal/aba_entrar.php" class="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg transition-all hover:scale-105 hidden md:block">
                         Entrar
-                    </a>
+                    </a> <!-- conectado a aba entrar, depois ver de botar a aba de cadastros -->
                     <button id="mobile-menu-button" class="md:hidden text-white ml-2">
                         <i data-lucide="menu" class="h-6 w-6"></i>
                     </button>
@@ -86,7 +87,7 @@
             <a href="#funcionalidades" class="font-medium hover:text-teal-300 transition">Funcionalidades</a>
             <a href="#vantagens" class="font-medium hover:text-teal-300 transition">Vantagens</a>
             <a href="#contato" class="font-medium hover:text-teal-300 transition">Contato</a>
-            <a href="aba_entrar.php" class="bg-teal-500 hover:bg-teal-600 text-white px-6 py-3 rounded-lg mt-4 transition-all hover:scale-105">
+            <a href="/MedQ-2/paginas/abas_menu_principal/aba_entrar.php" class="bg-teal-500 hover:bg-teal-600 text-white px-6 py-3 rounded-lg mt-4 transition-all hover:scale-105">
                 Entrar
             </a>
         </div>
@@ -104,7 +105,8 @@
                         Conectamos pacientes a empresas de transporte médico de forma rápida, segura e eficiente.
                     </p>
                     <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
-                        <a href="aba_entrar.php" class="bg-teal-500 hover:bg-teal-600 text-white font-medium py-3 px-8 rounded-lg transition-all hover:scale-105 text-center">
+    <!-- Revisar essa parte pois ficou redundante ter a msm coisa, botar o cadastro aqui? -->
+                        <a href="/MedQ-2/paginas/abas_menu_principal/aba_entrar.php" class="bg-teal-500 hover:bg-teal-600 text-white font-medium py-3 px-8 rounded-lg transition-all hover:scale-105 text-center">
                             Começar Agora
                         </a>
                         <a href="#funcionalidades" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white font-medium py-3 px-8 rounded-lg transition-all hover:scale-105 text-center">

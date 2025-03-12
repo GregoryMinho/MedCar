@@ -1,10 +1,11 @@
 <?php // essa pagina é acessa apos o usuario selecionar a empresa 
-// logica de validação de login para impedir acesso sem estar logado
-// if (!isset($_SESSION['id'])) {
-//     header('Location: index.php'); pagina de login
-//     exit();
+require '../includes/valida_login.php'; // inclui o arquivo de validação de login
+
+verificarPermissao('CLIENTE'); // verifica se o usuario logado é um cliente
 
 // logica para pegar dados basicos da empresa para enviar a solicitação de agendamento
+//  e colocar no input hidden para enviar ao banco de dados
+ //$empresa_id = $_GET['empresa_id'];
 ?>
 
 <!DOCTYPE html>
@@ -59,6 +60,7 @@
     </style>
 </head>
 <body class="min-h-screen bg-gray-50">
+    <input type="hidden" name="empresa_id" value="<?php echo $empresa_id; ?>">
     <!-- Navbar -->
     <nav class="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-blue-900 to-blue-800 text-white shadow-md">
         <div class="container mx-auto px-4">

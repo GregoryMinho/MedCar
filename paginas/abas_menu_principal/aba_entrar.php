@@ -34,7 +34,7 @@
                 </a>
                 
                 <div class="hidden md:flex space-x-6">
-                    <a href="../menu_principal.php" class="font-medium hover:text-teal-300 transition">Home</a>
+                    <a href="/MedQ-2/area_cliente/menu_principal.php" class="font-medium hover:text-teal-300 transition">Home</a>
                     <a href="aba_empresas.php" class="font-medium hover:text-teal-300 transition">Empresas</a>
                     <a href="#" class="font-medium hover:text-teal-300 transition">Contato</a>
                 </div>
