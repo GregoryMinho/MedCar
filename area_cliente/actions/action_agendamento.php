@@ -28,14 +28,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $informacoes_adicionais = $_POST['additional_info'];
     $acompanhante = $_POST['companion'];
     $tipo_transporte = $_POST['hidden_transport_type'];
-    
+
 
     // Obtém o ID do cliente e da empresa 
     $empresa_id = $_POST['empresa_id']; // O id vem da pagina de consulta de empresas
-    $cliente_id = $_SESSION['usuario']['id'];
+    //$cliente_id = $_SESSION['usuario']['id'];
+    $cliente_id = 4;
 
     // Exibe os valores das variáveis para depuração
-    var_dump(
+    /*var_dump(
         $data_consulta,
         $horario,
         $rua_origem,
@@ -60,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $tipo_transporte,
         $empresa_id,
         $cliente_id
-    );
+    );*/
 
     try {
         // Insere os dados na tabela agendamentos
@@ -92,15 +93,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $stmt->bindValue(':informacoes_adicionais', $informacoes_adicionais, PDO::PARAM_STR);
         $stmt->bindValue(':acompanhante', $acompanhante, PDO::PARAM_INT);
         $stmt->bindValue(':tipo_transporte', $tipo_transporte, PDO::PARAM_STR);
-     
+
         if ($stmt->execute()) {
+
             echo "Agendamento realizado com sucesso!";
+            $cadastrado = true;
+            header("Location: ../agendamento_cliente.php?cadastrado=" . $cadastrado);
+            exit();
+
         } else {
+            
             echo "Erro ao realizar agendamento: " . $stmt->errorInfo()[2];
+            $cadastrado = false;
+            header("Location: ../agendamento_cliente.php?cadastrado=" . $cadastrado);
+            exit();
         }
     } catch (PDOException $e) {
         echo "Erro: " . $e->getMessage();
     }
 
-    $conn = null;
+    $conn = null; 
 }
