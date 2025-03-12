@@ -1,6 +1,6 @@
 <?php
 $host = 'localhost';
-$dbname = 'agendamentos_medcar';
+$dbname = 'medcar_agendamentos';
 $user = 'root';
 $pass = '';
 
@@ -11,36 +11,55 @@ try {
     die("Não foi possível conectar ao banco de dados: " . $e->getMessage());
 }
 
-
 $dia = $_GET['dia'] ?? null;
 $mes = $_GET['mes'] ?? null;
 
-if(!$dia || !$mes) die("Dia ou mês não especificado");
+if (!$dia || !$mes) die("Dia ou mês não especificado");
 
+// Padroniza o dia com 2 dígitos (ex: 5 → 05)
+$dia = str_pad($dia, 2, '0', STR_PAD_LEFT);
 $data = "$mes-$dia";
 
-$sql = "SELECT a.*, p.nome AS paciente, t.nome AS transportadora 
+// Verifica se a data é válida
+if (!DateTime::createFromFormat('Y-m-d', $data)) {
+    die("Data inválida: $data");
+}
+
+$sql = "SELECT a.*, u.nome AS cliente 
         FROM agendamentos a
-        JOIN pacientes p ON a.paciente_id = p.id
-        JOIN transportadoras t ON a.transportadora_id = t.id
-        WHERE DATE(data_hora) = :data
-        ORDER BY data_hora";
+        JOIN usuarios u ON a.cliente_id = u.id
+        WHERE data_consulta = :data
+        ORDER BY horario";
 
 $stmt = $pdo->prepare($sql);
 $stmt->execute([':data' => $data]);
+
+// Verifica erros no SQL
+if ($stmt->errorCode() != '00000') {
+    print_r($stmt->errorInfo());
+    die();
+}
+
 $agendamentos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 foreach ($agendamentos as $agendamento) {
+    $destino = implode(', ', array_filter([
+        $agendamento['rua_destino'],
+        $agendamento['numero_destino'],
+        $agendamento['complemento_destino'],
+        $agendamento['cidade_destino']
+    ]));
+
     echo '<div class="mb-3 schedule-item" onclick="showAppointmentDetails('.$agendamento['id'].')">';
     echo '<div class="d-flex align-items-center gap-3">';
     echo '<div class="schedule-icon"><i class="fas fa-user-injured"></i></div>';
     echo '<div>';
-    echo '<h6 class="mb-0">'.htmlspecialchars($agendamento['paciente']).'</h6>';
+    echo '<h6 class="mb-0">'.htmlspecialchars($agendamento['cliente']).'</h6>';
     echo '<small class="text-muted">';
-    echo date('H:i', strtotime($agendamento['data_hora'])).' - ';
-    echo htmlspecialchars($agendamento['destino']).'</small>';
-    echo '<span class="status-badge status-'.$agendamento['status'].'">';
-    echo ucfirst($agendamento['status']).'</span>';
+    echo htmlspecialchars($agendamento['horario']).' - ';
+    echo htmlspecialchars($destino).'</small>';
+    echo '<span class="status-badge status-'.strtolower($agendamento['situacao']).'">';
+    echo htmlspecialchars($agendamento['situacao']).'</span>';
     echo '</div></div></div>';
 }
 ?>

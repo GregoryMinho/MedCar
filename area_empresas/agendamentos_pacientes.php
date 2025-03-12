@@ -1,6 +1,6 @@
 <?php
 $host = 'localhost';
-$dbname = 'agendamentos_medcar';
+$dbname = 'medcar_agendamentos';
 $user = 'root';
 $pass = '';
 
@@ -33,9 +33,8 @@ function gerarCalendario($mes, $ano, $agendamentos) {
     for($dia = 1; $dia <= $dias_mes; $dia++) {
         $data = "$ano-$mes-".str_pad($dia, 2, '0', STR_PAD_LEFT);
         $eventos = array_filter($agendamentos, function($a) use ($data) {
-            return date('Y-m-d', strtotime($a['data_hora'])) == $data;
+            return $a['data_consulta'] == $data;
         });
-        
         $calendario .= '<div class="calendar-day'.(count($eventos) ? ' has-event' : '').'" 
                           onclick="showScheduleDetails('.$dia.')">
                           <div class="day-number">'.$dia.'</div>
@@ -63,21 +62,23 @@ $filtros = [
 ];
 
 // Buscar agendamentos
-$sql = "SELECT a.*, p.nome AS paciente, t.nome AS transportadora 
+$sql = "SELECT a.*, u.nome AS paciente, a.tipo_transporte AS transportadora
         FROM agendamentos a
-        JOIN pacientes p ON a.paciente_id = p.id
-        JOIN transportadoras t ON a.transportadora_id = t.id
-        WHERE DATE_FORMAT(data_hora, '%Y-%m') = :mes";
+        JOIN usuarios u ON a.cliente_id = u.id
+        WHERE DATE_FORMAT(a.data_consulta, '%Y-%m') = :mes";
+
+
+
 
 $params = [':mes' => $filtros['mes']];
 
-if($filtros['status'] != 'all') {
-    $sql .= " AND status = :status";
+if ($filtros['status'] != 'all') {
+    $sql .= " AND situacao = :status"; // Coluna correta: situacao
     $params[':status'] = $filtros['status'];
 }
 
-if($filtros['tipo'] != 'all') {
-    $sql .= " AND tipo = :tipo";
+if ($filtros['tipo'] != 'all') {
+    $sql .= " AND tipo_transporte = :tipo"; // Supondo que 'tipo' se refere a 'tipo_transporte'
     $params[':tipo'] = $filtros['tipo'];
 }
 
@@ -326,11 +327,12 @@ $calendario = gerarCalendario($mes, $ano, $agendamentos);
                         <div class="mb-4">
                             <label class="form-label">Status</label>
                             <select class="form-select" name="status">
-                                <option value="all" <?= $filtros['status'] == 'all' ? 'selected' : '' ?>>Todos</option>
-                                <option value="pending" <?= $filtros['status'] == 'pending' ? 'selected' : '' ?>>Pendentes</option>
-                                <option value="confirmed" <?= $filtros['status'] == 'confirmed' ? 'selected' : '' ?>>Confirmados</option>
-                                <option value="cancelled" <?= $filtros['status'] == 'cancelled' ? 'selected' : '' ?>>Cancelados</option>
-                            </select>
+    <option value="all" <?= $filtros['status'] == 'all' ? 'selected' : '' ?>>Todos</option>
+    <option value="Pendente" <?= $filtros['status'] == 'Pendente' ? 'selected' : '' ?>>Pendentes</option>
+    <option value="Agendado" <?= $filtros['status'] == 'Agendado' ? 'selected' : '' ?>>Agendados</option>
+    <option value="Concluído" <?= $filtros['status'] == 'Concluído' ? 'selected' : '' ?>>Concluídos</option>
+    <option value="Cancelado" <?= $filtros['status'] == 'Cancelado' ? 'selected' : '' ?>>Cancelados</option>
+</select>
                         </div>
 
                         <div class="mb-4">
@@ -392,8 +394,8 @@ $calendario = gerarCalendario($mes, $ano, $agendamentos);
                                     <div>
                                         <h6 class="mb-0"><?= htmlspecialchars($agendamento['paciente']) ?></h6>
                                         <small class="text-muted">
-                                            <?= date('H:i', strtotime($agendamento['data_hora'])) ?> - 
-                                            <?= htmlspecialchars($agendamento['destino']) ?>
+                                            <?= date('H:i', strtotime($agendamento['horario'])) ?> - 
+                                            <?= htmlspecialchars($agendamento['rua_destino']) ?>
                                         </small>
                                         <span class="status-badge status-<?= $agendamento['status'] ?>">
                                             <?= ucfirst($agendamento['status']) ?>
