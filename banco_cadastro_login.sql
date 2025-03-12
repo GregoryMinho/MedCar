@@ -7,7 +7,7 @@ CREATE TABLE clientes (
     email VARCHAR(100) UNIQUE NOT NULL,
     senha VARCHAR(255) NOT NULL, -- A senha será armazenada criptografada
     telefone VARCHAR(20),
-    tipo DEFAULT 'cliente',
+     tipo VARCHAR(20) DEFAULT 'cliente',
     data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -18,7 +18,7 @@ CREATE TABLE empresas (
     senha VARCHAR(255) NOT NULL, -- A senha será armazenada criptografada
     telefone VARCHAR(20),
     cnpj VARCHAR(20) UNIQUE NOT NULL,
-    tipo DEFAULT 'empresa',
+     tipo VARCHAR(20) DEFAULT 'empresa',
     data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
