@@ -1,15 +1,14 @@
 <?php
-$servidor = "localhost"; 
+$servidor = "localhost";
 $usuario = "root";
 $senha = ""; // cimatec
 $banco = "medcar_agendamentos";
 
-$conn = new mysqli($servidor, $usuario, $senha, $banco);
+try {
+    $conn = new PDO("mysql:host=$servidor;dbname=$banco", $usuario, $senha);
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-if ($conn->connect_error) {
-    die("Conexão falhou: " . $conn->connect_error);
+} catch (PDOException $e) {
+    die("Erro de conexão: " . $e->getMessage());
 }
-
-$conn->set_charset("utf8");
-
 ?>
