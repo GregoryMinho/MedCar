@@ -328,6 +328,13 @@ CREATE TABLE `usuarios` (
   `nome` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
+INSERT INTO `usuarios` (`id`, `nome`) VALUES
+(1, 'João'),
+(2, 'Maria'),
+(3, 'Carlos'),
+(4, 'Ana');
+
+
 -- Índices para tabelas despejadas
 
 -- Índices de tabela `empresas`
