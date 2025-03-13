@@ -36,7 +36,7 @@ function gerarCalendario($mes, $ano, $agendamentos) {
             return $a['data_consulta'] == $data;
         });
         $calendario .= '<div class="calendar-day'.(count($eventos) ? ' has-event' : '').'" 
-                          onclick="showScheduleDetails('.$dia.')">
+                          onclick="showScheduleDetails(\''.$data.'\')">
                           <div class="day-number">'.$dia.'</div>
                           '.(count($eventos) ? '<div class="event-dot"></div>' : '').'
                         </div>';
@@ -67,18 +67,15 @@ $sql = "SELECT a.*, u.nome AS paciente, a.tipo_transporte AS transportadora
         JOIN usuarios u ON a.cliente_id = u.id
         WHERE DATE_FORMAT(a.data_consulta, '%Y-%m') = :mes";
 
-
-
-
 $params = [':mes' => $filtros['mes']];
 
 if ($filtros['status'] != 'all') {
-    $sql .= " AND situacao = :status"; // Coluna correta: situacao
+    $sql .= " AND situacao = :status";
     $params[':status'] = $filtros['status'];
 }
 
 if ($filtros['tipo'] != 'all') {
-    $sql .= " AND tipo_transporte = :tipo"; // Supondo que 'tipo' se refere a 'tipo_transporte'
+    $sql .= " AND tipo_transporte = :tipo";
     $params[':tipo'] = $filtros['tipo'];
 }
 
@@ -101,7 +98,7 @@ $calendario = gerarCalendario($mes, $ano, $agendamentos);
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root {
+          :root {
             --primary-color: #1a365d;
             --secondary-color: #2a4f7e;
             --accent-color: #38b2ac;
@@ -322,17 +319,16 @@ $calendario = gerarCalendario($mes, $ano, $agendamentos);
                 <!-- Sidebar -->
                 <div class="col-md-3 p-4" style="background: var(--secondary-color); color: white; min-height: 100vh;">
                     <h5 class="mb-4"><i class="fas fa-filter me-2"></i>Filtros</h5>
-                    
                     <form method="GET">
                         <div class="mb-4">
                             <label class="form-label">Status</label>
                             <select class="form-select" name="status">
-    <option value="all" <?= $filtros['status'] == 'all' ? 'selected' : '' ?>>Todos</option>
-    <option value="Pendente" <?= $filtros['status'] == 'Pendente' ? 'selected' : '' ?>>Pendentes</option>
-    <option value="Agendado" <?= $filtros['status'] == 'Agendado' ? 'selected' : '' ?>>Agendados</option>
-    <option value="Concluído" <?= $filtros['status'] == 'Concluído' ? 'selected' : '' ?>>Concluídos</option>
-    <option value="Cancelado" <?= $filtros['status'] == 'Cancelado' ? 'selected' : '' ?>>Cancelados</option>
-</select>
+                                <option value="all" <?= $filtros['status'] == 'all' ? 'selected' : '' ?>>Todos</option>
+                                <option value="Pendente" <?= $filtros['status'] == 'Pendente' ? 'selected' : '' ?>>Pendentes</option>
+                                <option value="Agendado" <?= $filtros['status'] == 'Agendado' ? 'selected' : '' ?>>Agendados</option>
+                                <option value="Concluído" <?= $filtros['status'] == 'Concluído' ? 'selected' : '' ?>>Concluídos</option>
+                                <option value="Cancelado" <?= $filtros['status'] == 'Cancelado' ? 'selected' : '' ?>>Cancelados</option>
+                            </select>
                         </div>
 
                         <div class="mb-4">
@@ -372,75 +368,69 @@ $calendario = gerarCalendario($mes, $ano, $agendamentos);
 
                     <!-- Calendário -->
                     <?= $calendario ?>
-
-                    <!-- Detalhes do Agendamento -->
-                    <div class="schedule-details" id="scheduleDetails">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h5>Agendamentos - <span id="selectedDate"></span></h5>
-        <button class="btn btn-close" onclick="hideScheduleDetails()"></button>
-    </div>
-    
-    <div id="agendamentosList"></div>
-    <div id="appointmentDetails" style="display: none;"></div>
-</div>
-                        
-                        <div class="timeline" id="agendamentosList">
-                            <?php foreach ($agendamentos as $agendamento): ?>
-                            <div class="mb-3">
-                                <div class="d-flex align-items-center gap-3">
-                                    <div class="schedule-icon">
-                                        <i class="fas fa-user-injured"></i>
-                                    </div>
-                                    <div>
-                                        <h6 class="mb-0"><?= htmlspecialchars($agendamento['paciente']) ?></h6>
-                                        <small class="text-muted">
-                                            <?= date('H:i', strtotime($agendamento['horario'])) ?> - 
-                                            <?= htmlspecialchars($agendamento['rua_destino']) ?>
-                                        </small>
-                                        <span class="status-badge status-<?= $agendamento['status'] ?>">
-                                            <?= ucfirst($agendamento['status']) ?>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <?php endforeach; ?>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Modal para Agendamentos -->
+    <div class="modal fade" id="scheduleModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Agendamentos - <span id="modalSelectedDate"></span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="modalAgendamentosList">
+                    <!-- Lista de pacientes será carregada aqui -->
+                </div>
+            </div>
+        </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-    // Funções para mostrar detalhes
-   // Adicione estas funções
-function showAppointmentDetails(agendamentoId) {
-    fetch(`get_detalhes_agendamento.php?id=${agendamentoId}`)
-        .then(response => response.text())
-        .then(data => {
-            document.getElementById('appointmentDetails').innerHTML = data;
-            document.getElementById('appointmentDetails').style.display = 'block';
-            document.getElementById('agendamentosList').style.display = 'none';
-        });
-}
+        let currentDate = null; // Variável para armazenar a data selecionada
 
-function backToDaySchedule() {
-    document.getElementById('appointmentDetails').style.display = 'none';
-    document.getElementById('agendamentosList').style.display = 'block';
-}
+        // Função para mostrar o modal com a lista de pacientes
+        function showScheduleDetails(data) {
+            currentDate = data;
+            fetch(`get_agendamentos.php?data=${data}`)
+                .then(response => response.text())
+                .then(html => {
+                    document.getElementById('modalSelectedDate').textContent = formatarData(data);
+                    document.getElementById('modalAgendamentosList').innerHTML = html;
+                    new bootstrap.Modal(document.getElementById('scheduleModal')).show();
+                });
+        }
 
-// Modifique a função existente
-function showScheduleDetails(dia) {
-    const mes = "<?= $filtros['mes'] ?>";
-    fetch(`get_agendamentos.php?dia=${dia}&mes=${mes}`)
-        .then(response => response.text())
-        .then(data => {
-            document.getElementById('scheduleDetails').style.display = 'block';
-            document.getElementById('selectedDate').textContent = `${dia}/${mes.split('-')[1]}/${mes.split('-')[0]}`;
-            document.getElementById('agendamentosList').innerHTML = data;
-            document.getElementById('appointmentDetails').style.display = 'none';
-        });
-}
+        // Função para mostrar detalhes do paciente
+        function showAppointmentDetails(id) {
+            fetch(`get_detalhes_agendamento.php?id=${id}`)
+                .then(response => response.text())
+                .then(html => {
+                    document.getElementById('modalAgendamentosList').innerHTML = `
+                        <button onclick="backToList()" class="btn btn-secondary mb-3">
+                            <i class="fas fa-arrow-left me-2"></i>Voltar para Lista
+                        </button>
+                        ${html}
+                    `;
+                });
+        }
+
+        // Função para voltar à lista de pacientes
+        function backToList() {
+            if(currentDate) {
+                showScheduleDetails(currentDate);
+            }
+        }
+
+        // Função auxiliar para formatar data
+        function formatarData(dataString) {
+            const data = new Date(dataString);
+            const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
+            return data.toLocaleDateString('pt-BR', options);
+        }
     </script>
 </body>
 </html>

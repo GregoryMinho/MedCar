@@ -387,3 +387,90 @@ INSERT INTO notificacoes (agendamento_id, mensagem, lida) VALUES
 (1, 'Seu agendamento para exame está pendente.', FALSE),
 (2, 'Seu agendamento para rotina foi confirmado.', TRUE);
 
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+					BANCO DE DASHBOARD
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+CREATE DATABASE IF NOT EXISTS dashboard_medcar;
+USE dashboard_medcar;
+
+-- Tabela de Empresas (opcional, caso haja multiempresa ou dados institucionais)
+CREATE TABLE empresas (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    logo VARCHAR(255)
+);
+
+-- Tabela de Motoristas
+CREATE TABLE motoristas (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    -- Exemplos de status: 'Disponível', 'Em serviço', 'Indisponível'
+    status ENUM('Disponível', 'Em serviço', 'Indisponível') DEFAULT 'Disponível'
+);
+
+-- Tabela de Veículos (Frota)
+CREATE TABLE veiculos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    placa VARCHAR(10) NOT NULL UNIQUE,
+    -- Status: 'disponivel' (disponível), 'em_uso' (em uso) ou 'manutencao' (manutenção)
+    status ENUM('disponivel', 'em_uso', 'manutencao') DEFAULT 'disponivel',
+    ultima_manutencao DATE
+);
+
+-- Tabela de Agendamentos (Serviços/Transporte)
+CREATE TABLE agendamentos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome_paciente VARCHAR(100) NOT NULL,
+    hospital VARCHAR(150) NOT NULL,
+    data_hora_agendamento DATETIME NOT NULL,
+    -- Exemplos de status: 'Em transporte', 'Concluído', 'Cancelado'
+    status ENUM('Em transporte', 'Concluído', 'Cancelado') NOT NULL,
+    -- Relacionamento opcional com motorista e veículo
+    motorista_id INT,
+    veiculo_id INT,
+    FOREIGN KEY (motorista_id) REFERENCES motoristas(id),
+    FOREIGN KEY (veiculo_id) REFERENCES veiculos(id)
+);
+
+-- Tabela de Resumo Diário (Métricas do Dashboard)
+CREATE TABLE resumo_diario (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    data_resumo DATE NOT NULL,
+    quantidade_servicos INT DEFAULT 0,    -- Número de serviços/agendamentos realizados no dia (Serviços Hoje)
+    faturamento DECIMAL(10,2) DEFAULT 0.00,   -- Faturamento do dia
+    avaliacao DECIMAL(3,1) DEFAULT 0.0,       -- Avaliação média (ex.: 4.8)
+    pendencias INT DEFAULT 0                  -- Número de pendências
+);
+
+-- Inserindo dados na tabela empresas
+INSERT INTO empresas (nome, logo) VALUES 
+('MediTransporte', 'meditransporte_logo.png'),
+('Saúde Móvel', 'saude_movel_logo.png');
+
+-- Inserindo dados na tabela motoristas
+INSERT INTO motoristas (nome, status) VALUES 
+('Carlos Silva', 'Disponível'),
+('Ana Souza', 'Em serviço'),
+('João Pereira', 'Disponível');
+
+-- Inserindo dados na tabela veiculos
+INSERT INTO veiculos (placa, status, ultima_manutencao) VALUES 
+('ABC1D23', 'disponivel', '2024-01-10'),
+('XYZ9W87', 'em_uso', '2024-02-15'),
+('LMN4K56', 'manutencao', '2024-03-20');
+
+-- Inserindo dados na tabela agendamentos
+INSERT INTO agendamentos (nome_paciente, hospital, data_hora_agendamento, status, motorista_id, veiculo_id) VALUES 
+('Maria Oliveira', 'Hospital Central', '2024-03-14 08:00:00', 'Em transporte', 1, 2),
+('Pedro Santos', 'Clínica Vida', '2024-03-15 10:30:00', 'Concluído', 2, 1),
+('Fernanda Costa', 'Hospital Esperança', '2024-03-16 14:00:00', 'Cancelado', 3, 3);
+
+-- Inserindo dados na tabela resumo_diario
+INSERT INTO resumo_diario (data_resumo, quantidade_servicos, faturamento, avaliacao, pendencias) VALUES 
+('2024-03-14', 5, 1500.00, 4.5, 1),
+('2024-03-15', 3, 900.00, 4.8, 0),
+('2024-03-16', 4, 1200.00, 4.2, 2);
