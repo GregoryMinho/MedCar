@@ -50,14 +50,14 @@ BEGIN
     DECLARE cliente_exists INT;
     DECLARE empresa_exists INT;
 
-    -- Verifica se o cliente_id existe no banco de dados de usuários
-    SELECT COUNT(*) INTO cliente_exists FROM usuarios_db.usuarios WHERE id = NEW.cliente_id;
+  -- Verifica se o cliente_id existe no banco de dados de usuários
+    SELECT COUNT(*) INTO cliente_exists FROM  medcar_cadastro_login.clientes WHERE id = NEW.cliente_id;
     IF cliente_exists = 0 THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Cliente ID não existe';
     END IF;
 
     -- Verifica se o empresa_id existe na tabela de empresas
-    SELECT COUNT(*) INTO empresa_exists FROM empresas WHERE id = NEW.empresa_id;
+    SELECT COUNT(*) INTO empresa_exists FROM  medcar_cadastro_login.empresas WHERE id = NEW.empresa_id;
     IF empresa_exists = 0 THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Empresa ID não existe';
     END IF;
@@ -75,51 +75,16 @@ BEGIN
     DECLARE empresa_exists INT;
 
     -- Verifica se o cliente_id existe no banco de dados de usuários
-    SELECT COUNT(*) INTO cliente_exists FROM usuarios_db.usuarios WHERE id = NEW.cliente_id;
+    SELECT COUNT(*) INTO cliente_exists FROM  medcar_cadastro_login.clientes WHERE id = NEW.cliente_id;
     IF cliente_exists = 0 THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Cliente ID não existe';
     END IF;
 
     -- Verifica se o empresa_id existe na tabela de empresas
-    SELECT COUNT(*) INTO empresa_exists FROM empresas WHERE id = NEW.empresa_id;
+    SELECT COUNT(*) INTO empresa_exists FROM  medcar_cadastro_login.empresas WHERE id = NEW.empresa_id;
     IF empresa_exists = 0 THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Empresa ID não existe';
     END IF;
 END
 $$
 DELIMITER ;
-
--- Estrutura para tabela `usuarios`
-CREATE TABLE `usuarios` (
-  `id` int(11) NOT NULL,
-  `nome` varchar(100) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
-
--- Índices para tabelas despejadas
-
--- Índices de tabela `empresas`
-ALTER TABLE `empresas`
-  ADD PRIMARY KEY (`id`);
-
--- Índices de tabela `pacientes_registros`
-ALTER TABLE `pacientes_registros`
-  ADD PRIMARY KEY (`id`);
-
--- Índices de tabela `usuarios`
-ALTER TABLE `usuarios`
-  ADD PRIMARY KEY (`id`);
-
--- AUTO_INCREMENT para tabelas despejadas
-
--- AUTO_INCREMENT de tabela `empresas`
-ALTER TABLE `empresas`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
--- AUTO_INCREMENT de tabela `pacientes_registros`
-ALTER TABLE `pacientes_registros`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
-
--- AUTO_INCREMENT de tabela `usuarios`
-ALTER TABLE `usuarios`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-COMMIT;
