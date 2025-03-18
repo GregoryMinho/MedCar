@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,11 +13,13 @@
             transition: transform 0.3s ease-in-out;
             transform: translateX(100%);
         }
+
         .mobile-menu.open {
             transform: translateX(0);
         }
     </style>
 </head>
+
 <body class="min-h-screen bg-gradient-to-r from-blue-900 to-blue-800">
     <!-- Navbar -->
     <nav class="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-blue-900 to-blue-800 text-white shadow-md">
@@ -26,13 +29,13 @@
                     <i data-lucide="ambulance" class="h-6 w-6"></i>
                     <span>MedCar</span>
                 </a>
-                
+
                 <div class="hidden md:flex space-x-6">
                     <a href="/MedQ-2/area_cliente/menu_principal.php" class="font-medium hover:text-teal-300 transition">Home</a>
                     <a href="/MedQ-2/paginas/abas_menu_principal/aba_empresas.php" class="font-medium hover:text-teal-300 transition">Empresas</a>
                     <a href="#" class="font-medium hover:text-teal-300 transition">Contato</a>
                 </div>
-                
+
                 <button id="mobile-menu-button" class="md:hidden text-white">
                     <i data-lucide="menu" class="h-6 w-6"></i>
                 </button>
@@ -47,11 +50,11 @@
                 <i data-lucide="x" class="h-6 w-6"></i>
             </button>
         </div>
-        
+
         <div class="flex flex-col items-center justify-center space-y-8 flex-grow text-xl">
-            <a href="#" class="font-medium hover:text-teal-300 transition">Home</a>        
-            <a href="#" class="font-medium hover:text-teal-300 transition">Empresas</a>      
-            <a href="#" class="font-medium hover:text-teal-300 transition">Contato</a>  
+            <a href="#" class="font-medium hover:text-teal-300 transition">Home</a>
+            <a href="#" class="font-medium hover:text-teal-300 transition">Empresas</a>
+            <a href="#" class="font-medium hover:text-teal-300 transition">Contato</a>
 
         </div>
     </div>
@@ -98,7 +101,7 @@
                         </form>
                         <div class="mt-6 text-center">
                             <p class="text-sm text-gray-600">
-                                Já tem conta? 
+                                Já tem conta?
                                 <a href="/MedQ-2/paginas/login_clientes.php" class="font-medium text-teal-500 hover:text-teal-600">Faça login aqui</a>
                             </p>
                         </div>
@@ -156,5 +159,16 @@
             this.submit();
         });
     </script>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.slim.min.js" integrity="sha256-kmHvs0B+OpCW5GVHUNjv9rOmY0IvSIRcf7zGUDTDQM8=" crossorigin="anonymous"></script>
+
+    <script src="/jquery.mask.min.js"></script>
+
+    <script>
+        $('#cpf').mask('000.000.000-00');
+        $('#telefone').mask('(00) 00000-0000');
+    </script>
+
 </body>
+
 </html>
