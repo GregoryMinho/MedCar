@@ -1,7 +1,7 @@
 <?php
-$servidor = "localhost:3307";
+$servidor = "localhost"; //:3307
 $usuario = "root";
-$senha = ""; // cimatec
+$senha = "cimatec"; // cimatec
 $banco = "medcar_agendamentos";
 
 try {
