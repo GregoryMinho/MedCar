@@ -21,27 +21,26 @@
 </head>
 
 <body class="min-h-screen bg-gradient-to-r from-blue-900 to-blue-800">
-    <!-- Navbar -->
-    <nav class="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-blue-900 to-blue-800 text-white shadow-md">
-        <div class="container mx-auto px-4">
-            <div class="flex items-center justify-between h-16">
-                <a href="../paginas/pagina_inicial.php" class="flex items-center space-x-2 text-xl font-bold">
-                    <i data-lucide="ambulance" class="h-6 w-6"></i>
-                    <span>MedCar</span>
-                </a>
-
-                <div class="hidden md:flex space-x-6">
-                    <a href="/MedQ-2/area_cliente/menu_principal.php" class="font-medium hover:text-teal-300 transition">Home</a>
-                    <a href="/MedQ-2/paginas/abas_menu_principal/aba_empresas.php" class="font-medium hover:text-teal-300 transition">Empresas</a>
-                    <a href="#" class="font-medium hover:text-teal-300 transition">Contato</a>
+    <header>
+        <nav class="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-blue-900 to-blue-800 text-white shadow-md">
+            <div class="container mx-auto px-4">
+                <div class="flex items-center justify-between h-16">
+                    <a href="#" class="flex items-center space-x-2 text-xl font-bold">
+                        <i data-lucide="ambulance" class="h-6 w-6"></i>
+                        <span>MedCar</span>
+                    </a>
+                    <div class="hidden md:flex space-x-6">
+                        <a href="/MedQ-2/area_cliente/menu_principal.php" class="font-medium hover:text-teal-300 transition">Home</a>
+                        <a href="/MedQ-2/paginas/abas_menu_principal/aba_empresas.php" class="font-medium hover:text-teal-300 transition">Empresas</a>
+                        <a href="#" class="font-medium hover:text-teal-300 transition">Contato</a>
+                    </div>
+                    <button id="mobile-menu-button" aria-expanded="false" aria-controls="mobile-menu" class="md:hidden text-white">
+                        <i data-lucide="menu" class="h-6 w-6"></i>
+                    </button>
                 </div>
-
-                <button id="mobile-menu-button" class="md:hidden text-white">
-                    <i data-lucide="menu" class="h-6 w-6"></i>
-                </button>
             </div>
-        </div>
-    </nav>
+        </nav>
+    </header>
 
     <!-- Mobile Menu -->
     <div id="mobile-menu" class="fixed inset-0 z-50 bg-blue-900 bg-opacity-95 flex flex-col text-white p-6 mobile-menu">
@@ -156,6 +155,13 @@
         document.getElementById('cadastro-form').addEventListener('submit', function(e) {
             e.preventDefault();
             // Aqui pode adicionar validações ou enviar o formulário
+                const senha = document.getElementById('senha').value;
+                const confirmarSenha = document.getElementById('confirmar_senha').value;
+
+        if (senha !== confirmarSenha) {
+            alert('As senhas não coincidem!');
+        return;
+            }
             this.submit();
         });
     </script>
