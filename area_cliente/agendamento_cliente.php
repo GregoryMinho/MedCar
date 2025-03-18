@@ -1,6 +1,8 @@
 <?php // essa pagina é acessa apos o usuario selecionar a empresa 
 require '../includes/valida_login.php'; // inclui o arquivo de validação de login
 
+session_start(); // inicia a sessão
+
 verificarPermissao('CLIENTE'); // verifica se o usuario logado é um cliente
 
 // logica para pegar dados basicos da empresa para enviar a solicitação de agendamento, passado por url
@@ -8,7 +10,6 @@ verificarPermissao('CLIENTE'); // verifica se o usuario logado é um cliente
 //$empresa_id = $_GET['empresa_id'];
 
 $empresa_id = 1;    //////// temporario////////////////////////
-$cadastrado = isset($_GET['cadastrado']) ? $_GET['cadastrado'] : null;
 ?>
 
 <!DOCTYPE html>
@@ -660,16 +661,20 @@ $cadastrado = isset($_GET['cadastrado']) ? $_GET['cadastrado'] : null;
             // Update hidden input with selected date
             dataSelecionada.value = selectedDate.toISOString().split('T')[0];
         });
-
+    </script>
+    <script>
         // Alerta de produto cadastrado com sucesso
         document.addEventListener('DOMContentLoaded', function() {
-            var cadastrado = <?php echo json_encode($cadastrado); ?> ?? null;
+            var cadastrado = <?php echo json_encode($_SESSION['cadastrado']); ?> ?? null;
 
             if (cadastrado == 1) {
                 alert('AGENDADO COM SUCESSO! (*^_^*) \n\nAguardando confirmação da empresa.');
             } else if (cadastrado == 0) {
                 alert('ERRO AO AGENDAR! (T_T) \n\nPor favor, tente novamente.');
             }
+
+            <?php $_SESSION['cadastrado'] = null?>;
+           
         });
     </script>
 </body>

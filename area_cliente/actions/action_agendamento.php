@@ -97,20 +97,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if ($stmt->execute()) {
 
             echo "Agendamento realizado com sucesso!";
-            $cadastrado = true;
-            header("Location: ../agendamento_cliente.php?cadastrado=" . $cadastrado);
+            $_SESSION['cadastrado'] = true;
+            header("Location: ../agendamento_cliente.php");
             exit();
-
         } else {
-            
+
             echo "Erro ao realizar agendamento: " . $stmt->errorInfo()[2];
-            $cadastrado = false;
-            header("Location: ../agendamento_cliente.php?cadastrado=" . $cadastrado);
+            $_SESSION['cadastrado'] = false;
+            header("Location: ../agendamento_cliente.php?cadastrado");
             exit();
         }
     } catch (PDOException $e) {
         echo "Erro: " . $e->getMessage();
     }
 
-    $conn = null; 
+    $conn = null;
 }
