@@ -302,7 +302,7 @@ $calendario = gerarCalendario($mes, $ano, $agendamentos);
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark" style="background: var(--primary-color);">
         <div class="container">
-            <a class="navbar-brand" href="#">
+            <a class="navbar-brand" href="/MedQ-2/paginas/pagina_inicial.php">
                 <i class="fas fa-ambulance me-2"></i>
                 MedQ Transportes
             </a>
