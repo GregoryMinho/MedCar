@@ -77,14 +77,14 @@
     <nav class="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-blue-900 to-blue-800 text-white shadow-md">
         <div class="container mx-auto px-4">
             <div class="flex items-center justify-between h-16">
-                <a href="#" class="flex items-center space-x-2 text-xl font-bold">
+                <a href="/MedQ-2/paginas/pagina_inicial.php" class="flex items-center space-x-2 text-xl font-bold">
                     <i data-lucide="ambulance" class="h-6 w-6"></i>
                     <span>MedCar</span>
                 </a>
 
                 <div class="flex items-center space-x-6">
                     <a href="menu_principal.php" class="font-medium hover:text-teal-300 transition">Home</a>
-                    <a href="/MedQ-2/paginas/abas_menu_principal/aba_empresas.php" class="font-medium hover:text-teal-300 transition">Empresas</a>  <!-- conectado as empresas , checa os outros butooes estao funcionando. -->
+                    <a href="/MedQ-2/paginas/abas_menu_principal/aba_empresas.php" class="font-medium hover:text-teal-300 transition">Empresas</a> <!-- conectado as empresas , checa os outros butooes estao funcionando. -->
                     <a href="#" class="font-medium hover:text-teal-300 transition">Contato</a>
                     <button id="mobile-menu-button" class="md:hidden text-white ml-2">
                         <i data-lucide="menu" class="h-6 w-6"></i>
@@ -122,7 +122,7 @@
                     <i data-lucide="calendar" class="h-5 w-5"></i>
                     <span>Agendamentos</span>
                 </a>
-                <a href="#" class="flex items-center space-x-2 px-4 py-3 rounded-lg text-white hover:bg-blue-800 transition">
+                <a href="historico.php" class="flex items-center space-x-2 px-4 py-3 rounded-lg text-white hover:bg-blue-800 transition">
                     <i data-lucide="clock" class="h-5 w-5"></i>
                     <span>Histórico</span>
                 </a>
@@ -206,9 +206,9 @@
                             <i data-lucide="clock" class="h-10 w-10 mx-auto text-teal-500 mb-3"></i>
                             <h5 class="text-lg font-semibold text-blue-900 mb-2">Histórico Completo</h5>
                             <p class="text-sm text-gray-600 mb-4">Veja todos seus transportes realizados</p>
-                            <button class="bg-teal-500 hover:bg-teal-600 text-white font-medium py-2 px-4 rounded-lg transition-all hover:scale-105">
+                            <a href="historico.php" class="bg-teal-500 hover:bg-teal-600 text-white font-medium py-2 px-4 rounded-lg transition-all hover:scale-105">
                                 Acessar Histórico
-                            </button>
+                            </a>
                         </div>
 
                         <div class="dashboard-card relative overflow-hidden bg-white rounded-xl shadow-lg p-6 text-center">
