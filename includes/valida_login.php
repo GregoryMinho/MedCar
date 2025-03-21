@@ -1,21 +1,17 @@
 <?php
 session_start();
 
-// Verifica se o usuário está logado
-/*if (!isset($_SESSION['usuario'])) {
-    // Redireciona para a página de login se não estiver logado
-    header("Location: pagina_inicial.php");
-    exit();
-}*/
-
-$_SESSION['usuario']['tipo'] = 'CLIENTE';
-// Verifica o tipo de usuário
-$tipoUsuario = $_SESSION['usuario']['tipo'];
-
 // Função para verificar permissões
 function verificarPermissao($tipoPermitido)
 {
-    global $tipoUsuario;
+    if (!isset($_SESSION['usuario'])) {
+        // Redireciona para a página de login se o usuario de usuário não estiver definido
+        header("Location: ../paginas/pagina_inicial.php");
+        exit();
+    }
+    
+    $tipoUsuario = $_SESSION['usuario']['tipo'] ;
+    
     if ($tipoUsuario == 'ADMIN') {
         // Se o usuário for admin, não faz nada
         return;
