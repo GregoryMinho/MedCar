@@ -14,9 +14,9 @@ try {
 
 $data = $_GET['data'] ?? date('Y-m-d');
 
-$sql = "SELECT a.id, u.nome 
+$sql = "SELECT a.id, c.nome 
         FROM agendamentos a
-        JOIN usuarios u ON a.cliente_id = u.id
+        JOIN medcar_cadastro_login.clientes c ON a.cliente_id = c.id
         WHERE a.data_consulta = :data";
 
 $stmt = $pdo->prepare($sql);

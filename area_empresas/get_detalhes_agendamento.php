@@ -11,18 +11,17 @@ try {
     die("Não foi possível conectar ao banco de dados: " . $e->getMessage());
 }
 
-
 $id = $_GET['id'] ?? 0;
 
 $sql = "SELECT 
             a.*, 
-            u.nome,  
+            c.nome AS cliente_nome,  -- Nome claro para evitar conflitos
             a.rua_destino,
             a.horario,
             a.tipo_transporte,
             a.situacao
         FROM agendamentos a
-        JOIN usuarios u ON a.cliente_id = u.id
+        JOIN medcar_cadastro_login.clientes c ON a.cliente_id = c.id  -- Correção do JOIN
         WHERE a.id = :id";
 
 $stmt = $pdo->prepare($sql);
@@ -31,7 +30,7 @@ $dados = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if ($dados) {
     echo '<div class="schedule-card-details">';
-    echo '<h4 class="mb-4">'.htmlspecialchars($dados['nome']).'</h4>';
+    echo '<h4 class="mb-4">'.htmlspecialchars($dados['cliente_nome']).'</h4>'; 
     
     echo '<div class="row">';
     echo '<div class="col-md-6">';
@@ -44,8 +43,6 @@ if ($dados) {
     echo '<p><strong>Status:</strong> <span class="badge '.getStatusClass($dados['situacao']).'">'.htmlspecialchars($dados['situacao']).'</span></p>';
     echo '</div>';
     echo '</div>';
-    
- 
     
     echo '</div>';
 } else {
