@@ -4,6 +4,8 @@ $dbname = 'medcar_agendamentos';
 $user = 'root';
 $pass = '';
 
+date_default_timezone_set('America/Sao_Paulo'); // Ou seu fuso horário
+
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $user, $pass);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -13,28 +15,32 @@ try {
 
 // Função para gerar o calendário
 function gerarCalendario($mes, $ano, $agendamentos) {
+    $mes = str_pad($mes, 2, '0', STR_PAD_LEFT); // Garante 2 dígitos
     $dias_mes = cal_days_in_month(CAL_GREGORIAN, $mes, $ano);
-    $primeiro_dia = date('N', strtotime("$ano-$mes-01"));
+    $primeiro_dia = date('w', strtotime("$ano-$mes-01"));
     
-    $calendario = '<div class="calendar-grid">';
+    $calendario = '<div class="calendar-container">';
     
-    // Cabeçalho dos dias da semana
-    $diasSemana = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
-    foreach ($diasSemana as $diaSemana) {
-        $calendario .= '<div class="calendar-header">'.$diaSemana.'</div>';
+    // Cabeçalho
+    $calendario .= '<div class="calendar-header-grid">';
+    foreach (['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'] as $dia) {
+        $calendario .= '<div class="calendar-header">'.$dia.'</div>';
     }
+    $calendario .= '</div>';
     
-    // Dias vazios no início
-    for($i = 1; $i < $primeiro_dia; $i++) {
+    // Dias
+    $calendario .= '<div class="calendar-days-grid">';
+    
+    // Dias vazios
+    for ($i = 0; $i < $primeiro_dia; $i++) {
         $calendario .= '<div class="calendar-day empty"></div>';
     }
     
-    // Dias do mês
-    for($dia = 1; $dia <= $dias_mes; $dia++) {
+    // Preenche dias
+    for ($dia = 1; $dia <= $dias_mes; $dia++) {
         $data = "$ano-$mes-".str_pad($dia, 2, '0', STR_PAD_LEFT);
-        $eventos = array_filter($agendamentos, function($a) use ($data) {
-            return $a['data_consulta'] == $data;
-        });
+        $eventos = array_filter($agendamentos, fn($a) => $a['data_formatada'] == $data);
+        
         $calendario .= '<div class="calendar-day'.(count($eventos) ? ' has-event' : '').'" 
                           onclick="showScheduleDetails(\''.$data.'\')">
                           <div class="day-number">'.$dia.'</div>
@@ -42,19 +48,16 @@ function gerarCalendario($mes, $ano, $agendamentos) {
                         </div>';
     }
     
-    // Completa a última semana
-    $total_cells = count($diasSemana) + $primeiro_dia - 1 + $dias_mes;
-    $remaining_days = 7 - ($total_cells % 7);
-    if($remaining_days < 7) {
-        for($i = 0; $i < $remaining_days; $i++) {
-            $calendario .= '<div class="calendar-day empty"></div>';
-        }
+    // Completa grid
+    $total_cells = $primeiro_dia + $dias_mes;
+    $remaining = (7 - ($total_cells % 7)) % 7;
+    for ($i = 0; $i < $remaining; $i++) {
+        $calendario .= '<div class="calendar-day empty"></div>';
     }
     
-    $calendario .= '</div>';
+    $calendario .= '</div></div>';
     return $calendario;
 }
-
 $filtros = [
     'status' => $_GET['status'] ?? 'all',
     'mes' => $_GET['mes'] ?? date('Y-m'),
@@ -62,10 +65,13 @@ $filtros = [
 ];
 
 // Buscar agendamentos
-$sql = "SELECT a.*, u.nome AS paciente, a.tipo_transporte AS transportadora
-        FROM agendamentos a
-        JOIN usuarios u ON a.cliente_id = u.id
-        WHERE DATE_FORMAT(a.data_consulta, '%Y-%m') = :mes";
+$sql = "SELECT 
+            a.*, 
+            DATE(CONVERT_TZ(a.data_consulta, '+00:00', '-03:00')) AS data_formatada,
+            c.nome 
+        FROM medcar_agendamentos.agendamentos a
+        JOIN medcar_cadastro_login.clientes c ON a.cliente_id = c.id
+        WHERE DATE_FORMAT(CONVERT_TZ(a.data_consulta, '+00:00', '-03:00'), '%Y-%m') = :mes";
 
 $params = [':mes' => $filtros['mes']];
 
@@ -80,12 +86,13 @@ if ($filtros['tipo'] != 'all') {
 }
 
 $stmt = $pdo->prepare($sql);
-$stmt->execute($params);
+$stmt->execute($params); // Linha 84
 $agendamentos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Processar datas para o calendário
-$mes = date('m', strtotime($filtros['mes']));
-$ano = date('Y', strtotime($filtros['mes']));
+$dataFiltro = explode('-', $filtros['mes']);
+$ano = $dataFiltro[0];
+$mes = $dataFiltro[1];
 $calendario = gerarCalendario($mes, $ano, $agendamentos);
 ?>
 
@@ -98,205 +105,261 @@ $calendario = gerarCalendario($mes, $ano, $agendamentos);
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-          :root {
-            --primary-color: #1a365d;
-            --secondary-color: #2a4f7e;
-            --accent-color: #38b2ac;
-            --confirmed-color: #28a745;
-            --pending-color: #ffc107;
-            --cancelled-color: #dc3545;
-        }
+    :root {
+        --primary-color: #1a365d;
+        --secondary-color: #2a4f7e;
+        --accent-color: #38b2ac;
+        --confirmed-color: #28a745;
+        --pending-color: #ffc107;
+        --cancelled-color: #dc3545;
+    }
 
-        body {
-            background: #f8f9fa;
-        }
+    /* Layout do Calendário */
+    .calendar-container {
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
 
-        .schedule-dashboard {
-            background: #f8f9fa;
-            min-height: 100vh;
-        }
+    .calendar-header-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 2px;
+        margin-bottom: 5px;
+    }
 
-        .schedule-card {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            transition: all 0.3s;
-            margin-bottom: 20px;
-            padding: 20px;
-            position: relative;
-        }
+    .calendar-days-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 2px;
+    }
 
-        .schedule-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-        }
+    .calendar-header {
+        text-align: center;
+        font-weight: bold;
+        padding: 10px;
+        background: var(--primary-color);
+        color: white;
+        border-radius: 5px;
+    }
 
-        .status-badge {
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 0.9em;
-            position: absolute;
-            top: 15px;
-            right: 15px;
-        }
+    .calendar-day {
+        background: white;
+        border-radius: 10px;
+        padding: 15px;
+        min-height: 120px;
+        cursor: pointer;
+        transition: all 0.3s;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
 
-        .status-confirmed { background: var(--confirmed-color); color: white; }
-        .status-pending { background: var(--pending-color); color: black; }
-        .status-cancelled { background: var(--cancelled-color); color: white; }
+    .calendar-day.empty {
+        background: #f8f9fa;
+        cursor: default;
+    }
 
-        .schedule-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--accent-color);
-            color: white;
-        }
+    .calendar-day.has-event {
+        border: 2px solid var(--accent-color);
+    }
 
-        .timeline {
-            border-left: 3px solid var(--primary-color);
-            padding-left: 1rem;
-            margin: 1rem 0;
-        }
+    .day-number {
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
 
-        .btn-schedule {
-            background: var(--accent-color);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            transition: all 0.3s;
-        }
+    .event-dot {
+        width: 8px;
+        height: 8px;
+        background: var(--accent-color);
+        border-radius: 50%;
+        position: absolute;
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 2;
+    }
 
-        .btn-schedule:hover {
-            background: #2c7a7b;
-            color: white;
-        }
+    /* Estilos Gerais */
+    body {
+        background: #f8f9fa;
+        font-family: Arial, sans-serif;
+    }
 
-        .calendar {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 5px;
-            margin-bottom: 20px;
-        }
+    .schedule-dashboard {
+        background: #f8f9fa;
+        min-height: 100vh;
+    }
 
-        /* Estilo para os dias do calendário */
-        .calendar-day {
-            background: white;
-            border-radius: 10px;
-            padding: 15px;
-            min-height: 100px;
-            cursor: pointer;
-            transition: all 0.3s;
-            position: relative;
-        }
+    .schedule-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s;
+        margin-bottom: 20px;
+        padding: 20px;
+        position: relative;
+    }
 
-        /* Caixa quadrada para os dias 1 e 2 */
-        .calendar-day.first-two-days {
-            width: 80px;  /* Ajuste o tamanho conforme necessário */
-            height: 80px; /* Mantém as caixas quadradas */
-        }
+    .schedule-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    }
 
-        /* Caixa larga para os outros dias */
-        .calendar-day:not(.first-two-days) {
-            width: 100%;
-        }
+    .status-badge {
+        padding: 8px 15px;
+        border-radius: 20px;
+        font-size: 0.9em;
+        position: absolute;
+        top: 15px;
+        right: 15px;
+    }
 
-        .calendar-day:hover {
-            background: #f8f9fa;
-            transform: scale(1.02);
-        }
+    .status-confirmed {
+        background: var(--confirmed-color);
+        color: white;
+    }
 
-        .calendar-day.active {
-            border: 2px solid var(--accent-color);
-        }
+    .status-pending {
+        background: var(--pending-color);
+        color: black;
+    }
 
-        .event-dot {
-            width: 8px;
-            height: 8px;
-            background: var(--accent-color);
-            border-radius: 50%;
-            position: absolute;
-            bottom: 5px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
+    .status-cancelled {
+        background: var(--cancelled-color);
+        color: white;
+    }
 
-        .schedule-details {
-            display: none;
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
-            margin-top: 20px;
-        }
-        .calendar-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 5px;
-    margin-bottom: 20px;
-}
+    .schedule-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--accent-color);
+        color: white;
+    }
 
-.calendar-header {
-    text-align: center;
-    font-weight: bold;
-    padding: 10px;
-    background: var(--primary-color);
-    color: white;
-    border-radius: 5px;
-}
+    .timeline {
+        border-left: 3px solid var(--primary-color);
+        padding-left: 1rem;
+        margin: 1rem 0;
+    }
 
-.calendar-day {
-    background: white;
-    border-radius: 10px;
-    padding: 15px;
-    min-height: 100px;
-    cursor: pointer;
-    transition: all 0.3s;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-}
+    .btn-schedule {
+        background: var(--accent-color);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        transition: all 0.3s;
+    }
 
-.calendar-day.empty {
-    background: #f8f9fa;
-    cursor: default;
-}
+    .btn-schedule:hover {
+        background: #2c7a7b;
+        color: white;
+    }
 
-.day-number {
-    font-weight: bold;
-    margin-bottom: 5px;
-}
+    .schedule-details {
+        display: none;
+        background: white;
+        border-radius: 15px;
+        padding: 20px;
+        margin-top: 20px;
+    }
 
-.event-dot {
-    width: 8px;
-    height: 8px;
-    background: var(--accent-color);
-    border-radius: 50%;
-    align-self: center;
-}
-/* Adicione estes estilos */
-.schedule-card-details {
-    background: white;
-    border-radius: 15px;
-    padding: 20px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-}
+    .schedule-card-details {
+        background: white;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
 
-.schedule-card-details label.form-label {
-    font-weight: bold;
-    color: var(--primary-color);
-}
+    .schedule-card-details label.form-label {
+        font-weight: bold;
+        color: var(--primary-color);
+    }
 
-#appointmentDetails p {
-    margin-bottom: 0.5rem;
-    padding: 8px;
-    background: #f8f9fa;
-    border-radius: 5px;
-}
-    </style>
+    #appointmentDetails p {
+        margin-bottom: 0.5rem;
+        padding: 8px;
+        background: #f8f9fa;
+        border-radius: 5px;
+    }
+
+    /* Navbar */
+    .navbar {
+        background: var(--primary-color);
+    }
+
+    .navbar-brand {
+        font-weight: bold;
+    }
+
+    .navbar-brand i {
+        margin-right: 10px;
+    }
+
+    /* Sidebar */
+    .sidebar {
+        background: var(--secondary-color);
+        color: white;
+        min-height: 100vh;
+    }
+
+    .sidebar h5 {
+        color: white;
+    }
+
+    .sidebar .form-label {
+        color: white;
+    }
+
+    .sidebar .form-select,
+    .sidebar .form-control {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: white;
+        border: none;
+    }
+
+    .sidebar .form-select:focus,
+    .sidebar .form-control:focus {
+        background-color: rgba(255, 255, 255, 0.2);
+        color: white;
+    }
+
+    .sidebar .btn-light {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: white;
+        border: none;
+    }
+
+    .sidebar .btn-light:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Modal */
+    .modal-content {
+        border-radius: 15px;
+    }
+
+    .modal-header {
+        background: var(--primary-color);
+        color: white;
+        border-radius: 15px 15px 0 0;
+    }
+
+    .modal-title {
+        font-weight: bold;
+    }
+
+    .modal-body {
+        padding: 20px;
+    }
+</style>
 </head>
 <body>
     <!-- Navbar -->
@@ -427,10 +490,11 @@ $calendario = gerarCalendario($mes, $ano, $agendamentos);
 
         // Função auxiliar para formatar data
         function formatarData(dataString) {
-            const data = new Date(dataString);
-            const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
-            return data.toLocaleDateString('pt-BR', options);
-        }
+    // Adiciona 'T00:00:00' para forçar UTC
+    const data = new Date(dataString + 'T00:00:00Z');
+    const options = { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'UTC' };
+    return data.toLocaleDateString('pt-BR', options);
+}
     </script>
 </body>
 </html>
