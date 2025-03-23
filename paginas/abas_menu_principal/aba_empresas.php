@@ -69,30 +69,8 @@
             </p>
         </div>
     </section>
-
-    <!-- Search Section -->
-    <section class="py-8 bg-blue-900 mb-12">
-        <div class="container mx-auto px-4">
-            <div class="flex flex-col md:flex-row gap-4">
-                <div class="md:w-8/12">
-                    <input type="text" placeholder="Buscar por nome, cidade ou especialidade..." class="w-full px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
-                </div>
-                <div class="md:w-3/12">
-                    <select class="w-full px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white">
-                        <option>Todas as Categorias</option>
-                        <option>Transporte Urgente</option>
-                        <option>Transporte Aéreo</option>
-                        <option>Ambulância Leito</option>
-                    </select>
-                </div>
-                <div class="md:w-1/12">
-                    <button class="w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold py-3 px-4 rounded-lg transform transition-all hover:scale-105 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50">
-                        Filtrar
-                    </button>
-                </div>
-            </div>
-        </div>
-    </section>
+            
+    <!-- Tirei a aparte do filtro de pesquisa " está sendo analisado "  -->
 
     <!-- Company List -->
     <section class="py-8">
@@ -121,11 +99,11 @@
                             <div>
                                 <p class="flex items-center text-gray-700">
                                     <i data-lucide="map-pin" class="h-5 w-5 mr-2 text-teal-500"></i>
-                                    São Paulo - SP
+                                    Salvador - BA
                                 </p>
                                 <p class="flex items-center text-gray-700">
                                     <i data-lucide="phone" class="h-5 w-5 mr-2 text-teal-500"></i>
-                                    (11) 99999-9999
+                                    (71) 99275-1465
                                 </p>
                             </div>
                             <div>
@@ -140,9 +118,19 @@
                                 </div>
                             </div>
                         </div>
-                        <button class="bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 px-6 rounded-lg transform transition-all hover:scale-105 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50">
-                            Solicitar Orçamento
-                        </button>
+                        <!-- Adicionado tipos de veículos e preços -->
+                        <div class="mb-4">
+                            <h4 class="text-xl font-bold text-gray-800 mb-2">Tipos de Veículos e Preços</h4>
+                            <ul class="list-disc list-inside text-gray-600">
+                                <li>Ambulância UTI - R$ 500,00</li>
+                                <li>Ambulância Leito - R$ 400,00</li>
+                                <li>Ambulância Neonatal - R$ 600,00</li>
+                            </ul>
+                        </div>
+                        <!-- Alterado botão solicitar orçamento para link de agendamento -->
+                        <a href="/MedQ-2/area_cliente/agendamento_cliente.php" class="bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 px-6 rounded-lg transform transition-all hover:scale-105 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50 inline-block text-center">
+                            Solicitar Agendamento
+                        </a>
                     </div>
                 </div>
             </div>
@@ -175,7 +163,7 @@
                                 </p>
                                 <p class="flex items-center text-gray-700">
                                     <i data-lucide="phone" class="h-5 w-5 mr-2 text-teal-500"></i>
-                                    (21) 99999-9999
+                                    (21) 99971-3052
                                 </p>
                             </div>
                             <div>
@@ -190,9 +178,19 @@
                                 </div>
                             </div>
                         </div>
-                        <button class="bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 px-6 rounded-lg transform transition-all hover:scale-105 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50">
-                            Solicitar Orçamento
-                        </button>
+                        <!-- Adicionado tipos de veículos e preços -->
+                        <div class="mb-4">
+                            <h4 class="text-xl font-bold text-gray-800 mb-2">Tipos de Veículos e Preços</h4>
+                            <ul class="list-disc list-inside text-gray-600">
+                                <li>Ambulância Leito - R$ 350,00</li>
+                                <li>Veículo Adaptado para Cadeirantes - R$ 300,00</li>
+                                <li>Veículo para Idosos - R$ 320,00</li>
+                            </ul>
+                        </div>
+                        <!-- Alterado botão solicitar orçamento para link de agendamento -->
+                        <a href="/MedQ-2/area_cliente/agendamento_cliente.php" class="bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 px-6 rounded-lg transform transition-all hover:scale-105 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50 inline-block text-center">
+                            Solicitar Agendamento
+                        </a>
                     </div>
                 </div>
             </div>
@@ -239,9 +237,19 @@
                                 </div>
                             </div>
                         </div>
-                        <button class="bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 px-6 rounded-lg transform transition-all hover:scale-105 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50">
-                            Solicitar Orçamento
-                        </button>
+                        <!-- Adicionado tipos de veículos e preços -->
+                        <div class="mb-4">
+                            <h4 class="text-xl font-bold text-gray-800 mb-2">Tipos de Veículos e Preços</h4>
+                            <ul class="list-disc list-inside text-gray-600">
+                                <li>Ambulância UTI - R$ 550,00</li>
+                                <li>Ambulância Leito - R$ 450,00</li>
+                                <li>Veículo de Suporte Básico - R$ 300,00</li>
+                            </ul>
+                        </div>
+                        <!-- Alterado botão solicitar orçamento para link de agendamento -->
+                        <a href="/MedQ-2/area_cliente/agendamento_cliente.php" class="bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 px-6 rounded-lg transform transition-all hover:scale-105 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50 inline-block text-center">
+                            Solicitar Agendamento
+                        </a>
                     </div>
                 </div>
             </div>
@@ -288,9 +296,19 @@
                                 </div>
                             </div>
                         </div>
-                        <button class="bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 px-6 rounded-lg transform transition-all hover:scale-105 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50">
-                            Solicitar Orçamento
-                        </button>
+                        <!-- Adicionado tipos de veículos e preços -->
+                        <div class="mb-4">
+                            <h4 class="text-xl font-bold text-gray-800 mb-2">Tipos de Veículos e Preços</h4>
+                            <ul class="list-disc list-inside text-gray-600">
+                                <li>Ambulância UTI - R$ 600,00</li>
+                                <li>Ambulância Leito - R$ 500,00</li>
+                                <li>Veículo de Suporte Avançado - R$ 700,00</li>
+                            </ul>
+                        </div>
+                        <!-- Alterado botão solicitar orçamento para link de agendamento -->
+                        <a href="/MedQ-2/area_cliente/agendamento_cliente.php" class="bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 px-6 rounded-lg transform transition-all hover:scale-105 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50 inline-block text-center">
+                            Solicitar Agendamento
+                        </a>
                     </div>
                 </div>
             </div>
@@ -337,9 +355,19 @@
                                 </div>
                             </div>
                         </div>
-                        <button class="bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 px-6 rounded-lg transform transition-all hover:scale-105 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50">
-                            Solicitar Orçamento
-                        </button>
+                        <!-- Adicionado tipos de veículos e preços -->
+                        <div class="mb-4">
+                            <h4 class="text-xl font-bold text-gray-800 mb-2">Tipos de Veículos e Preços</h4>
+                            <ul class="list-disc list-inside text-gray-600">
+                                <li>Ambulância UTI - R$ 650,00</li>
+                                <li>Ambulância Leito - R$ 550,00</li>
+                                <li>Veículo de Suporte Avançado - R$ 750,00</li>
+                            </ul>
+                        </div>
+                        <!-- Alterado botão solicitar orçamento para link de agendamento -->
+                        <a href="/MedQ-2/area_cliente/agendamento_cliente.php" class="bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 px-6 rounded-lg transform transition-all hover:scale-105 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50 inline-block text-center">
+                            Solicitar Agendamento
+                        </a>
                     </div>
                 </div>
             </div>
@@ -386,9 +414,19 @@
                                 </div>
                             </div>
                         </div>
-                        <button class="bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 px-6 rounded-lg transform transition-all hover:scale-105 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50">
-                            Solicitar Orçamento
-                        </button>
+                        <!-- Adicionado tipos de veículos e preços -->
+                        <div class="mb-4">
+                            <h4 class="text-xl font-bold text-gray-800 mb-2">Tipos de Veículos e Preços</h4>
+                            <ul class="list-disc list-inside text-gray-600">
+                                <li>Ambulância UTI - R$ 700,00</li>
+                                <li>Ambulância Leito - R$ 600,00</li>
+                                <li>Veículo de Suporte Básico - R$ 400,00</li>
+                            </ul>
+                        </div>
+                        <!-- Alterado botão solicitar orçamento para link de agendamento -->
+                        <a href="/MedQ-2/area_cliente/agendamento_cliente.php" class="bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 px-6 rounded-lg transform transition-all hover:scale-105 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50 inline-block text-center">
+                            Solicitar Agendamento
+                        </a>
                     </div>
                 </div>
             </div>
