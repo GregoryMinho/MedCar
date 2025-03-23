@@ -4,11 +4,12 @@ $dbname = 'medcar_agendamentos';
 $user = 'root';
 $pass = '';
 
-date_default_timezone_set('America/Sao_Paulo'); // Ou seu fuso horário
+
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $user, $pass);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $pdo->exec("SET time_zone = '-03:00';"); // Sincroniza com o fuso horário do PHP
 } catch(PDOException $e) {
     die("Não foi possível conectar ao banco de dados: " . $e->getMessage());
 }
@@ -38,15 +39,21 @@ function gerarCalendario($mes, $ano, $agendamentos) {
     
     // Preenche dias
     for ($dia = 1; $dia <= $dias_mes; $dia++) {
-        $data = "$ano-$mes-".str_pad($dia, 2, '0', STR_PAD_LEFT);
-        $eventos = array_filter($agendamentos, fn($a) => $a['data_formatada'] == $data);
+        $dataCalendario = "$ano-$mes-" . str_pad($dia, 2, '0', STR_PAD_LEFT);
         
-        $calendario .= '<div class="calendar-day'.(count($eventos) ? ' has-event' : '').'" 
-                          onclick="showScheduleDetails(\''.$data.'\')">
-                          <div class="day-number">'.$dia.'</div>
-                          '.(count($eventos) ? '<div class="event-dot"></div>' : '').'
+        $eventos = array_filter($agendamentos, function($a) use ($dataCalendario) {
+            // Cria um objeto DateTime com o fuso horário de São Paulo
+            $dataAgendamento = new DateTime($a['data_convertida'], new DateTimeZone('America/Sao_Paulo'));
+            return $dataAgendamento->format('Y-m-d') === $dataCalendario;
+        });
+    
+        $calendario .= '<div class="calendar-day' . (count($eventos) ? ' has-event' : '') . '" 
+                          onclick="showScheduleDetails(\'' . $dataCalendario . '\')">
+                          <div class="day-number">' . $dia . '</div>
+                          ' . (count($eventos) ? '<div class="event-dot"></div>' : '') . '
                         </div>';
     }
+
     
     // Completa grid
     $total_cells = $primeiro_dia + $dias_mes;
@@ -64,16 +71,24 @@ $filtros = [
     'tipo' => $_GET['tipo'] ?? 'all'
 ];
 
+// Define o intervalo do mês (início e fim)
+$inicio_mes = $filtros['mes'] . '-01'; // Primeiro dia do mês
+$fim_mes = date('Y-m-t', strtotime($inicio_mes)); // Último dia do mês
+
 // Buscar agendamentos
+// Buscar agendamentos (ATUALIZE ESTE TRECHO)
 $sql = "SELECT 
             a.*, 
-            DATE(CONVERT_TZ(a.data_consulta, '+00:00', '-03:00')) AS data_formatada,
+            CONVERT_TZ(a.data_consulta, '+00:00', '+03:00') AS data_convertida, 
             c.nome 
         FROM medcar_agendamentos.agendamentos a
         JOIN medcar_cadastro_login.clientes c ON a.cliente_id = c.id
-        WHERE DATE_FORMAT(CONVERT_TZ(a.data_consulta, '+00:00', '-03:00'), '%Y-%m') = :mes";
+        WHERE DATE(CONVERT_TZ(a.data_consulta, '+00:00', '+03:00')) BETWEEN :inicio_mes AND :fim_mes";
 
-$params = [':mes' => $filtros['mes']];
+$params = [
+    ':inicio_mes' => $inicio_mes,
+    ':fim_mes' => $fim_mes
+];
 
 if ($filtros['status'] != 'all') {
     $sql .= " AND situacao = :status";
@@ -490,10 +505,11 @@ $calendario = gerarCalendario($mes, $ano, $agendamentos);
 
         // Função auxiliar para formatar data
         function formatarData(dataString) {
-    // Adiciona 'T00:00:00' para forçar UTC
-    const data = new Date(dataString + 'T00:00:00Z');
-    const options = { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'UTC' };
-    return data.toLocaleDateString('pt-BR', options);
+    const [ano, mes, dia] = dataString.split('-');
+    const data = new Date(ano, mes - 1, dia); // Mês é 0-based no JavaScript
+    const d = String(data.getDate()).padStart(2, '0');
+    const m = String(data.getMonth() + 1).padStart(2, '0');
+    return `${d}/${m}/${data.getFullYear()}`;
 }
     </script>
 </body>
