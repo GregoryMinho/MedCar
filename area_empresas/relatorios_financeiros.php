@@ -1,4 +1,8 @@
 <?php
+require '../includes/valida_login.php'; // inclui o arquivo de validação de login
+
+verificarPermissao('empresa'); // verifica se o usuário logado é uma empresa
+
 // Conexão com o banco de dados
 $servername = "localhost";
 $username   = "root";
@@ -76,7 +80,7 @@ $mesAnterior = prev($faturamentoMensal);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MedQ - Dashboard Financeiro</title>
+    <title>MedCar - Dashboard Financeiro</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -158,7 +162,7 @@ $mesAnterior = prev($faturamentoMensal);
         <div class="container">
             <a class="navbar-brand" href="#">
                 <i class="fas fa-chart-line me-2"></i>
-                MedQ Financeiro
+                MedCar Financeiro
             </a>
             <div class="d-flex align-items-center">
                 <div class="text-white me-3">Relatório Mensal</div>

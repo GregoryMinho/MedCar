@@ -1,5 +1,12 @@
 <?php
+<<<<<<< Updated upstream
 require 'conexao_BdAgendamento.php';
+=======
+require '../includes/conexao_BdAgendamento.php';
+require '../includes/valida_login.php'; // inclui o arquivo de validação de login
+
+verificarPermissao('empresa'); // verifica se o usuário logado é uma empresa
+>>>>>>> Stashed changes
 
 // Recupera o mês selecionado via GET
 $selectedMonth = isset($_GET['month']) ? $_GET['month'] : '2024-03';
@@ -44,7 +51,7 @@ $conn->close();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MedQ - Relatórios de Pacientes</title>
+    <title>MedCar - Relatórios de Pacientes</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -131,7 +138,7 @@ $conn->close();
         <div class="container">
             <a class="navbar-brand" href="#">
                 <i class="fas fa-chart-line me-2"></i>
-                MedQ Relatórios
+                MedCar Relatórios
             </a>
             <div class="d-flex align-items-center">
                 <div class="text-white me-3">Relatórios Mensais</div>

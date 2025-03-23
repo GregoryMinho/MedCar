@@ -2,7 +2,9 @@
 require '../includes/valida_login.php'; // inclui o arquivo de validação de login
 require '../includes/conexao_BdAgendamento.php'; // inclui o arquivo de conexão com o banco de dados
 
+verificarPermissao('cliente'); // verifica se o usuario logado é um cliente
 
+<<<<<<< Updated upstream
 $_SESSION['usuario'] = array(); ////////////// Initialize as an array, excluir depois
 
 $_SESSION['usuario']['tipo'] = 'CLIENTE'; ///////////// simula um cliente logado, excluir depois
@@ -12,6 +14,9 @@ verificarPermissao('CLIENTE'); // verifica se o usuario logado é um cliente
 $_SESSION['usuario']['id'] = 1; /////////////// simula um cliente logado, excluir depois
 
 $cliente_id = $_SESSION['usuario']['id'];
+=======
+$cliente_id = $_SESSION['usuario']['id'];  // ID do cliente logado
+>>>>>>> Stashed changes
 
 // Query para buscar os agendamentos do cliente logado
 try {
@@ -59,6 +64,7 @@ $anos = array_keys($agendamentosPorAno);
             <div class="flex items-center">
                 <span class="mr-3">Histórico de Agendamentos</span>
                 <img src="https://source.unsplash.com/random/40x40/?icon" class="rounded-full" alt="Perfil">
+                <a href="../includes/logout.php" class="font-medium hover:text-teal-300 transition">Logout</a>
             </div>
         </div>
     </nav>

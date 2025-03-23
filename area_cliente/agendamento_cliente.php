@@ -120,6 +120,7 @@ $empresa_id = 1;    //////// temporario////////////////////////
                     <a href="index.html#funcionalidades" class="font-medium hover:text-teal-300 transition">Funcionalidades</a>
                     <a href="index.html#vantagens" class="font-medium hover:text-teal-300 transition">Vantagens</a>
                     <a href="index.html#contato" class="font-medium hover:text-teal-300 transition">Contato</a>
+                    <a href="../includes/logout.php" class="font-medium hover:text-teal-300 transition">Logout</a>
                     <button id="mobile-menu-button" class="md:hidden text-white ml-2">
                         <i data-lucide="menu" class="h-6 w-6"></i>
                     </button>

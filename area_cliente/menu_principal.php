@@ -1,3 +1,8 @@
+<?php
+require '../includes/valida_login.php'; // inclui o arquivo de validação de login
+session_start(); // Inicia a sessão
+verificarPermissao('cliente'); // verifica se o usuário logado é um cliente
+?>
 <!DOCTYPE html>
 <html lang="pt-br">
 
@@ -86,6 +91,7 @@
                     <a href="menu_principal.php" class="font-medium hover:text-teal-300 transition">Home</a>
                     <a href="/MedQ-2/paginas/abas_menu_principal/aba_empresas.php" class="font-medium hover:text-teal-300 transition">Empresas</a>  <!-- conectado as empresas , checa os outros butooes estao funcionando. -->
                     <a href="#" class="font-medium hover:text-teal-300 transition">Contato</a>
+                    <a href="../includes/logout.php" class="font-medium hover:text-teal-300 transition">Logout</a>
                     <button id="mobile-menu-button" class="md:hidden text-white ml-2">
                         <i data-lucide="menu" class="h-6 w-6"></i>
                     </button>
