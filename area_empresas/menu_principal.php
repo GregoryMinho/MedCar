@@ -1,3 +1,9 @@
+<?php
+require '../includes/valida_login.php'; // inclui o arquivo de validação de login
+session_start(); // Inicia a sessão
+
+verificarPermissao('empresa'); // verifica se o usuário logado é uma empresa
+?>
 <!DOCTYPE html>
 <html lang="pt-br">
 
@@ -80,21 +86,16 @@
 
 <body class="min-h-screen bg-gray-50">
     <!-- Navbar -->
-    <nav class="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-blue-900 to-blue-800 text-white shadow-md">
-        <div class="container mx-auto px-4">
-            <div class="flex items-center justify-between h-16">
-                <a href="#" class="flex items-center space-x-2 text-xl font-bold">
-                    <i data-lucide="ambulance" class="h-6 w-6"></i>
-                    <span>MedCar</span>
-                </a>
-
-                <div class="flex items-center space-x-4">
-                    <div class="text-white mr-3">Bem-vindo, nome da empresa</div>
-                    <img src="https://source.unsplash.com/random/40x40/?logo" class="rounded-full h-8 w-8" alt="Logo">
-                    <button id="mobile-menu-button" class="md:hidden text-white ml-2">
-                        <i data-lucide="menu" class="h-6 w-6"></i>
-                    </button>
-                </div>
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top" style="background: var(--primary-color);">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-ambulance me-2"></i>
+                MedCar
+            </a>
+            <div class="d-flex align-items-center">
+                <div class="text-white me-3">Bem-vindo, nome da empresa</div>
+                <img src="https://source.unsplash.com/random/40x40/?logo" class="rounded-circle" alt="Logo">
+                <a href="../includes/logout.php" class="btn btn-outline-light ms-3">Logout</a>
             </div>
         </div>
     </nav>

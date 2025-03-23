@@ -1,18 +1,8 @@
 <?php
-$host = 'localhost';
-$dbname = 'medcar_agendamentos';
-$user = 'root';
-$pass = '';
+require '../includes/conexao_BdAgendamento.php'; // inclui o arquivo de conexão com o banco de dados
+require '../includes/valida_login.php'; // inclui o arquivo de validação de login
 
-
-
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $user, $pass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    $pdo->exec("SET time_zone = '-03:00';"); // Sincroniza com o fuso horário do PHP
-} catch(PDOException $e) {
-    die("Não foi possível conectar ao banco de dados: " . $e->getMessage());
-}
+verificarPermissao('empresa'); // verifica se o usuário logado é uma empresa
 
 // Função para gerar o calendário
 function gerarCalendario($mes, $ano, $agendamentos) {
@@ -116,7 +106,7 @@ $calendario = gerarCalendario($mes, $ano, $agendamentos);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MedQ - Agendamentos</title>
+    <title>MedCar - Agendamentos</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -382,7 +372,7 @@ $calendario = gerarCalendario($mes, $ano, $agendamentos);
         <div class="container">
             <a class="navbar-brand" href="/MedQ-2/paginas/pagina_inicial.php">
                 <i class="fas fa-ambulance me-2"></i>
-                MedQ Transportes
+                MedCar Transportes
             </a>
             <div class="d-flex align-items-center">
                 <div class="text-white me-3">Transportadora Saúde Total</div>

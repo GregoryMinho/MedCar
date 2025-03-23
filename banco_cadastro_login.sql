@@ -6,10 +6,14 @@ CREATE TABLE clientes (
     nome VARCHAR(100) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     senha VARCHAR(255) NOT NULL, -- A senha será armazenada criptografada
-    cpf VARCHAR(14) UNIQUE NOT NULL, -- add um novo campo cpf que não tinha
     telefone VARCHAR(20),
-     tipo VARCHAR(20) DEFAULT 'cliente', -- não usei isso aqui ainda 
+<<<<<<< Updated upstream
+    tipo DEFAULT 'cliente',
+    data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+=======
+    tipo VARCHAR(20) DEFAULT 'cliente', 
     data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP --  ^ a mesma coisa pq não sei se isso vai ser viável 
+>>>>>>> Stashed changes
 );
 
 CREATE TABLE empresas (
@@ -19,7 +23,11 @@ CREATE TABLE empresas (
     senha VARCHAR(255) NOT NULL, -- A senha será armazenada criptografada
     telefone VARCHAR(20),
     cnpj VARCHAR(20) UNIQUE NOT NULL,
-     tipo VARCHAR(20) DEFAULT 'empresa',
+<<<<<<< Updated upstream
+    tipo DEFAULT 'empresa',
+=======
+    tipo VARCHAR(20) DEFAULT 'empresa',
+>>>>>>> Stashed changes
     data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
