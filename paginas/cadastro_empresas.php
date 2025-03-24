@@ -1,24 +1,17 @@
+<?php
+session_start();
+?>
 <!DOCTYPE html>
-<html lang="pt-br">
-
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastro Empresa</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        .mobile-menu {
-            transition: transform 0.3s ease-in-out;
-            transform: translateX(100%);
-        }
-
-        .mobile-menu.open {
-            transform: translateX(0);
-        }
-    </style>
+    <title>cadastro_empresas</title>
 </head>
+<<<<<<< Updated upstream
+<body>
+    <h1>Comming soon!!!</h1>
+=======
 
 <body class="min-h-screen bg-gradient-to-r from-blue-900 to-blue-800">
     <header>
@@ -68,7 +61,7 @@
                 <div class="flex flex-col md:flex-row">
                     <!-- Cadastro Form -->
                     <div class="w-full md:w-1/2 p-8">
-                        <form id="cadastro-form" class="space-y-6" action="cadastro_empresa.php" method="POST">
+                        <form action="actions/action_cadastro_empresa.php" method="POST" id="cadastro-form" class="space-y-6">
                             <div>
                                 <label for="nome" class="block text-sm font-medium text-gray-700">Nome da Empresa</label>
                                 <input type="text" id="nome" name="nome" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" placeholder="Nome da empresa" required>
@@ -93,6 +86,14 @@
                                 <label for="confirmar_senha" class="block text-sm font-medium text-gray-700">Confirmar Senha</label>
                                 <input type="password" id="confirmar_senha" name="confirmar_senha" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" placeholder="••••••••" required>
                             </div>
+                            <p class="text-m text-red-600">
+                                <?php // impremir mensagem de erro, então limpa a variável de sessão
+                                    if (isset($_SESSION['erro'])) {
+                                        echo $_SESSION['erro'];
+                                        unset($_SESSION['erro']);
+                                    }
+                                ?>
+                            </p>
                             <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-teal-500 hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500">
                                 Cadastrar
                             </button>
@@ -158,6 +159,6 @@
         $('#cnpj').mask('00.000.000/0000-00');
         $('#telefone').mask('(00) 00000-0000');
     </script>
+>>>>>>> Stashed changes
 </body>
-
 </html>

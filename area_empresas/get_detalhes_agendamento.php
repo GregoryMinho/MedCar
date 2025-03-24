@@ -1,15 +1,5 @@
 <?php
-$host = 'localhost';
-$dbname = 'medcar_agendamentos';
-$user = 'root';
-$pass = '';
-
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $user, $pass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch(PDOException $e) {
-    die("Não foi possível conectar ao banco de dados: " . $e->getMessage());
-}
+require '../includes/conexao_BdAgendamento.php'; // inclui o arquivo de conexão com o banco de dados
 
 $id = $_GET['id'] ?? 0;
 
