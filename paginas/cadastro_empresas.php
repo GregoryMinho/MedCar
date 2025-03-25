@@ -6,12 +6,21 @@ session_start();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>cadastro_empresas</title>
+    <title>Cadastro Empresa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .mobile-menu {
+            transition: transform 0.3s ease-in-out;
+            transform: translateX(100%);
+        }
+
+        .mobile-menu.open {
+            transform: translateX(0);
+        }
+    </style>
 </head>
-<<<<<<< Updated upstream
-<body>
-    <h1>Comming soon!!!</h1>
-=======
 
 <body class="min-h-screen bg-gradient-to-r from-blue-900 to-blue-800">
     <header>
@@ -159,6 +168,5 @@ session_start();
         $('#cnpj').mask('00.000.000/0000-00');
         $('#telefone').mask('(00) 00000-0000');
     </script>
->>>>>>> Stashed changes
 </body>
 </html>

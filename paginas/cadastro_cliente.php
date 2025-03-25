@@ -6,12 +6,21 @@ session_start();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>cadastro_cliente</title>
+    <title>Cadastro Cliente</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .mobile-menu {
+            transition: transform 0.3s ease-in-out;
+            transform: translateX(100%);
+        }
+
+        .mobile-menu.open {
+            transform: translateX(0);
+        }
+    </style>
 </head>
-<<<<<<< Updated upstream
-<body>
-    <h1>Comming soon!!!</h1>
-=======
 
 <body class="min-h-screen bg-gradient-to-r from-blue-900 to-blue-800">
     <header>
@@ -23,8 +32,7 @@ session_start();
                         <span>MedCar</span>
                     </a>
                     <div class="hidden md:flex space-x-6">
-                        <a href="/MedQ-2/area_cliente/menu_principal.php" class="font-medium hover:text-teal-300 transition">Home</a>
-                        <a href="/MedQ-2/paginas/abas_menu_principal/aba_empresas.php" class="font-medium hover:text-teal-300 transition">Empresas</a>
+                        <a href="/MedQ-2/paginas/pagina_inicial.php" class="font-medium hover:text-teal-300 transition">Home</a>
                         <a href="#" class="font-medium hover:text-teal-300 transition">Contato</a>
                     </div>
                     <button id="mobile-menu-button" aria-expanded="false" aria-controls="mobile-menu" class="md:hidden text-white">
@@ -176,6 +184,5 @@ session_start();
         $('#telefone').mask('(00) 00000-0000');
     </script>
 
->>>>>>> Stashed changes
 </body>
 </html>

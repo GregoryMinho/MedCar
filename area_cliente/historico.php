@@ -4,20 +4,7 @@ require '../includes/conexao_BdAgendamento.php'; // inclui o arquivo de conexão
 
 verificarPermissao('cliente'); // verifica se o usuario logado é um cliente
 
-<<<<<<< Updated upstream
-$_SESSION['usuario'] = array(); ////////////// Initialize as an array, excluir depois
-
-$_SESSION['usuario']['tipo'] = 'CLIENTE'; ///////////// simula um cliente logado, excluir depois
-
-verificarPermissao('CLIENTE'); // verifica se o usuario logado é um cliente
-
-$_SESSION['usuario']['id'] = 1; /////////////// simula um cliente logado, excluir depois
-
-$cliente_id = $_SESSION['usuario']['id'];
-=======
 $cliente_id = $_SESSION['usuario']['id'];  // ID do cliente logado
->>>>>>> Stashed changes
-
 // Query para buscar os agendamentos do cliente logado
 try {
     $sql = "SELECT * FROM agendamentos WHERE cliente_id = :cliente_id ORDER BY data_consulta DESC, horario DESC";

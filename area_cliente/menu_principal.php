@@ -1,7 +1,7 @@
 <?php
 require '../includes/valida_login.php'; // inclui o arquivo de validação de login
-session_start(); // Inicia a sessão
 verificarPermissao('cliente'); // verifica se o usuário logado é um cliente
+
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -150,6 +150,7 @@ verificarPermissao('cliente'); // verifica se o usuário logado é um cliente
                 <div class="container mx-auto px-4">
                     <h1 class="text-3xl md:text-4xl font-bold mb-6">Área do Paciente</h1>
 
+
                     <!-- Stats Cards -->
                     <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
                         <!-- Próximo Transporte -->
@@ -170,7 +171,7 @@ verificarPermissao('cliente'); // verifica se o usuário logado é um cliente
                             <div class="mb-2">
                                 <i data-lucide="bar-chart-2" class="h-8 w-8 mx-auto text-teal-500"></i>
                             </div>
-                            <h5 class="text-sm font-semibold mb-1">Transportes Realizados</h5>
+                            <h5 class="text-sm font-semibold mb-1">Transportes Realizados </h5>
                             <p class="text-2xl font-bold">12</p>
                             <p class="text-xs text-gray-600">+2 este mês</p>
                         </div>
@@ -203,9 +204,9 @@ verificarPermissao('cliente'); // verifica se o usuário logado é um cliente
                             <i data-lucide="ambulance" class="h-10 w-10 mx-auto text-teal-500 mb-3"></i>
                             <h5 class="text-lg font-semibold text-blue-900 mb-2">Agendar Transporte</h5>
                             <p class="text-sm text-gray-600 mb-4">Agende seu transporte médico com antecedência</p>
-                            <button class="bg-teal-500 hover:bg-teal-600 text-white font-medium py-2 px-4 rounded-lg transition-all hover:scale-105">
+                            <a href="../paginas/abas_menu_principal/aba_empresas.php" class="bg-teal-500 hover:bg-teal-600 text-white font-medium py-2 px-4 rounded-lg transition-all hover:scale-105">
                                 Agendar Agora
-                            </button>
+                            </a>
                         </div>
 
                         <div class="dashboard-card relative overflow-hidden bg-white rounded-xl shadow-lg p-6 text-center">
@@ -221,9 +222,9 @@ verificarPermissao('cliente'); // verifica se o usuário logado é um cliente
                             <i data-lucide="star" class="h-10 w-10 mx-auto text-teal-500 mb-3"></i>
                             <h5 class="text-lg font-semibold text-blue-900 mb-2">Empresas Favoritas</h5>
                             <p class="text-sm text-gray-600 mb-4">Gerencie suas empresas preferidas</p>
-                            <button class="bg-teal-500 hover:bg-teal-600 text-white font-medium py-2 px-4 rounded-lg transition-all hover:scale-105">
+                            <a class="bg-teal-500 hover:bg-teal-600 text-white font-medium py-2 px-4 rounded-lg transition-all hover:scale-105">
                                 Ver Favoritos
-                            </button>
+                            </a>
                         </div>
                     </div>
                 </div>

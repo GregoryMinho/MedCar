@@ -28,19 +28,14 @@ session_start();
     <nav class="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-blue-900 to-blue-800 text-white shadow-md">
         <div class="container mx-auto px-4">
             <div class="flex items-center justify-between h-16">
-                <a href="#" class="flex items-center space-x-2 text-xl font-bold">
+                <a href="/MedQ-2/paginas/pagina_inicial.php" class="flex items-center space-x-2 text-xl font-bold">
                     <i data-lucide="ambulance" class="h-6 w-6"></i>
                     <span>MedCar</span>
                 </a>
-<<<<<<< Updated upstream
-                
-=======
 
-                <!--
->>>>>>> Stashed changes
+                
                 <div class="hidden md:flex space-x-6">
-                    <a href="/MedQ-2/area_cliente/menu_principal.php" class="font-medium hover:text-teal-300 transition">Home</a>
-                    <a href="/MedQ-2/paginas/abas_menu_principal/aba_empresas.php" class="font-medium hover:text-teal-300 transition">Empresas</a>
+                    <a href="/MedQ-2/paginas/pagina_inicial.php" class="font-medium hover:text-teal-300 transition">Home</a>                   
                     <a href="#" class="font-medium hover:text-teal-300 transition">Contato</a>
                 </div>
                 
@@ -60,8 +55,7 @@ session_start();
         </div>
 
         <div class="flex flex-col items-center justify-center space-y-8 flex-grow text-xl">
-            <a href="#" class="font-medium hover:text-teal-300 transition">Home</a>
-            <a href="#" class="font-medium hover:text-teal-300 transition">Empresas</a>
+            <a href="/MedQ-2/paginas/pagina_inicial.php" class="font-medium hover:text-teal-300 transition">Home</a>    
             <a href="#" class="font-medium hover:text-teal-300 transition">Contato</a>
         </div>
     </div>
@@ -117,11 +111,8 @@ session_start();
                             <li>Cupons de desconto para clientes frequentes</li>
                             <li>Suporte 24 horas</li>
                         </ul>
-<<<<<<< Updated upstream
-=======
 
                         <!-- Add os links das paginas do face e google que não tinha -->
->>>>>>> Stashed changes
                         <div class="mt-8">
                             <p class="text-sm text-gray-600 mb-4">Entrar com redes sociais</p>
                             <div class="grid grid-cols-2 gap-4">
