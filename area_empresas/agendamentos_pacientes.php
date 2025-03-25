@@ -90,7 +90,7 @@ if ($filtros['tipo'] != 'all') {
     $params[':tipo'] = $filtros['tipo'];
 }
 
-$stmt = $pdo->prepare($sql);
+$stmt = $conn->prepare($sql);
 $stmt->execute($params); // Linha 84
 $agendamentos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -370,7 +370,7 @@ $calendario = gerarCalendario($mes, $ano, $agendamentos);
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark" style="background: var(--primary-color);">
         <div class="container">
-            <a class="navbar-brand" href="/MedQ-2/paginas/pagina_inicial.php">
+            <a class="navbar-brand" href="/MedQ-2/area_empresas/menu_principal.php">
                 <i class="fas fa-ambulance me-2"></i>
                 MedCar Transportes
             </a>

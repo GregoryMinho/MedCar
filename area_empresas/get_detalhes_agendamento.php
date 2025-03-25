@@ -14,7 +14,7 @@ $sql = "SELECT
         JOIN medcar_cadastro_login.clientes c ON a.cliente_id = c.id  -- Correção do JOIN
         WHERE a.id = :id";
 
-$stmt = $pdo->prepare($sql);
+$stmt = $conn->prepare($sql);
 $stmt->execute([':id' => $id]);
 $dados = $stmt->fetch(PDO::FETCH_ASSOC);
 

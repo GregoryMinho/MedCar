@@ -30,8 +30,7 @@
                         <span>MedCar</span>
                     </a>
                     <div class="hidden md:flex space-x-6">
-                        <a href="/MedQ-2/area_cliente/menu_principal.php" class="font-medium hover:text-teal-300 transition">Home</a>
-                        <a href="/MedQ-2/paginas/abas_menu_principal/aba_empresas.php" class="font-medium hover:text-teal-300 transition">Empresas</a>
+                        <a href="/MedQ-2/paginas/pagina_inicial.php" class="font-medium hover:text-teal-300 transition">Home</a>
                         <a href="#" class="font-medium hover:text-teal-300 transition">Contato</a>
                     </div>
                     <button id="mobile-menu-button" aria-expanded="false" aria-controls="mobile-menu" class="md:hidden text-white">

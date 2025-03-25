@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Medical Transport - Login Empresa</title>
+    <title>MedCar- Login Empresa</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -29,12 +29,7 @@
                     <i data-lucide="ambulance" class="h-6 w-6"></i>
                     <span>MedCar</span>
                 </a>
-<<<<<<< Updated upstream
-                
-=======
-
-                <!-- 
->>>>>>> Stashed changes
+                                
                 <div class="hidden md:flex space-x-6">
                     <a href="/MedQ-2/area_cliente/menu_principal.php" class="font-medium hover:text-teal-300 transition">Home</a>
                     <a href="aba_empresas.php" class="font-medium hover:text-teal-300 transition">Empresas</a>
@@ -57,8 +52,7 @@
         </div>
 
         <div class="flex flex-col items-center justify-center space-y-8 flex-grow text-xl">
-            <a href="#" class="font-medium hover:text-teal-300 transition">Home</a>
-            <a href="#" class="font-medium hover:text-teal-300 transition">Empresas</a>
+            <a href="/MedQ-2/paginas/pagina_inicial.php" class="font-medium hover:text-teal-300 transition">Home</a>           
             <a href="#" class="font-medium hover:text-teal-300 transition">Contato</a>
         </div>
     </div>

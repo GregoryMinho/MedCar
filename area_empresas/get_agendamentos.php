@@ -8,7 +8,7 @@ $sql = "SELECT a.id, c.nome
         JOIN medcar_cadastro_login.clientes c ON a.cliente_id = c.id
         WHERE a.data_consulta = :data";
 
-$stmt = $pdo->prepare($sql);
+$stmt = $conn->prepare($sql);
 $stmt->execute([':data' => $data]);
 
 echo '<div class="list-group">';

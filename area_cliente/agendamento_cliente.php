@@ -1,10 +1,9 @@
-<?php // essa pagina é acessa apos o usuario selecionar a empresa 
+<?php // essa pagina é acessada apos o usuario selecionar a empresa para agendar
 require '../includes/valida_login.php'; // inclui o arquivo de validação de login
 
-verificarPermissao('CLIENTE'); // verifica se o usuario logado é um cliente
-// logica para pegar dados basicos da empresa para enviar a solicitação de agendamento, passado por url
-//  e colocar no input hidden para enviar ao banco de dados
-//$empresa_id = $_GET['empresa_id'];
+verificarPermissao('cliente'); // verifica se o usuario logado é um cliente
+// pegar o id da empresa selecionada por sessão
+// $empresa_id = $_SESSION['empresa_id'];
 
 $empresa_id = 1;    //////// temporario////////////////////////
 ?>
