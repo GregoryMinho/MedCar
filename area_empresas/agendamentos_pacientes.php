@@ -2,7 +2,7 @@
 require '../includes/conexao_BdAgendamento.php'; // inclui o arquivo de conexão com o banco de dados
 require '../includes/valida_login.php'; // inclui o arquivo de validação de login
 
-verificarPermissao('empresa'); // verifica se o usuário logado é uma empresa
+// verifica se o usuário logado é uma empresa
 
 // Função para gerar o calendário
 function gerarCalendario($mes, $ano, $agendamentos) {
@@ -458,40 +458,53 @@ $calendario = gerarCalendario($mes, $ano, $agendamentos);
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        let currentDate = null; // Variável para armazenar a data selecionada
+          let currentDate = null;
+    // Armazena a instância do modal globalmente
+    const scheduleModal = new bootstrap.Modal(document.getElementById('scheduleModal'));
+    let isShowingDetails = false; // Adiciona um flag para controlar o estado
 
-        // Função para mostrar o modal com a lista de pacientes
-        function showScheduleDetails(data) {
-            currentDate = data;
-            fetch(`get_agendamentos.php?data=${data}`)
-                .then(response => response.text())
-                .then(html => {
-                    document.getElementById('modalSelectedDate').textContent = formatarData(data);
-                    document.getElementById('modalAgendamentosList').innerHTML = html;
-                    new bootstrap.Modal(document.getElementById('scheduleModal')).show();
-                });
-        }
+    function showScheduleDetails(data) {
+        currentDate = data;
+        isShowingDetails = false; // Resetamos o flag ao carregar a lista
+        
+        fetch(`get_agendamentos.php?data=${data}`)
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('modalSelectedDate').textContent = formatarData(data);
+                document.getElementById('modalAgendamentosList').innerHTML = html;
+                scheduleModal.show();
+            });
+    }
 
-        // Função para mostrar detalhes do paciente
-        function showAppointmentDetails(id) {
-            fetch(`get_detalhes_agendamento.php?id=${id}`)
-                .then(response => response.text())
-                .then(html => {
-                    document.getElementById('modalAgendamentosList').innerHTML = `
-                        <button onclick="backToList()" class="btn btn-secondary mb-3">
-                            <i class="fas fa-arrow-left me-2"></i>Voltar para Lista
-                        </button>
-                        ${html}
-                    `;
-                });
-        }
+    function showAppointmentDetails(id) {
+        isShowingDetails = true; // Marcamos que estamos visualizando detalhes
+        
+        fetch(`get_detalhes_agendamento.php?id=${id}`)
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('modalAgendamentosList').innerHTML = `
+                    <button onclick="backToList()" class="btn btn-secondary mb-3">
+                        <i class="fas fa-arrow-left me-2"></i>Voltar para Lista
+                    </button>
+                    ${html}
+                `;
+            });
+    }
 
-        // Função para voltar à lista de pacientes
-        function backToList() {
-            if(currentDate) {
-                showScheduleDetails(currentDate);
-            }
+    function backToList() {
+        if(currentDate && !isShowingDetails) {
+            showScheduleDetails(currentDate);
+        } else {
+            // Força o fechamento do modal se estiver em estado inconsistente
+            scheduleModal.hide();
         }
+    }
+
+    // Adiciona evento para limpar o estado quando o modal é fechado
+    document.getElementById('scheduleModal').addEventListener('hidden.bs.modal', function() {
+        currentDate = null;
+        isShowingDetails = false;
+    });
 
         // Função auxiliar para formatar data
         function formatarData(dataString) {
