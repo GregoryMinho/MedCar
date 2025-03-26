@@ -3,6 +3,7 @@ require '../includes/conexao_BdAgendamento.php'; // inclui o arquivo de conexão
 require '../includes/valida_login.php'; // inclui o arquivo de validação de login
 
 // verifica se o usuário logado é uma empresa
+verificarPermissao('empresa'); 
 
 // Função para gerar o calendário
 function gerarCalendario($mes, $ano, $agendamentos) {
