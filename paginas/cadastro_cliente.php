@@ -1,5 +1,5 @@
 <?php
-session_start();
+session_start();// Inicia a sessão
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -23,19 +23,6 @@ session_start();
 </head>
 
 <body class="min-h-screen bg-gradient-to-r from-blue-900 to-blue-800">
-    <!-- Navbar -->
-    <nav class="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-blue-900 to-blue-800 text-white shadow-md">
-        <div class="container mx-auto px-4">
-            <div class="flex items-center justify-between h-16">
-                <a href="../paginas/pagina_inicial.php" class="flex items-center space-x-2 text-xl font-bold">
-                    <i data-lucide="ambulance" class="h-6 w-6"></i>
-                    <span>MedCar</span>
-                </a>
-
-                <div class="hidden md:flex space-x-6">
-                    <a href="/MedQ-2/area_cliente/menu_principal.php" class="font-medium hover:text-teal-300 transition">Home</a>
-                    <a href="/MedQ-2/paginas/abas_menu_principal/aba_empresas.php" class="font-medium hover:text-teal-300 transition">Empresas</a>
-                    <a href="#" class="font-medium hover:text-teal-300 transition">Contato</a>
     <header>
         <nav class="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-blue-900 to-blue-800 text-white shadow-md">
             <div class="container mx-auto px-4">
