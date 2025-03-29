@@ -1,6 +1,8 @@
+<?php
+session_start();
+?>
 <!DOCTYPE html>
-<html lang="pt-br">
-
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -34,14 +36,25 @@
                     <a href="/MedQ-2/area_cliente/menu_principal.php" class="font-medium hover:text-teal-300 transition">Home</a>
                     <a href="/MedQ-2/paginas/abas_menu_principal/aba_empresas.php" class="font-medium hover:text-teal-300 transition">Empresas</a>
                     <a href="#" class="font-medium hover:text-teal-300 transition">Contato</a>
+    <header>
+        <nav class="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-blue-900 to-blue-800 text-white shadow-md">
+            <div class="container mx-auto px-4">
+                <div class="flex items-center justify-between h-16">
+                    <a href="#" class="flex items-center space-x-2 text-xl font-bold">
+                        <i data-lucide="ambulance" class="h-6 w-6"></i>
+                        <span>MedCar</span>
+                    </a>
+                    <div class="hidden md:flex space-x-6">
+                        <a href="/MedQ-2/paginas/pagina_inicial.php" class="font-medium hover:text-teal-300 transition">Home</a>
+                        <a href="#" class="font-medium hover:text-teal-300 transition">Contato</a>
+                    </div>
+                    <button id="mobile-menu-button" aria-expanded="false" aria-controls="mobile-menu" class="md:hidden text-white">
+                        <i data-lucide="menu" class="h-6 w-6"></i>
+                    </button>
                 </div>
-
-                <button id="mobile-menu-button" class="md:hidden text-white">
-                    <i data-lucide="menu" class="h-6 w-6"></i>
-                </button>
             </div>
-        </div>
-    </nav>
+        </nav>
+    </header>
 
     <!-- Mobile Menu -->
     <div id="mobile-menu" class="fixed inset-0 z-50 bg-blue-900 bg-opacity-95 flex flex-col text-white p-6 mobile-menu">
@@ -70,7 +83,7 @@
                 <div class="flex flex-col md:flex-row">
                     <!-- Cadastro Form -->
                     <div class="w-full md:w-1/2 p-8">
-                        <form id="cadastro-form" class="space-y-6" action="cadastro_cliente.php" method="POST">
+                        <form id="cadastro-form" class="space-y-6" action="actions/action_cadastro_cliente.php" method="POST">
                             <div>
                                 <label for="nome" class="block text-sm font-medium text-gray-700">Nome Completo</label>
                                 <input type="text" id="nome" name="nome" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" placeholder="Seu nome completo" required>
@@ -95,6 +108,14 @@
                                 <label for="confirmar_senha" class="block text-sm font-medium text-gray-700">Confirmar Senha</label>
                                 <input type="password" id="confirmar_senha" name="confirmar_senha" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" placeholder="••••••••" required>
                             </div>
+                            <p class="text-m text-red-600">
+                            <?php // impremir mensagem de erro, então limpa a variável de sessão
+                                    if (isset($_SESSION['erro'])) {
+                                        echo $_SESSION['erro'];
+                                        unset($_SESSION['erro']);
+                                    }
+                                ?>
+                            </p>
                             <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-teal-500 hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500">
                                 Cadastrar
                             </button>
@@ -156,6 +177,13 @@
         document.getElementById('cadastro-form').addEventListener('submit', function(e) {
             e.preventDefault();
             // Aqui pode adicionar validações ou enviar o formulário
+            const senha = document.getElementById('senha').value;
+            const confirmarSenha = document.getElementById('confirmar_senha').value;
+
+            if (senha !== confirmarSenha) {
+                alert('As senhas não coincidem!');
+                return;
+            }
             this.submit();
         });
     </script>
@@ -170,5 +198,4 @@
     </script>
 
 </body>
-
 </html>

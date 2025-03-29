@@ -52,7 +52,7 @@
     <nav class="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-blue-900 to-blue-800 text-white shadow-md">
         <div class="container mx-auto px-4">
             <div class="flex items-center justify-between h-16">
-                <a href="#" class="flex items-center space-x-2 text-xl font-bold">
+                <a class="flex items-center space-x-2 text-xl font-bold">
                     <i data-lucide="ambulance" class="h-6 w-6"></i>
                     <span>MedCar</span>
                 </a>
@@ -66,6 +66,7 @@
                     <a href="/MedQ-2/paginas/abas_menu_principal/aba_entrar.php" class="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg transition-all hover:scale-105 hidden md:block">
                         Entrar
                     </a> <!-- conectado a aba entrar, depois ver de botar a aba de cadastros -->
+                    <a href="../includes/logout.php" class="font-medium hover:text-teal-300 transition">Logout</a>
                     <button id="mobile-menu-button" class="md:hidden text-white ml-2">
                         <i data-lucide="menu" class="h-6 w-6"></i>
                     </button>

@@ -2,7 +2,7 @@
 require '../../includes/valida_login.php'; // inclui o arquivo de validação de login
 require '../../includes/conexao_BdAgendamento.php'; // inclui o arquivo de conexão com o banco de dados
 
-verificarPermissao('CLIENTE'); // verifica se o usuario logado é um cliente
+verificarPermissao('cliente'); // verifica se o usuario logado é um cliente
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Obtém os dados do formulário
@@ -32,8 +32,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     // Obtém o ID do cliente e da empresa 
     $empresa_id = $_POST['empresa_id']; // O id vem da pagina de consulta de empresas
-    //$cliente_id = $_SESSION['usuario']['id'];
-    $cliente_id = 4;
+     
+    // O id do cliente vem da sessão
+    $cliente_id = $_SESSION['usuario']['id'];
+
 
     // Exibe os valores das variáveis para depuração
     /*var_dump(
@@ -97,20 +99,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if ($stmt->execute()) {
 
             echo "Agendamento realizado com sucesso!";
-            $cadastrado = true;
-            header("Location: ../agendamento_cliente.php?cadastrado=" . $cadastrado);
+            $_SESSION['cadastrado'] = true;
+            header("Location: ../agendamento_cliente.php");
             exit();
-
         } else {
-            
+
             echo "Erro ao realizar agendamento: " . $stmt->errorInfo()[2];
-            $cadastrado = false;
-            header("Location: ../agendamento_cliente.php?cadastrado=" . $cadastrado);
+            $_SESSION['cadastrado'] = false;
+            header("Location: ../agendamento_cliente.php?cadastrado");
             exit();
         }
     } catch (PDOException $e) {
         echo "Erro: " . $e->getMessage();
     }
 
-    $conn = null; 
+    $conn = null;
 }

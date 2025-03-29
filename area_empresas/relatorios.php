@@ -1,5 +1,8 @@
 <?php
 require '../includes/conexao_BdAgendamento.php';
+require '../includes/valida_login.php'; // inclui o arquivo de validação de login
+
+verificarPermissao('empresa'); // verifica se o usuário logado é uma empresa
 
 // Recupera o mês selecionado via GET
 $selectedMonth = isset($_GET['month']) ? $_GET['month'] : '2024-03';
@@ -10,10 +13,7 @@ if ($conn->connect_error) {
 }
 
 // Query com filtro por mês usando consulta preparada
-$sql = "SELECT * FROM pacientes_registros 
-        WHERE DATE_FORMAT(data_consulta, '%Y-%m') = ?
-        AND status = 'Concluído'
-        ORDER BY data_consulta DESC, horario DESC";
+$sql = "SELECT * FROM agendamentos WHERE DATE_FORMAT(data_consulta, '%Y-%m') = ? ORDER BY data_consulta DESC, horario DESC";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("s", $selectedMonth);
 $stmt->execute();
@@ -47,7 +47,7 @@ $conn->close();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MedQ - Relatórios de Pacientes</title>
+    <title>MedCar - Relatórios de Pacientes</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -70,6 +70,19 @@ $conn->close();
             box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
         }
 
+        .patient-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+            margin-bottom: 20px;
+        }
+
+        .patient-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
         .month-selector {
             background: var(--secondary-color);
             color: white;
@@ -82,8 +95,6 @@ $conn->close();
             padding: 8px 15px;
             border-radius: 20px;
             font-size: 0.9em;
-            min-width: 100px;
-            text-align: center;
         }
 
         .status-agendado {
@@ -114,24 +125,6 @@ $conn->close();
             background: #2c7a7b;
             color: white;
         }
-
-        .list-item {
-            background: white;
-            transition: background 0.2s;
-            padding: 15px 20px;
-            border-bottom: 1px solid #dee2e6;
-        }
-
-        .list-item:hover {
-            background: #f8f9fa;
-        }
-
-        .patient-card {
-            box-shadow: none;
-            border-radius: 0;
-            background: transparent;
-            padding: 0;
-        }
     </style>
 </head>
 
@@ -141,7 +134,7 @@ $conn->close();
         <div class="container">
             <a class="navbar-brand" href="#">
                 <i class="fas fa-chart-line me-2"></i>
-                MedQ Relatórios
+                MedCar Relatórios
             </a>
             <div class="d-flex align-items-center">
                 <div class="text-white me-3">Relatórios Mensais</div>
@@ -211,81 +204,74 @@ $conn->close();
 
                     <!-- Patient List -->
                     <div class="row" id="patientList">
-                        <div class="col-12">
-                            <div class="patient-card p-3 mb-2">
-                                <?php foreach ($patients as $patient) : 
-                                    $dataFormatada = date("d/m/Y", strtotime($patient['data_consulta']));
-                                    $horarioFormatado = date("H:i", strtotime($patient['horario']));
-                                    if ($patient['status'] == 'Agendado') {
-                                        $statusClass = 'status-agendado';
-                                    } elseif ($patient['status'] == 'Concluído') {
-                                        $statusClass = 'status-concluido';
-                                    } elseif ($patient['status'] == 'Cancelado') {
-                                        $statusClass = 'status-cancelado';
-                                    } else {
-                                        $statusClass = '';
-                                    }
-                                ?>
-                                    <!-- List Item -->
-                                    <div class="list-item py-3">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div class="flex-grow-1">
-                                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                                    <h5 class="mb-0"><?= htmlspecialchars($patient['nome']) ?></h5>
-                                                    <span class="status-badge <?= $statusClass ?>"><?= $patient['status'] ?></span>
-                                                </div>
-                                                <div class="d-flex justify-content-between">
-                                                    <div>
-                                                        <p class="mb-1 text-muted"><i class="fas fa-calendar-day me-2"></i><?= "$dataFormatada - $horarioFormatado" ?></p>
-                                                        <p class="mb-0 text-muted"><i class="fas fa-map-marker-alt me-2"></i><?= htmlspecialchars($patient['destino']) ?></p>
-                                                    </div>
-                                                    <button class="btn btn-link text-primary" data-bs-toggle="modal" data-bs-target="#detailsModal-<?= $patient['id'] ?>">
-                                                        <i class="fas fa-ellipsis-v"></i>
-                                                    </button>
-                                                </div>
-                                            </div>
+                        <?php foreach ($patients as $patient) :
+                            $dataFormatada = date("d/m/Y", strtotime($patient['data_consulta']));
+                            $horarioFormatado = date("H:i", strtotime($patient['horario']));
+                            if ($patient['status'] == 'Agendado') {
+                                $statusClass = 'status-agendado';
+                            } elseif ($patient['status'] == 'Concluído') {
+                                $statusClass = 'status-concluido';
+                            } elseif ($patient['status'] == 'Cancelado') {
+                                $statusClass = 'status-cancelado';
+                            } else {
+                                $statusClass = '';
+                            }
+                        ?>
+                            <div class="col-md-6">
+                                <!-- Patient Card -->
+                                <div class="patient-card p-3">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h5><?= htmlspecialchars($patient['nome']) ?></h5>
+                                            <p class="mb-1"><i class="fas fa-calendar-day me-2"></i><?= "$dataFormatada - $horarioFormatado" ?></p>
+                                            <p class="mb-1"><i class="fas fa-map-marker-alt me-2"></i><?= htmlspecialchars($patient['destino']) ?></p>
                                         </div>
+                                        <span class="status-badge <?= $statusClass ?>"><?= $patient['status'] ?></span>
                                     </div>
+                                    <hr>
+                                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#detailsModal-<?= $patient['id'] ?>">
+                                        <i class="fas fa-file-alt me-2"></i>Detalhes
+                                    </button>
+                                </div>
 
-                                    <!-- Modal -->
-                                    <div class="modal fade" id="detailsModal-<?= $patient['id'] ?>" tabindex="-1" aria-labelledby="detailsModalLabel-<?= $patient['id'] ?>" aria-hidden="true">
-                                        <div class="modal-dialog modal-dialog-centered">
-                                            <div class="modal-content">
-                                                <div class="modal-header bg-primary text-white">
-                                                    <h5 class="modal-title" id="detailsModalLabel-<?= $patient['id'] ?>">
-                                                        <i class="fas fa-info-circle me-2"></i>Opções de Detalhes
-                                                    </h5>
-                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                                <!-- Modal - Agora posicionado fora do card mas na mesma coluna -->
+                                <div class="modal fade" id="detailsModal-<?= $patient['id'] ?>" tabindex="-1" aria-labelledby="detailsModalLabel-<?= $patient['id'] ?>" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <div class="modal-content">
+                                            <div class="modal-header bg-primary text-white">
+                                                <h5 class="modal-title" id="detailsModalLabel-<?= $patient['id'] ?>">
+                                                    <i class="fas fa-info-circle me-2"></i>Opções de Detalhes
+                                                </h5>
+                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                                            </div>
+                                            <div class="modal-body p-0">
+                                                <div class="list-group list-group-flush">
+                                                    <a href="#" class="list-group-item list-group-item-action d-flex align-items-center">
+                                                        <i class="fas fa-calendar-check me-3 fa-fw text-primary"></i>
+                                                        Detalhes da Consulta
+                                                    </a>
+                                                    <a href="#" class="list-group-item list-group-item-action d-flex align-items-center">
+                                                        <i class="fas fa-user-injured me-3 fa-fw text-success"></i>
+                                                        Tabela de Pacientes
+                                                    </a>
+                                                    <a href="#" class="list-group-item list-group-item-action d-flex align-items-center">
+                                                        <i class="fas fa-truck-moving me-3 fa-fw text-warning"></i>
+                                                        Tabela de Empresas de Transporte
+                                                    </a>
+                                                    <a href="#" class="list-group-item list-group-item-action d-flex align-items-center">
+                                                        <i class="fas fa-calendar-alt me-3 fa-fw text-info"></i>
+                                                        Tabela de Reservas/Agendamentos
+                                                    </a>
                                                 </div>
-                                                <div class="modal-body p-0">
-                                                    <div class="list-group list-group-flush">
-                                                        <a href="#" class="list-group-item list-group-item-action d-flex align-items-center">
-                                                            <i class="fas fa-calendar-check me-3 fa-fw text-primary"></i>
-                                                            Detalhes da Consulta
-                                                        </a>
-                                                        <a href="#" class="list-group-item list-group-item-action d-flex align-items-center">
-                                                            <i class="fas fa-user-injured me-3 fa-fw text-success"></i>
-                                                            Tabela de Pacientes
-                                                        </a>
-                                                        <a href="#" class="list-group-item list-group-item-action d-flex align-items-center">
-                                                            <i class="fas fa-truck-moving me-3 fa-fw text-warning"></i>
-                                                            Tabela de Empresas de Transporte
-                                                        </a>
-                                                        <a href="#" class="list-group-item list-group-item-action d-flex align-items-center">
-                                                            <i class="fas fa-calendar-alt me-3 fa-fw text-info"></i>
-                                                            Tabela de Reservas/Agendamentos
-                                                        </a>
-                                                    </div>
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
                                             </div>
                                         </div>
                                     </div>
-                                <?php endforeach; ?>
+                                </div>
                             </div>
-                        </div>
+                        <?php endforeach; ?>
                     </div>
 
                     <!-- Estatísticas -->

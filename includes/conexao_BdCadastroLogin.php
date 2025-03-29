@@ -2,7 +2,7 @@
 $servidor = "localhost:3306";
 $usuario = "root";
 $senha = ""; // cimatec
-$banco = "medcar_agendamentos";
+$banco = "medcar_cadastro_login";
 
 try {
     $conn = new PDO("mysql:host=$servidor;dbname=$banco", $usuario, $senha);

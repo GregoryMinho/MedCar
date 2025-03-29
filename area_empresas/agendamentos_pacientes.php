@@ -1,73 +1,85 @@
 <?php
-$host = 'localhost';
-$dbname = 'medcar_agendamentos';
-$user = 'root';
-$pass = '';
+require '../includes/conexao_BdAgendamento.php'; // inclui o arquivo de conexão com o banco de dados
+require '../includes/valida_login.php'; // inclui o arquivo de validação de login
 
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $user, $pass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch(PDOException $e) {
-    die("Não foi possível conectar ao banco de dados: " . $e->getMessage());
-}
+// verifica se o usuário logado é uma empresa
+verificarPermissao('empresa'); 
 
 // Função para gerar o calendário
 function gerarCalendario($mes, $ano, $agendamentos) {
+    $mes = str_pad($mes, 2, '0', STR_PAD_LEFT); // Garante 2 dígitos
     $dias_mes = cal_days_in_month(CAL_GREGORIAN, $mes, $ano);
-    $primeiro_dia = date('N', strtotime("$ano-$mes-01"));
+    $primeiro_dia = date('w', strtotime("$ano-$mes-01"));
     
-    $calendario = '<div class="calendar-grid">';
+    $calendario = '<div class="calendar-container">';
     
-    // Cabeçalho dos dias da semana
-    $diasSemana = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
-    foreach ($diasSemana as $diaSemana) {
-        $calendario .= '<div class="calendar-header">'.$diaSemana.'</div>';
+    // Cabeçalho
+    $calendario .= '<div class="calendar-header-grid">';
+    foreach (['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'] as $dia) {
+        $calendario .= '<div class="calendar-header">'.$dia.'</div>';
     }
+    $calendario .= '</div>';
     
-    // Dias vazios no início
-    for($i = 1; $i < $primeiro_dia; $i++) {
+    // Dias
+    $calendario .= '<div class="calendar-days-grid">';
+    
+    // Dias vazios
+    for ($i = 0; $i < $primeiro_dia; $i++) {
         $calendario .= '<div class="calendar-day empty"></div>';
     }
     
-    // Dias do mês
-    for($dia = 1; $dia <= $dias_mes; $dia++) {
-        $data = "$ano-$mes-".str_pad($dia, 2, '0', STR_PAD_LEFT);
-        $eventos = array_filter($agendamentos, function($a) use ($data) {
-            return $a['data_consulta'] == $data;
+    // Preenche dias
+    for ($dia = 1; $dia <= $dias_mes; $dia++) {
+        $dataCalendario = "$ano-$mes-" . str_pad($dia, 2, '0', STR_PAD_LEFT);
+        
+        $eventos = array_filter($agendamentos, function($a) use ($dataCalendario) {
+            // Cria um objeto DateTime com o fuso horário de São Paulo
+            $dataAgendamento = new DateTime($a['data_convertida'], new DateTimeZone('America/Sao_Paulo'));
+            return $dataAgendamento->format('Y-m-d') === $dataCalendario;
         });
-        $calendario .= '<div class="calendar-day'.(count($eventos) ? ' has-event' : '').'" 
-                          onclick="showScheduleDetails(\''.$data.'\')">
-                          <div class="day-number">'.$dia.'</div>
-                          '.(count($eventos) ? '<div class="event-dot"></div>' : '').'
+    
+        $calendario .= '<div class="calendar-day' . (count($eventos) ? ' has-event' : '') . '" 
+                          onclick="showScheduleDetails(\'' . $dataCalendario . '\')">
+                          <div class="day-number">' . $dia . '</div>
+                          ' . (count($eventos) ? '<div class="event-dot"></div>' : '') . '
                         </div>';
     }
+
     
-    // Completa a última semana
-    $total_cells = count($diasSemana) + $primeiro_dia - 1 + $dias_mes;
-    $remaining_days = 7 - ($total_cells % 7);
-    if($remaining_days < 7) {
-        for($i = 0; $i < $remaining_days; $i++) {
-            $calendario .= '<div class="calendar-day empty"></div>';
-        }
+    // Completa grid
+    $total_cells = $primeiro_dia + $dias_mes;
+    $remaining = (7 - ($total_cells % 7)) % 7;
+    for ($i = 0; $i < $remaining; $i++) {
+        $calendario .= '<div class="calendar-day empty"></div>';
     }
     
-    $calendario .= '</div>';
+    $calendario .= '</div></div>';
     return $calendario;
 }
-
 $filtros = [
     'status' => $_GET['status'] ?? 'all',
     'mes' => $_GET['mes'] ?? date('Y-m'),
     'tipo' => $_GET['tipo'] ?? 'all'
 ];
 
-// Buscar agendamentos
-$sql = "SELECT a.*, u.nome AS paciente, a.tipo_transporte AS transportadora
-        FROM agendamentos a
-        JOIN usuarios u ON a.cliente_id = u.id
-        WHERE DATE_FORMAT(a.data_consulta, '%Y-%m') = :mes";
+// Define o intervalo do mês (início e fim)
+$inicio_mes = $filtros['mes'] . '-01'; // Primeiro dia do mês
+$fim_mes = date('Y-m-t', strtotime($inicio_mes)); // Último dia do mês
 
-$params = [':mes' => $filtros['mes']];
+// Buscar agendamentos
+// Buscar agendamentos (ATUALIZE ESTE TRECHO)
+$sql = "SELECT 
+            a.*, 
+            CONVERT_TZ(a.data_consulta, '+00:00', '+03:00') AS data_convertida, 
+            c.nome 
+        FROM medcar_agendamentos.agendamentos a
+        JOIN medcar_cadastro_login.clientes c ON a.cliente_id = c.id
+        WHERE DATE(CONVERT_TZ(a.data_consulta, '+00:00', '+03:00')) BETWEEN :inicio_mes AND :fim_mes";
+
+$params = [
+    ':inicio_mes' => $inicio_mes,
+    ':fim_mes' => $fim_mes
+];
 
 if ($filtros['status'] != 'all') {
     $sql .= " AND situacao = :status";
@@ -79,13 +91,14 @@ if ($filtros['tipo'] != 'all') {
     $params[':tipo'] = $filtros['tipo'];
 }
 
-$stmt = $pdo->prepare($sql);
-$stmt->execute($params);
+$stmt = $conn->prepare($sql);
+$stmt->execute($params); // Linha 84
 $agendamentos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Processar datas para o calendário
-$mes = date('m', strtotime($filtros['mes']));
-$ano = date('Y', strtotime($filtros['mes']));
+$dataFiltro = explode('-', $filtros['mes']);
+$ano = $dataFiltro[0];
+$mes = $dataFiltro[1];
 $calendario = gerarCalendario($mes, $ano, $agendamentos);
 ?>
 
@@ -94,217 +107,273 @@ $calendario = gerarCalendario($mes, $ano, $agendamentos);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MedQ - Agendamentos</title>
+    <title>MedCar - Agendamentos</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-          :root {
-            --primary-color: #1a365d;
-            --secondary-color: #2a4f7e;
-            --accent-color: #38b2ac;
-            --confirmed-color: #28a745;
-            --pending-color: #ffc107;
-            --cancelled-color: #dc3545;
-        }
+    :root {
+        --primary-color: #1a365d;
+        --secondary-color: #2a4f7e;
+        --accent-color: #38b2ac;
+        --confirmed-color: #28a745;
+        --pending-color: #ffc107;
+        --cancelled-color: #dc3545;
+    }
 
-        body {
-            background: #f8f9fa;
-        }
+    /* Layout do Calendário */
+    .calendar-container {
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
 
-        .schedule-dashboard {
-            background: #f8f9fa;
-            min-height: 100vh;
-        }
+    .calendar-header-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 2px;
+        margin-bottom: 5px;
+    }
 
-        .schedule-card {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            transition: all 0.3s;
-            margin-bottom: 20px;
-            padding: 20px;
-            position: relative;
-        }
+    .calendar-days-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 2px;
+    }
 
-        .schedule-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-        }
+    .calendar-header {
+        text-align: center;
+        font-weight: bold;
+        padding: 10px;
+        background: var(--primary-color);
+        color: white;
+        border-radius: 5px;
+    }
 
-        .status-badge {
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 0.9em;
-            position: absolute;
-            top: 15px;
-            right: 15px;
-        }
+    .calendar-day {
+        background: white;
+        border-radius: 10px;
+        padding: 15px;
+        min-height: 120px;
+        cursor: pointer;
+        transition: all 0.3s;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
 
-        .status-confirmed { background: var(--confirmed-color); color: white; }
-        .status-pending { background: var(--pending-color); color: black; }
-        .status-cancelled { background: var(--cancelled-color); color: white; }
+    .calendar-day.empty {
+        background: #f8f9fa;
+        cursor: default;
+    }
 
-        .schedule-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--accent-color);
-            color: white;
-        }
+    .calendar-day.has-event {
+        border: 2px solid var(--accent-color);
+    }
 
-        .timeline {
-            border-left: 3px solid var(--primary-color);
-            padding-left: 1rem;
-            margin: 1rem 0;
-        }
+    .day-number {
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
 
-        .btn-schedule {
-            background: var(--accent-color);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            transition: all 0.3s;
-        }
+    .event-dot {
+        width: 8px;
+        height: 8px;
+        background: var(--accent-color);
+        border-radius: 50%;
+        position: absolute;
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 2;
+    }
 
-        .btn-schedule:hover {
-            background: #2c7a7b;
-            color: white;
-        }
+    /* Estilos Gerais */
+    body {
+        background: #f8f9fa;
+        font-family: Arial, sans-serif;
+    }
 
-        .calendar {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 5px;
-            margin-bottom: 20px;
-        }
+    .schedule-dashboard {
+        background: #f8f9fa;
+        min-height: 100vh;
+    }
 
-        /* Estilo para os dias do calendário */
-        .calendar-day {
-            background: white;
-            border-radius: 10px;
-            padding: 15px;
-            min-height: 100px;
-            cursor: pointer;
-            transition: all 0.3s;
-            position: relative;
-        }
+    .schedule-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s;
+        margin-bottom: 20px;
+        padding: 20px;
+        position: relative;
+    }
 
-        /* Caixa quadrada para os dias 1 e 2 */
-        .calendar-day.first-two-days {
-            width: 80px;  /* Ajuste o tamanho conforme necessário */
-            height: 80px; /* Mantém as caixas quadradas */
-        }
+    .schedule-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    }
 
-        /* Caixa larga para os outros dias */
-        .calendar-day:not(.first-two-days) {
-            width: 100%;
-        }
+    .status-badge {
+        padding: 8px 15px;
+        border-radius: 20px;
+        font-size: 0.9em;
+        position: absolute;
+        top: 15px;
+        right: 15px;
+    }
 
-        .calendar-day:hover {
-            background: #f8f9fa;
-            transform: scale(1.02);
-        }
+    .status-confirmed {
+        background: var(--confirmed-color);
+        color: white;
+    }
 
-        .calendar-day.active {
-            border: 2px solid var(--accent-color);
-        }
+    .status-pending {
+        background: var(--pending-color);
+        color: black;
+    }
 
-        .event-dot {
-            width: 8px;
-            height: 8px;
-            background: var(--accent-color);
-            border-radius: 50%;
-            position: absolute;
-            bottom: 5px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
+    .status-cancelled {
+        background: var(--cancelled-color);
+        color: white;
+    }
 
-        .schedule-details {
-            display: none;
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
-            margin-top: 20px;
-        }
-        .calendar-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 5px;
-    margin-bottom: 20px;
-}
+    .schedule-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--accent-color);
+        color: white;
+    }
 
-.calendar-header {
-    text-align: center;
-    font-weight: bold;
-    padding: 10px;
-    background: var(--primary-color);
-    color: white;
-    border-radius: 5px;
-}
+    .timeline {
+        border-left: 3px solid var(--primary-color);
+        padding-left: 1rem;
+        margin: 1rem 0;
+    }
 
-.calendar-day {
-    background: white;
-    border-radius: 10px;
-    padding: 15px;
-    min-height: 100px;
-    cursor: pointer;
-    transition: all 0.3s;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-}
+    .btn-schedule {
+        background: var(--accent-color);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        transition: all 0.3s;
+    }
 
-.calendar-day.empty {
-    background: #f8f9fa;
-    cursor: default;
-}
+    .btn-schedule:hover {
+        background: #2c7a7b;
+        color: white;
+    }
 
-.day-number {
-    font-weight: bold;
-    margin-bottom: 5px;
-}
+    .schedule-details {
+        display: none;
+        background: white;
+        border-radius: 15px;
+        padding: 20px;
+        margin-top: 20px;
+    }
 
-.event-dot {
-    width: 8px;
-    height: 8px;
-    background: var(--accent-color);
-    border-radius: 50%;
-    align-self: center;
-}
-/* Adicione estes estilos */
-.schedule-card-details {
-    background: white;
-    border-radius: 15px;
-    padding: 20px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-}
+    .schedule-card-details {
+        background: white;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
 
-.schedule-card-details label.form-label {
-    font-weight: bold;
-    color: var(--primary-color);
-}
+    .schedule-card-details label.form-label {
+        font-weight: bold;
+        color: var(--primary-color);
+    }
 
-#appointmentDetails p {
-    margin-bottom: 0.5rem;
-    padding: 8px;
-    background: #f8f9fa;
-    border-radius: 5px;
-}
-    </style>
+    #appointmentDetails p {
+        margin-bottom: 0.5rem;
+        padding: 8px;
+        background: #f8f9fa;
+        border-radius: 5px;
+    }
+
+    /* Navbar */
+    .navbar {
+        background: var(--primary-color);
+    }
+
+    .navbar-brand {
+        font-weight: bold;
+    }
+
+    .navbar-brand i {
+        margin-right: 10px;
+    }
+
+    /* Sidebar */
+    .sidebar {
+        background: var(--secondary-color);
+        color: white;
+        min-height: 100vh;
+    }
+
+    .sidebar h5 {
+        color: white;
+    }
+
+    .sidebar .form-label {
+        color: white;
+    }
+
+    .sidebar .form-select,
+    .sidebar .form-control {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: white;
+        border: none;
+    }
+
+    .sidebar .form-select:focus,
+    .sidebar .form-control:focus {
+        background-color: rgba(255, 255, 255, 0.2);
+        color: white;
+    }
+
+    .sidebar .btn-light {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: white;
+        border: none;
+    }
+
+    .sidebar .btn-light:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Modal */
+    .modal-content {
+        border-radius: 15px;
+    }
+
+    .modal-header {
+        background: var(--primary-color);
+        color: white;
+        border-radius: 15px 15px 0 0;
+    }
+
+    .modal-title {
+        font-weight: bold;
+    }
+
+    .modal-body {
+        padding: 20px;
+    }
+</style>
 </head>
 <body>
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark" style="background: var(--primary-color);">
         <div class="container">
-            <a class="navbar-brand" href="#">
+            <a class="navbar-brand" href="/MedQ-2/area_empresas/menu_principal.php">
                 <i class="fas fa-ambulance me-2"></i>
-                MedQ Transportes
+                MedCar Transportes
             </a>
             <div class="d-flex align-items-center">
                 <div class="text-white me-3">Transportadora Saúde Total</div>
@@ -390,47 +459,62 @@ $calendario = gerarCalendario($mes, $ano, $agendamentos);
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        let currentDate = null; // Variável para armazenar a data selecionada
+          let currentDate = null;
+    // Armazena a instância do modal globalmente
+    const scheduleModal = new bootstrap.Modal(document.getElementById('scheduleModal'));
+    let isShowingDetails = false; // Adiciona um flag para controlar o estado
 
-        // Função para mostrar o modal com a lista de pacientes
-        function showScheduleDetails(data) {
-            currentDate = data;
-            fetch(`get_agendamentos.php?data=${data}`)
-                .then(response => response.text())
-                .then(html => {
-                    document.getElementById('modalSelectedDate').textContent = formatarData(data);
-                    document.getElementById('modalAgendamentosList').innerHTML = html;
-                    new bootstrap.Modal(document.getElementById('scheduleModal')).show();
-                });
-        }
+    function showScheduleDetails(data) {
+        currentDate = data;
+        isShowingDetails = false; // Resetamos o flag ao carregar a lista
+        
+        fetch(`get_agendamentos.php?data=${data}`)
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('modalSelectedDate').textContent = formatarData(data);
+                document.getElementById('modalAgendamentosList').innerHTML = html;
+                scheduleModal.show();
+            });
+    }
 
-        // Função para mostrar detalhes do paciente
-        function showAppointmentDetails(id) {
-            fetch(`get_detalhes_agendamento.php?id=${id}`)
-                .then(response => response.text())
-                .then(html => {
-                    document.getElementById('modalAgendamentosList').innerHTML = `
-                        <button onclick="backToList()" class="btn btn-secondary mb-3">
-                            <i class="fas fa-arrow-left me-2"></i>Voltar para Lista
-                        </button>
-                        ${html}
-                    `;
-                });
-        }
+    function showAppointmentDetails(id) {
+        isShowingDetails = true; // Marcamos que estamos visualizando detalhes
+        
+        fetch(`get_detalhes_agendamento.php?id=${id}`)
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('modalAgendamentosList').innerHTML = `
+                    <button onclick="backToList()" class="btn btn-secondary mb-3">
+                        <i class="fas fa-arrow-left me-2"></i>Voltar para Lista
+                    </button>
+                    ${html}
+                `;
+            });
+    }
 
-        // Função para voltar à lista de pacientes
-        function backToList() {
-            if(currentDate) {
-                showScheduleDetails(currentDate);
-            }
+    function backToList() {
+        if(currentDate && !isShowingDetails) {
+            showScheduleDetails(currentDate);
+        } else {
+            // Força o fechamento do modal se estiver em estado inconsistente
+            scheduleModal.hide();
         }
+    }
+
+    // Adiciona evento para limpar o estado quando o modal é fechado
+    document.getElementById('scheduleModal').addEventListener('hidden.bs.modal', function() {
+        currentDate = null;
+        isShowingDetails = false;
+    });
 
         // Função auxiliar para formatar data
         function formatarData(dataString) {
-            const data = new Date(dataString);
-            const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
-            return data.toLocaleDateString('pt-BR', options);
-        }
+    const [ano, mes, dia] = dataString.split('-');
+    const data = new Date(ano, mes - 1, dia); // Mês é 0-based no JavaScript
+    const d = String(data.getDate()).padStart(2, '0');
+    const m = String(data.getMonth() + 1).padStart(2, '0');
+    return `${d}/${m}/${data.getFullYear()}`;
+}
     </script>
 </body>
 </html>

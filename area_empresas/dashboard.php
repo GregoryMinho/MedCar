@@ -1,4 +1,7 @@
 <?php
+require '../includes/valida_login.php'; // inclui o arquivo de validação de login
+
+verificarPermissao('empresa'); // verifica se o usuário logado é uma empresa
 // Configuração do banco de dados
 $servername = "localhost";
 $username = "root";
@@ -59,7 +62,7 @@ $conn->close();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MedQ - Dashboard Empresarial</title>
+    <title>MedCar - Dashboard Empresarial</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -147,7 +150,7 @@ $conn->close();
         <div class="sidebar">
             <div class="text-center mb-5">
                 <img src="https://source.unsplash.com/random/100x100/?logo" class="rounded-circle mb-3" alt="Logo">
-                <h4>Transportadora MedQ</h4>
+                <h4>Transportadora MedCar</h4>
             </div>
 
             <nav class="nav flex-column">

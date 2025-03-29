@@ -1,14 +1,11 @@
-<?php // essa pagina é acessa apos o usuario selecionar a empresa 
+<?php // essa pagina é acessada apos o usuario selecionar a empresa para agendar
 require '../includes/valida_login.php'; // inclui o arquivo de validação de login
 
-verificarPermissao('CLIENTE'); // verifica se o usuario logado é um cliente
-
-// logica para pegar dados basicos da empresa para enviar a solicitação de agendamento, passado por url
-//  e colocar no input hidden para enviar ao banco de dados
-//$empresa_id = $_GET['empresa_id'];
+verificarPermissao('cliente'); // verifica se o usuario logado é um cliente
+// pegar o id da empresa selecionada por sessão
+// $empresa_id = $_SESSION['empresa_id'];
 
 $empresa_id = 1;    //////// temporario////////////////////////
-$cadastrado = isset($_GET['cadastrado']) ? $_GET['cadastrado'] : null;
 ?>
 
 <!DOCTYPE html>
@@ -88,7 +85,7 @@ $cadastrado = isset($_GET['cadastrado']) ? $_GET['cadastrado'] : null;
     <nav class="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-blue-900 to-blue-800 text-white shadow-md">
         <div class="container mx-auto px-4">
             <div class="flex items-center justify-between h-16">
-                <a href="index.html" class="flex items-center space-x-2 text-xl font-bold">
+                <a href="/MedQ-2/paginas/pagina_inicial.php" class="flex items-center space-x-2 text-xl font-bold">
                     <i data-lucide="ambulance" class="h-6 w-6"></i>
                     <span>MedCar</span>
                 </a>
@@ -121,6 +118,7 @@ $cadastrado = isset($_GET['cadastrado']) ? $_GET['cadastrado'] : null;
                     <a href="index.html#funcionalidades" class="font-medium hover:text-teal-300 transition">Funcionalidades</a>
                     <a href="index.html#vantagens" class="font-medium hover:text-teal-300 transition">Vantagens</a>
                     <a href="index.html#contato" class="font-medium hover:text-teal-300 transition">Contato</a>
+                    <a href="../includes/logout.php" class="font-medium hover:text-teal-300 transition">Logout</a>
                     <button id="mobile-menu-button" class="md:hidden text-white ml-2">
                         <i data-lucide="menu" class="h-6 w-6"></i>
                     </button>
@@ -449,7 +447,6 @@ $cadastrado = isset($_GET['cadastrado']) ? $_GET['cadastrado'] : null;
             </div>
         </div>
     </section>
-
     <!-- Footer -->
     <footer class="bg-blue-900 text-white py-8 mt-12">
         <div class="container mx-auto px-4">
@@ -660,16 +657,20 @@ $cadastrado = isset($_GET['cadastrado']) ? $_GET['cadastrado'] : null;
             // Update hidden input with selected date
             dataSelecionada.value = selectedDate.toISOString().split('T')[0];
         });
-
+    </script>
+    <script>
         // Alerta de produto cadastrado com sucesso
         document.addEventListener('DOMContentLoaded', function() {
-            var cadastrado = <?php echo json_encode($cadastrado); ?> ?? null;
+            var cadastrado = <?php echo json_encode($_SESSION['cadastrado']); ?> ?? null;
 
             if (cadastrado == 1) {
                 alert('AGENDADO COM SUCESSO! (*^_^*) \n\nAguardando confirmação da empresa.');
             } else if (cadastrado == 0) {
                 alert('ERRO AO AGENDAR! (T_T) \n\nPor favor, tente novamente.');
             }
+
+            <?php $_SESSION['cadastrado'] = null?>;
+           
         });
     </script>
 </body>
