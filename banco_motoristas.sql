@@ -32,8 +32,8 @@ INSERT INTO Motoristas (nome, cnh, status, cidade, estado, foto_url) VALUES
 
 INSERT INTO Veiculos (motorista_id, placa, modelo) VALUES
 (1, 'ABC-1234', 'Sedan'),
+
+
+
+
 (2, 'XYZ-5678', 'SUV');
-
-
-
-
