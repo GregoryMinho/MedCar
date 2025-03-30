@@ -1,6 +1,7 @@
 <?php
 require '../includes/valida_login.php'; // inclui o arquivo de validação de login
-verificarPermissao('cliente'); // verifica se o usuário logado é um cliente
+require '../includes/conexao_BdAgendamento.php'; // inclui o arquivo de conexão com o banco de dados
+//verificarPermissao('cliente'); // verifica se o usuário logado é um cliente
 
 ?>
 <!DOCTYPE html>
@@ -177,21 +178,7 @@ verificarPermissao('cliente'); // verifica se o usuário logado é um cliente
                         </div>
 
                         <!-- Avaliação Média -->
-                        <div class="dashboard-card relative overflow-hidden bg-white text-blue-900 rounded-xl shadow-lg p-4 text-center">
-                            <div class="mb-2">
-                                <i data-lucide="star" class="h-8 w-8 mx-auto text-yellow-500"></i>
-                            </div>
-                            <h5 class="text-sm font-semibold mb-1">Avaliação Média</h5>
-                            <p class="font-bold">4.8</p>
-                            <div class="flex justify-center text-yellow-500 text-sm">
-                                <i data-lucide="star" class="h-4 w-4 fill-current"></i>
-                                <i data-lucide="star" class="h-4 w-4 fill-current"></i>
-                                <i data-lucide="star" class="h-4 w-4 fill-current"></i>
-                                <i data-lucide="star" class="h-4 w-4 fill-current"></i>
-                                <i data-lucide="star-half" class="h-4 w-4 fill-current"></i>
-                            </div>
-                            <p class="text-xs text-gray-600">(18 avaliações)</p>
-                        </div>
+             
                     </div>
                 </div>
             </section>
