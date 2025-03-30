@@ -1,3 +1,9 @@
+<?php
+require '../includes/valida_login.php'; // inclui o arquivo de validação de login
+session_start(); // Inicia a sessão
+
+verificarPermissao('empresa'); // verifica se o usuário logado é uma empresa
+?>
 <!DOCTYPE html>
 <html lang="pt-br">
 
