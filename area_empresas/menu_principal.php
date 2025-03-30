@@ -97,6 +97,7 @@ verificarPermissao('empresa'); // verifica se o usuário logado é uma empresa
                 <div class="flex items-center space-x-4">
                     <div class="text-white mr-3">Bem-vindo, nome da empresa</div>
                     <img src="https://source.unsplash.com/random/40x40/?logo" class="rounded-full h-8 w-8" alt="Logo">
+                    <a href="../includes/logout.php" class="btn btn-outline-light ms-3">Logout</a>
                     <button id="mobile-menu-button" class="md:hidden text-white ml-2">
                         <i data-lucide="menu" class="h-6 w-6"></i>
                     </button>
