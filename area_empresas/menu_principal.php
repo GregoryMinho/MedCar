@@ -1,9 +1,3 @@
-<?php
-require '../includes/valida_login.php'; // inclui o arquivo de validação de login
-session_start(); // Inicia a sessão
-
-verificarPermissao('empresa'); // verifica se o usuário logado é uma empresa
-?>
 <!DOCTYPE html>
 <html lang="pt-br">
 
@@ -101,16 +95,6 @@ verificarPermissao('empresa'); // verifica se o usuário logado é uma empresa
                         <i data-lucide="menu" class="h-6 w-6"></i>
                     </button>
                 </div>
-    <nav class="navbar navbar-expand-lg navbar-dark fixed-top" style="background: var(--primary-color);">
-        <div class="container">
-            <a class="navbar-brand" href="#">
-                <i class="fas fa-ambulance me-2"></i>
-                MedCar
-            </a>
-            <div class="d-flex align-items-center">
-                <div class="text-white me-3">Bem-vindo, nome da empresa</div>
-                <img src="https://source.unsplash.com/random/40x40/?logo" class="rounded-circle" alt="Logo">
-                <a href="../includes/logout.php" class="btn btn-outline-light ms-3">Logout</a>
             </div>
         </div>
     </nav>
