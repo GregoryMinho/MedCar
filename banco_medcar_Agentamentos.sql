@@ -31,7 +31,8 @@ CREATE TABLE IF NOT EXISTS agendamentos (
     informacoes_adicionais TEXT,
     acompanhante TINYINT,
     tipo_transporte VARCHAR(50),
-    situacao ENUM('Pendente','Agendado', 'Concluído', 'Cancelado') NOT NULL,
+    situacao ENUM('Pendente','Agendado', 'Concluído', 'Cancelado') NOT NULL DEFAULT 'Pendente',
+    observacoes VARCHAR(255), -- Campo para observações adicionais, como motivo do cancelamento
     agendado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

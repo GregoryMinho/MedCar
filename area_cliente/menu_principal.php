@@ -3,6 +3,50 @@ require '../includes/valida_login.php'; // inclui o arquivo de validação de lo
 require '../includes/conexao_BdAgendamento.php'; // inclui o arquivo de conexão com o banco de dados
 //verificarPermissao('cliente'); // verifica se o usuário logado é um cliente
 
+// Busca o próximo agendamento mais próximo para o usuário logado 
+$usuarioId = $_SESSION['usuario']['id'];
+$query = "SELECT data_consulta, horario, rua_destino, cidade_destino, situacao 
+          FROM agendamentos 
+          WHERE cliente_id = :cliente_id AND data_consulta >= CURDATE() 
+          ORDER BY data_consulta ASC, horario ASC 
+          LIMIT 1";
+$stmt = $conn->prepare($query);
+$stmt->bindParam(':cliente_id', $usuarioId, PDO::PARAM_INT);
+$stmt->execute();
+$proximoTransporte = $stmt->fetch(PDO::FETCH_ASSOC);
+
+// Consulta para buscar o número total de agendamentos concluídos do usuário
+$queryConcluidos = "SELECT COUNT(*) AS total_concluidos 
+                    FROM agendamentos 
+                    WHERE cliente_id = :cliente_id AND situacao = 'Concluído'";
+$stmtConcluidos = $conn->prepare($queryConcluidos);
+$stmtConcluidos->bindParam(':cliente_id', $usuarioId, PDO::PARAM_INT);
+$stmtConcluidos->execute();
+$totalConcluidos = $stmtConcluidos->fetch(PDO::FETCH_ASSOC)['total_concluidos'];
+
+// Consulta para buscar o número de agendamentos confirmados no mês atual
+$queryConfirmadosMes = "SELECT COUNT(*) AS total_confirmados_mes 
+                        FROM agendamentos 
+                        WHERE cliente_id = :cliente_id AND situacao = 'Agendado' 
+                        AND DATE_FORMAT(data_consulta, '%Y-%m') = DATE_FORMAT(CURDATE(), '%Y-%m')";
+$stmtConfirmadosMes = $conn->prepare($queryConfirmadosMes);
+$stmtConfirmadosMes->bindParam(':cliente_id', $usuarioId, PDO::PARAM_INT);
+$stmtConfirmadosMes->execute();
+$totalConfirmadosMes = $stmtConfirmadosMes->fetch(PDO::FETCH_ASSOC)['total_confirmados_mes'];
+
+// Consulta para buscar os dois últimos registros de agendamento do usuário logado
+$queryMensagens = "SELECT data_consulta, horario, observacoes, rua_destino, cidade_destino 
+                   FROM agendamentos 
+                   WHERE cliente_id = :cliente_id 
+                   ORDER BY data_consulta DESC, horario DESC 
+                   LIMIT 2";
+$stmtMensagens = $conn->prepare($queryMensagens);
+$stmtMensagens->bindParam(':cliente_id', $usuarioId, PDO::PARAM_INT);
+$stmtMensagens->execute();
+$ultimasMensagens = $stmtMensagens->fetchAll(PDO::FETCH_ASSOC);
+
+$conn = null;
+
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -151,7 +195,6 @@ require '../includes/conexao_BdAgendamento.php'; // inclui o arquivo de conexão
                 <div class="container mx-auto px-4">
                     <h1 class="text-3xl md:text-4xl font-bold mb-6">Área do Paciente</h1>
 
-
                     <!-- Stats Cards -->
                     <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
                         <!-- Próximo Transporte -->
@@ -160,11 +203,19 @@ require '../includes/conexao_BdAgendamento.php'; // inclui o arquivo de conexão
                                 <i data-lucide="calendar-check" class="h-8 w-8 mx-auto text-teal-500"></i>
                             </div>
                             <h5 class="text-sm font-semibold mb-1">Próximo Transporte</h5>
-                            <p class="font-bold mb-1">15/08 - 14:00</p>
-                            <p class="text-xs text-gray-600">Hospital Santa Maria</p>
-                            <div class="mt-2">
-                                <span class="inline-block px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">Confirmado</span>
-                            </div>
+                            <?php if ($proximoTransporte): ?>
+                                <p class="font-bold mb-1">
+                                    <?= date('d/m', strtotime($proximoTransporte['data_consulta'])) ?> - <?= date('H:i', strtotime($proximoTransporte['horario'])) ?>
+                                </p>
+                                <p class="text-xs text-gray-600"><?= $proximoTransporte['rua_destino'] ?>, <?= $proximoTransporte['cidade_destino'] ?></p>
+                                <div class="mt-2">
+                                    <span class="inline-block px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
+                                        <?= $proximoTransporte['situacao'] ?>
+                                    </span>
+                                </div>
+                            <?php else: ?>
+                                <p class="font-bold mb-1">Nenhum transporte agendado</p>
+                            <?php endif; ?>
                         </div>
 
                         <!-- Transportes Realizados -->
@@ -172,13 +223,33 @@ require '../includes/conexao_BdAgendamento.php'; // inclui o arquivo de conexão
                             <div class="mb-2">
                                 <i data-lucide="bar-chart-2" class="h-8 w-8 mx-auto text-teal-500"></i>
                             </div>
-                            <h5 class="text-sm font-semibold mb-1">Transportes Realizados </h5>
-                            <p class="text-2xl font-bold">12</p>
-                            <p class="text-xs text-gray-600">+2 este mês</p>
+                            <?php if ($totalConcluidos > 0): ?>
+                                <h5 class="text-sm font-semibold mb-1">Transportes Realizados</h5>
+                                <p class="text-2xl font-bold"><?= $totalConcluidos ?></p>
+                                <p class="text-xs text-gray-600">+<?= $totalConfirmadosMes ?> este mês</p>
+                            <?php else: ?>
+                                <h5 class="text-sm font-semibold mb-1">Nenhum transporte realizado</h5>
+                                <p class="text-2xl font-bold">0</p>
+                                <p class="text-xs text-gray-600">+0 este mês</p>
+                            <?php endif; ?>
                         </div>
 
                         <!-- Avaliação Média -->
-             
+                        <div class="dashboard-card relative overflow-hidden bg-white text-blue-900 rounded-xl shadow-lg p-4 text-center">
+                            <div class="mb-2">
+                                <i data-lucide="star" class="h-8 w-8 mx-auto text-yellow-500"></i>
+                            </div>
+                            <h5 class="text-sm font-semibold mb-1">Avaliação Média</h5>
+                            <p class="font-bold">4.8</p>
+                            <div class="flex justify-center text-yellow-500 text-sm">
+                                <i data-lucide="star" class="h-4 w-4 fill-current"></i>
+                                <i data-lucide="star" class="h-4 w-4 fill-current"></i>
+                                <i data-lucide="star" class="h-4 w-4 fill-current"></i>
+                                <i data-lucide="star" class="h-4 w-4 fill-current"></i>
+                                <i data-lucide="star-half" class="h-4 w-4 fill-current"></i>
+                            </div>
+                            <p class="text-xs text-gray-600">(18 avaliações)</p>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -223,22 +294,30 @@ require '../includes/conexao_BdAgendamento.php'; // inclui o arquivo de conexão
                     <div class="bg-white rounded-xl shadow-lg p-6">
                         <h4 class="text-xl font-bold text-blue-900 mb-4 flex items-center">
                             <i data-lucide="calendar" class="h-5 w-5 mr-2 text-teal-500"></i>
-                            Próximos Transportes
+                            Agendamento Mais Recente
                         </h4>
                         <div class="border rounded-lg overflow-hidden">
                             <div class="p-4 border-b flex flex-col md:flex-row md:items-center md:justify-between">
-                                <div>
-                                    <h5 class="font-semibold text-blue-900">Consulta Cardiológica</h5>
-                                    <p class="text-gray-600 text-sm">Hospital Santa Maria - 15/08 - 14:00</p>
-                                </div>
-                                <div class="flex space-x-2 mt-3 md:mt-0">
-                                    <button class="bg-teal-500 hover:bg-teal-600 text-white text-sm font-medium py-1 px-3 rounded-lg transition-all hover:scale-105">
-                                        Detalhes
-                                    </button>
-                                    <button class="border border-red-500 text-red-500 hover:bg-red-50 text-sm font-medium py-1 px-3 rounded-lg transition-all hover:scale-105">
-                                        Cancelar
-                                    </button>
-                                </div>
+                                <?php if ($agendamentoMaisRecente): ?>
+                                    <div>
+                                        <h5 class="font-semibold text-blue-900">Último Agendamento</h5>
+                                        <p class="text-gray-600 text-sm">
+                                            <?= date('d/m/Y', strtotime($agendamentoMaisRecente['data_consulta'])) ?> - <?= date('H:i', strtotime($agendamentoMaisRecente['horario'])) ?>
+                                        </p>
+                                        <p class="text-gray-600 text-sm">
+                                            <?= htmlspecialchars($agendamentoMaisRecente['rua_destino']) ?>, <?= htmlspecialchars($agendamentoMaisRecente['cidade_destino']) ?>
+                                        </p>
+                                    </div>
+                                    <div class="mt-2">
+                                        <span class="inline-block px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
+                                            <?= htmlspecialchars($agendamentoMaisRecente['situacao']) ?>
+                                        </span>
+                                    </div>
+                                <?php else: ?>
+                                    <div>
+                                        <p class="font-bold text-blue-900">Nenhum agendamento recente encontrado.</p>
+                                    </div>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
@@ -267,12 +346,22 @@ require '../includes/conexao_BdAgendamento.php'; // inclui o arquivo de conexão
                                 Últimas Mensagens
                             </h4>
                             <div class="space-y-3">
-                                <div class="bg-blue-50 border-l-4 border-blue-500 p-3 rounded">
-                                    Confirmação de transporte para 15/08
-                                </div>
-                                <div class="bg-green-50 border-l-4 border-green-500 p-3 rounded">
-                                    Avaliação registrada com sucesso
-                                </div>
+                                <?php if (!empty($ultimasMensagens)): ?>
+                                    <?php foreach ($ultimasMensagens as $mensagem): ?>
+                                        <div class="bg-blue-50 border-l-4 border-blue-500 p-3 rounded">
+                                            <p class="font-semibold text-blue-900">
+                                                <?= htmlspecialchars($mensagem['observacoes']) ?>
+                                            </p>
+                                            <p class="text-sm text-gray-600">
+                                                Destino: <?= htmlspecialchars($mensagem['rua_destino']) ?>, <?= htmlspecialchars($mensagem['cidade_destino']) ?>
+                                            </p>
+                                        </div>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <div class="bg-gray-50 border-l-4 border-gray-500 p-3 rounded">
+                                        <p class="font-semibold text-gray-700">Nenhuma mensagem encontrada.</p>
+                                    </div>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
