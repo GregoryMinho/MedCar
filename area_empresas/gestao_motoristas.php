@@ -1,7 +1,7 @@
 <?php 
 require '../includes/valida_login.php'; // inclui o arquivo de validação de login
 
-verificarPermissao('empresa'); // verifica se o usuário logado é uma empresa
+//verificarPermissao('empresa'); // verifica se o usuário logado é uma empresa
 
 $host = 'localhost';
 $dbname = 'Motoristas_MedCar';

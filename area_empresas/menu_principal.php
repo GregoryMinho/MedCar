@@ -1,18 +1,119 @@
 <?php
-require '../includes/valida_login.php'; // inclui o arquivo de validação de login
-session_start(); // Inicia a sessão
+//require '../includes/valida_login.php'; 
+//session_start();
 
-verificarPermissao('empresa'); // verifica se o usuário logado é uma empresa
+// Conexão com o banco de dados de agendamentos
+$host = "localhost";
+$user = "root";
+$pass = "";
+$dbname = "medcar_agendamentos";
+
+$conn = new mysqli($host, $user, $pass, $dbname);
+if ($conn->connect_error) {
+    die("Erro na conexão: " . $conn->connect_error);
+}
+
+// Consulta para contar os agendamentos do dia de hoje com situacao = 'Agendado'
+$query = "SELECT COUNT(*) AS total FROM agendamentos WHERE situacao = 'Agendado' AND data_consulta = CURDATE()";
+$result = $conn->query($query);
+$totalAgendadosHoje = 0;
+if ($result && $result->num_rows > 0) {
+    $row = $result->fetch_assoc();
+    $totalAgendadosHoje = $row['total'];
+}
+
+
+
+
+$query_pendentes = "SELECT COUNT(*) AS total FROM agendamentos WHERE situacao = 'Pendente'";
+$result_pendentes = $conn->query($query_pendentes);
+$totalPendentes = 0;
+if ($result_pendentes && $result_pendentes->num_rows > 0) {
+    $row_pendentes = $result_pendentes->fetch_assoc();
+    $totalPendentes = $row_pendentes['total'];
+}
+
+// Consulta para obter o próximo agendamento
+$query_proximo = "SELECT 
+                    c.nome AS paciente,
+                    CONCAT(a.cidade_origem, ' - ', a.rua_origem, ', ', a.numero_origem) AS local_origem,
+                    a.horario 
+                  FROM agendamentos a
+                  JOIN medcar_cadastro_login.clientes c ON a.cliente_id = c.id
+                  WHERE a.data_consulta = CURDATE() 
+                    AND a.situacao = 'Agendado'
+                  ORDER BY a.horario ASC
+                  LIMIT 1";
+
+$result_proximo = $conn->query($query_proximo);
+$proximo_agendamento = null;
+if ($result_proximo && $result_proximo->num_rows > 0) {
+    $proximo_agendamento = $result_proximo->fetch_assoc();
+}
+
+$conn->close();
+
+
+
+
+// Conexão com o banco financeiro para buscar o faturamento
+$db_fin = "MedCar_Financeiro";
+$conn_fin = new mysqli($host, $user, $pass, $db_fin);
+if ($conn_fin->connect_error) {
+    die("Erro na conexão com financeiro: " . $conn_fin->connect_error);
+}
+
+// Consulta para buscar o faturamento na tabela metricas (assumindo que tipo = 'faturamento')
+$query_fin = "SELECT valor FROM metricas WHERE tipo = 'faturamento' LIMIT 1";
+$result_fin = $conn_fin->query($query_fin);
+$faturamento = 0;
+if ($result_fin && $result_fin->num_rows > 0) {
+    $row_fin = $result_fin->fetch_assoc();
+    $faturamento = $row_fin['valor'];
+}
+$conn_fin->close();
+
+
+
+
+$db_avaliacoes = "medcar_avaliacoes";
+$conn_avaliacoes = new mysqli($host, $user, $pass, $db_avaliacoes);
+if ($conn_avaliacoes->connect_error) {
+    die("Erro na conexão com avaliações: " . $conn_avaliacoes->connect_error);
+}
+
+// Consulta para calcular a média de avaliações
+$query_avaliacoes = "SELECT AVG(nota) AS media FROM avaliacoes";
+$result_avaliacoes = $conn_avaliacoes->query($query_avaliacoes);
+$media_avaliacoes = 0.0;
+if ($result_avaliacoes && $result_avaliacoes->num_rows > 0) {
+    $row_avaliacoes = $result_avaliacoes->fetch_assoc();
+    $media_avaliacoes = number_format($row_avaliacoes['media'], 1);
+}
+
+
+$query_total = "SELECT COUNT(*) AS total FROM avaliacoes";
+$result_total = $conn_avaliacoes->query($query_total);
+$total_avaliacoes = 0;
+if ($result_total && $result_total->num_rows > 0) {
+    $row_total = $result_total->fetch_assoc();
+    $total_avaliacoes = $row_total['total'];
+}
+$conn_avaliacoes->close();
+
+
+
+
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MedCar - Área da Empresa</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         .mobile-menu {
@@ -81,9 +182,19 @@ verificarPermissao('empresa'); // verifica se o usuário logado é uma empresa
             border-left: 3px solid #38b2ac;
             padding-left: 20px;
         }
+        nav a {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    text-decoration: none;
+}
+
+nav a i {
+    margin-right: 8px;
+}
+
     </style>
 </head>
-
 <body class="min-h-screen bg-gray-50">
     <!-- Navbar -->
     <nav class="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-blue-900 to-blue-800 text-white shadow-md">
@@ -107,64 +218,81 @@ verificarPermissao('empresa'); // verifica se o usuário logado é uma empresa
     </nav>
 
     <!-- Mobile Menu -->
-    <div id="mobile-menu" class="fixed inset-0 z-50 bg-blue-900 bg-opacity-95 flex flex-col text-white p-6 mobile-menu">
-        <div class="flex justify-end">
-            <button id="close-menu-button" class="text-white">
-                <i data-lucide="x" class="h-6 w-6"></i>
-            </button>
-        </div>
-
-        <div class="flex flex-col items-center justify-center space-y-8 flex-grow text-xl">
-            <a href="dashboard.php" class="font-medium hover:text-teal-300 transition flex items-center">
-                <i data-lucide="layout-dashboard" class="h-5 w-5 mr-2"></i>
-                Dashboard
-            </a>
-            <a href="agendamentos_pacientes.php" class="font-medium hover:text-teal-300 transition flex items-center">
-                <i data-lucide="calendar" class="h-5 w-5 mr-2"></i>
-                Agendamentos
-            </a>
-            <a href="gestao_motoristas.php" class="font-medium hover:text-teal-300 transition flex items-center">
-                <i data-lucide="users" class="h-5 w-5 mr-2"></i>
-                Motoristas
-            </a>
-            <a href="relatorios_financeiros.php" class="font-medium hover:text-teal-300 transition flex items-center">
-                <i data-lucide="bar-chart-2" class="h-5 w-5 mr-2"></i>
-                Financeiro
-            </a>
-            <a href="relatorios.php" class="font-medium hover:text-teal-300 transition flex items-center">
-                <i data-lucide="file-text" class="h-5 w-5 mr-2"></i>
-                Relatórios
-            </a>
-        </div>
+<div id="mobile-menu" class="fixed inset-0 z-50 bg-blue-900 bg-opacity-95 flex flex-col text-white p-6 mobile-menu">
+    <div class="flex justify-end">
+        <button id="close-menu-button" class="text-white">
+            <i class="bi bi-x-lg h-6 w-6"></i>
+        </button>
     </div>
+
+    <div class="flex flex-col items-start space-y-6 flex-grow text-xl ps-4">
+        <a href="dashboard.php" class="w-full hover:text-teal-300 transition d-flex align-items-center gap-3">
+            <i class="bi bi-grid fs-5"></i>
+            Dashboard
+        </a>
+        <a href="agendamentos_pacientes.php" class="w-full hover:text-teal-300 transition d-flex align-items-center gap-3">
+            <i class="bi bi-calendar-event fs-5"></i>
+            Agendamentos
+        </a>
+        <a href="aprovar_agendamentos.php" class="w-full hover:text-teal-300 transition d-flex align-items-center gap-3">
+            <i class="bi bi-calendar-check fs-5"></i>
+            Aprovar Agendamentos
+        </a>
+        <a href="gestao_motoristas.php" class="w-full hover:text-teal-300 transition d-flex align-items-center gap-3">
+            <i class="bi bi-people fs-5"></i>
+            Motoristas
+        </a>
+        <a href="relatorios_financeiros.php" class="w-full hover:text-teal-300 transition d-flex align-items-center gap-3">
+            <i class="bi bi-graph-up fs-5"></i>
+            Financeiro
+        </a>
+        <a href="relatorios.php" class="w-full hover:text-teal-300 transition d-flex align-items-center gap-3">
+            <i class="bi bi-file-text fs-5"></i>
+            Relatórios
+        </a>
+        <a href="avaliacoes.php" class="w-full hover:text-teal-300 transition d-flex align-items-center gap-3">
+            <i class="bi bi-star fs-5"></i>
+            Avaliações
+        </a>
+    </div>
+</div>
 
     <!-- Main Content -->
     <div class="flex flex-col md:flex-row">
-        <!-- Sidebar -->
-        <div class="hidden md:block w-64 bg-blue-900 text-white min-h-screen pt-24 px-4">
-            <nav class="flex flex-col space-y-2">
-                <a href="dashboard.php" class="flex items-center space-x-2 px-4 py-3 rounded-lg bg-blue-800 text-white hover:bg-blue-700 transition">
-                    <i data-lucide="layout-dashboard" class="h-5 w-5"></i>
-                    <span>Dashboard</span>
-                </a>
-                <a href="agendamentos_pacientes.php" class="flex items-center space-x-2 px-4 py-3 rounded-lg text-white hover:bg-blue-800 transition">
-                    <i data-lucide="calendar" class="h-5 w-5"></i>
-                    <span>Agendamentos</span>
-                </a>
-                <a href="gestao_motoristas.php" class="flex items-center space-x-2 px-4 py-3 rounded-lg text-white hover:bg-blue-800 transition">
-                    <i data-lucide="users" class="h-5 w-5"></i>
-                    <span>Motoristas</span>
-                </a>
-                <a href="relatorios_financeiros.php" class="flex items-center space-x-2 px-4 py-3 rounded-lg text-white hover:bg-blue-800 transition">
-                    <i data-lucide="bar-chart-2" class="h-5 w-5"></i>
-                    <span>Financeiro</span>
-                </a>
-                <a href="relatorios.php" class="flex items-center space-x-2 px-4 py-3 rounded-lg text-white hover:bg-blue-800 transition">
-                    <i data-lucide="file-text" class="h-5 w-5"></i>
-                    <span>Relatórios</span>
-                </a>
-            </nav>
-        </div>
+ <!-- Sidebar -->
+<div class="hidden md:block w-64 bg-blue-900 text-white min-h-screen pt-24">
+    <nav class="flex flex-col space-y-2 px-4">
+        <a href="dashboard.php" class="flex items-center gap-3 ps-4 py-3 rounded-lg hover:bg-blue-800 transition">
+            <i class="bi bi-grid fs-6"></i>
+            <span>Dashboard</span>
+        </a>
+        <a href="agendamentos_pacientes.php" class="flex items-center gap-3 ps-4 py-3 rounded-lg hover:bg-blue-800 transition">
+            <i class="bi bi-calendar-event fs-6"></i>
+            <span>Agendamentos</span>
+        </a>
+        <a href="aprovar_agendamentos.php" class="flex items-center gap-3 ps-4 py-3 rounded-lg hover:bg-blue-800 transition">
+            <i class="bi bi-calendar-check fs-6"></i>
+            <span>Aprovar Agendamentos</span>
+        </a>
+        <a href="gestao_motoristas.php" class="flex items-center gap-3 ps-4 py-3 rounded-lg hover:bg-blue-800 transition">
+            <i class="bi bi-people fs-6"></i>
+            <span>Motoristas</span>
+        </a>
+        <a href="relatorios_financeiros.php" class="flex items-center gap-3 ps-4 py-3 rounded-lg hover:bg-blue-800 transition">
+            <i class="bi bi-graph-up fs-6"></i>
+            <span>Financeiro</span>
+        </a>
+        <a href="relatorios.php" class="flex items-center gap-3 ps-4 py-3 rounded-lg hover:bg-blue-800 transition">
+            <i class="bi bi-file-text fs-6"></i>
+            <span>Relatórios</span>
+        </a>
+        <a href="avaliacoes.php" class="flex items-center gap-3 ps-4 py-3 rounded-lg hover:bg-blue-800 transition">
+            <i class="bi bi-star fs-6"></i>
+            <span>Avaliações</span>
+        </a>
+    </nav>
+</div>
+
 
         <!-- Main Content Area -->
         <div class="flex-1">
@@ -181,65 +309,83 @@ verificarPermissao('empresa'); // verifica se o usuário logado é uma empresa
                                 <i data-lucide="calendar-check" class="h-8 w-8 mx-auto text-teal-500"></i>
                             </div>
                             <h5 class="text-sm font-semibold mb-1">Serviços Hoje</h5>
-                            <p class="text-2xl font-bold">18</p>
+                            <p class="text-2xl font-bold"><?php echo $totalAgendadosHoje; ?></p>
                         </div>
 
-                        <!-- Faturamento -->
-                        <div class="dashboard-card relative overflow-hidden bg-white text-blue-900 rounded-xl shadow-lg p-4 text-center">
-                            <div class="mb-2">
-                                <i data-lucide="dollar-sign" class="h-8 w-8 mx-auto text-teal-500"></i>
-                            </div>
-                            <h5 class="text-sm font-semibold mb-1">Faturamento</h5>
-                            <p class="text-xl font-bold">R$ 12.540,00</p>
-                        </div>
-
-                        <!-- Avaliação -->
-                        <div class="dashboard-card relative overflow-hidden bg-white text-blue-900 rounded-xl shadow-lg p-4 text-center">
-                            <div class="mb-2">
-                                <i data-lucide="star" class="h-8 w-8 mx-auto text-yellow-500"></i>
-                            </div>
-                            <h5 class="text-sm font-semibold mb-1">Avaliação</h5>
-                            <p class="text-xl font-bold">4.8 <i data-lucide="star" class="h-4 w-4 inline"></i></p>
-                        </div>
+                    <!-- Faturamento -->
+        <div class="dashboard-card relative overflow-hidden bg-white text-blue-900 rounded-xl shadow-lg p-4 text-center">
+        <div class="mb-2">
+                       <i data-lucide="dollar-sign" class="h-8 w-8 mx-auto text-teal-500"></i>
+        </div>
+                        <h5 class="text-sm font-semibold mb-1">Faturamento</h5>
+                        <p class="text-xl font-bold">R$ <?php echo number_format($faturamento, 2, ',', '.'); ?></p>
+        </div>
+<!-- Avaliação -->
+<div class="dashboard-card relative overflow-hidden bg-white text-blue-900 rounded-xl shadow-lg p-4 text-center">
+    <div class="mb-2">
+        <i data-lucide="star" class="h-8 w-8 mx-auto text-yellow-500"></i>
+    </div>
+    <h5 class="text-sm font-semibold mb-1">Avaliação Média</h5>
+    <p class="text-xl font-bold">
+        <?php echo $media_avaliacoes; ?> 
+        <i data-lucide="star" class="h-4 w-4 inline"></i>
+    </p>
+    <p class="text-sm text-gray-600 mt-1">
+        (<?php echo $total_avaliacoes; ?> avaliações)
+    </p>
+</div>
 
                         <!-- Pendências -->
-                        <div class="dashboard-card relative overflow-hidden bg-amber-50 text-blue-900 rounded-xl shadow-lg p-4 text-center">
-                            <div class="mb-2">
-                                <i data-lucide="alert-triangle" class="h-8 w-8 mx-auto text-amber-500"></i>
-                            </div>
-                            <h5 class="text-sm font-semibold mb-1">Pendências</h5>
-                            <p class="text-xl font-bold">3</p>
-                        </div>
+                     <!-- Card de Pendências -->
+<div class="dashboard-card relative overflow-hidden bg-amber-50 text-blue-900 rounded-xl shadow-lg p-4 text-center">
+    <div class="mb-2">
+        <i data-lucide="alert-triangle" class="h-8 w-8 mx-auto text-amber-500"></i>
+    </div>
+    <h5 class="text-sm font-semibold mb-1">Pendências</h5>
+    <p class="text-xl font-bold"><?php echo $totalPendentes; ?></p>
+</div>
+
                     </div>
                 </div>
             </section>
-
-            <!-- Main Sections -->
-            <div class="container mx-auto px-4 py-8">
-                <!-- Agendamentos -->
-                <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
-                    <h4 class="text-xl font-bold text-blue-900 mb-4 flex items-center">
-                        <i data-lucide="calendar-days" class="h-5 w-5 mr-2 text-teal-500"></i>
-                        Agenda de Hoje
-                    </h4>
-                    <div class="schedule-timeline mt-3">
-                        <div class="mb-4">
-                            <div class="flex flex-col md:flex-row md:justify-between md:items-center">
-                                <div>
-                                    <h5 class="font-semibold text-blue-900">Paciente: João Silva</h5>
-                                    <p class="text-gray-600 text-sm">Hospital Santa Maria - 09:30</p>
-                                </div>
-                                <div class="mt-2 md:mt-0">
-                                    <span class="inline-block px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
-                                        Em transporte
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Mais agendamentos... -->
+ <!-- Main Sections -->
+ <div class="container mx-auto px-4 py-8">
+               <!-- Agendamentos -->
+<div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+    <h4 class="text-xl font-bold text-blue-900 mb-4 flex items-center">
+        <i data-lucide="calendar-days" class="h-5 w-5 mr-2 text-teal-500"></i>
+        Agenda de Hoje
+    </h4>
+    <div class="schedule-timeline mt-3">
+        <?php if ($proximo_agendamento): ?>
+            <div class="mb-4">
+                <div class="flex flex-col md:flex-row md:justify-between md:items-center">
+                    <div>
+                        <h5 class="font-semibold text-blue-900">Paciente: <?php echo htmlspecialchars($proximo_agendamento['paciente']); ?></h5>
+                        <p class="text-gray-600 text-sm">
+                            <?php echo htmlspecialchars($proximo_agendamento['local_origem']); ?> - 
+                            <?php echo date('H:i', strtotime($proximo_agendamento['horario'])); ?>
+                        </p>
+                    </div>
+                    <div class="mt-2 md:mt-0">
+                        <span class="inline-block px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
+                            Agendado
+                        </span>
                     </div>
                 </div>
-
+            </div>
+        <?php else: ?>
+            <div class="mb-4">
+                <div class="flex flex-col md:flex-row md:justify-between md:items-center">
+                    <div>
+                        <h5 class="font-semibold text-blue-900">Nenhum agendamento para hoje</h5>
+                        <p class="text-gray-600 text-sm">Não há transportes agendados para o dia de hoje</p>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
+    </div>
+</div>
                 <!-- Gestão de Frota e Motoristas -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <!-- Gestão de Frota -->
@@ -339,5 +485,4 @@ verificarPermissao('empresa'); // verifica se o usuário logado é uma empresa
         });
     </script>
 </body>
-
 </html>

@@ -2,7 +2,7 @@
 require '../includes/conexao_BdAgendamento.php';
 require '../includes/valida_login.php'; // inclui o arquivo de validação de login
 
-verificarPermissao('empresa'); // verifica se o usuário logado é uma empresa
+//verificarPermissao('empresa'); // verifica se o usuário logado é uma empresa
 
 // Recupera o mês selecionado via GET
 $selectedMonth = isset($_GET['month']) ? $_GET['month'] : '2024-03';
