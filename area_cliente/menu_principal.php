@@ -3,11 +3,17 @@ require '../includes/valida_login.php'; // inclui o arquivo de validação de lo
 require '../includes/conexao_BdAgendamento.php'; // inclui o arquivo de conexão com o banco de dados
 //verificarPermissao('cliente'); // verifica se o usuário logado é um cliente
 
-// Busca o próximo agendamento mais próximo para o usuário logado 
+$_SESSION['usuario'] = [
+    'id' => 1,
+    'tipo' => 'cliente',
+    'nome' => 'João Silva',
+];
+
+// Busca o próximo agendamento agendado mais próximo para o usuário logado 
 $usuarioId = $_SESSION['usuario']['id'];
 $query = "SELECT data_consulta, horario, rua_destino, cidade_destino, situacao 
           FROM agendamentos 
-          WHERE cliente_id = :cliente_id AND data_consulta >= CURDATE() 
+          WHERE cliente_id = :cliente_id AND data_consulta >= CURDATE() AND situacao = 'Agendado'
           ORDER BY data_consulta ASC, horario ASC 
           LIMIT 1";
 $stmt = $conn->prepare($query);
@@ -35,10 +41,10 @@ $stmtConfirmadosMes->execute();
 $totalConfirmadosMes = $stmtConfirmadosMes->fetch(PDO::FETCH_ASSOC)['total_confirmados_mes'];
 
 // Consulta para buscar os dois últimos registros de agendamento do usuário logado
-$queryMensagens = "SELECT data_consulta, horario, observacoes, rua_destino, cidade_destino 
+$queryMensagens = "SELECT data_consulta, horario, observacoes, rua_destino, cidade_destino, situacao
                    FROM agendamentos 
                    WHERE cliente_id = :cliente_id 
-                   ORDER BY data_consulta DESC, horario DESC 
+                   ORDER BY id DESC 
                    LIMIT 2";
 $stmtMensagens = $conn->prepare($queryMensagens);
 $stmtMensagens->bindParam(':cliente_id', $usuarioId, PDO::PARAM_INT);
@@ -171,7 +177,7 @@ $conn = null;
                 </a>
                 <a href="#" class="flex items-center space-x-2 px-4 py-3 rounded-lg text-white hover:bg-blue-800 transition">
                     <i data-lucide="calendar" class="h-5 w-5"></i>
-                    <span>Agendamentos</span>
+                    <span>Agendar</span>
                 </a>
                 <a href="historico.php" class="flex items-center space-x-2 px-4 py-3 rounded-lg text-white hover:bg-blue-800 transition">
                     <i data-lucide="clock" class="h-5 w-5"></i>
@@ -259,29 +265,35 @@ $conn = null;
                 <div class="container mx-auto px-4">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div class="dashboard-card relative overflow-hidden bg-white rounded-xl shadow-lg p-6 text-center">
-                            <i data-lucide="ambulance" class="h-10 w-10 mx-auto text-teal-500 mb-3"></i>
-                            <h5 class="text-lg font-semibold text-blue-900 mb-2">Agendar Transporte</h5>
-                            <p class="text-sm text-gray-600 mb-4">Agende seu transporte médico com antecedência</p>
-                            <a href="../paginas/abas_menu_principal/aba_empresas.php" class="bg-teal-500 hover:bg-teal-600 text-white font-medium py-2 px-4 rounded-lg transition-all hover:scale-105">
-                                Agendar Agora
+                            <a href="../paginas/abas_menu_principal/aba_empresas.php">
+                                <i data-lucide="ambulance" class="h-10 w-10 mx-auto text-teal-500 mb-3"></i>
+                                <h5 class="text-lg font-semibold text-blue-900 mb-2">Agendar Transporte</h5>
+                                <p class="text-sm text-gray-600 mb-4">Agende seu transporte médico com antecedência</p>
+                                <div class="bg-teal-500 hover:bg-teal-600 text-white font-medium py-2 px-4 rounded-lg transition-all hover:scale-105">
+                                    Agendar Agora
+                                </div>
                             </a>
                         </div>
 
                         <div class="dashboard-card relative overflow-hidden bg-white rounded-xl shadow-lg p-6 text-center">
-                            <i data-lucide="clock" class="h-10 w-10 mx-auto text-teal-500 mb-3"></i>
-                            <h5 class="text-lg font-semibold text-blue-900 mb-2">Histórico Completo</h5>
-                            <p class="text-sm text-gray-600 mb-4">Veja todos seus transportes realizados</p>
-                            <a href="historico.php" class="bg-teal-500 hover:bg-teal-600 text-white font-medium py-2 px-4 rounded-lg transition-all hover:scale-105">
-                                Acessar Histórico
+                            <a href="historico.php">
+                                <i data-lucide="clock" class="h-10 w-10 mx-auto text-teal-500 mb-3"></i>
+                                <h5 class="text-lg font-semibold text-blue-900 mb-2">Histórico Completo</h5>
+                                <p class="text-sm text-gray-600 mb-4">Veja todos seus transportes realizados</p>
+                                <div class="bg-teal-500 hover:bg-teal-600 text-white font-medium py-2 px-4 rounded-lg transition-all hover:scale-105">
+                                    Acessar Histórico
+                                </div>
                             </a>
                         </div>
 
                         <div class="dashboard-card relative overflow-hidden bg-white rounded-xl shadow-lg p-6 text-center">
-                            <i data-lucide="star" class="h-10 w-10 mx-auto text-teal-500 mb-3"></i>
-                            <h5 class="text-lg font-semibold text-blue-900 mb-2">Empresas Favoritas</h5>
-                            <p class="text-sm text-gray-600 mb-4">Gerencie suas empresas preferidas</p>
-                            <a class="bg-teal-500 hover:bg-teal-600 text-white font-medium py-2 px-4 rounded-lg transition-all hover:scale-105">
-                                Ver Favoritos
+                            <a href="">
+                                <i data-lucide="star" class="h-10 w-10 mx-auto text-teal-500 mb-3"></i>
+                                <h5 class="text-lg font-semibold text-blue-900 mb-2">Empresas Favoritas</h5>
+                                <p class="text-sm text-gray-600 mb-4">Gerencie suas empresas preferidas</p>
+                                <div class="bg-teal-500 hover:bg-teal-600 text-white font-medium py-2 px-4 rounded-lg transition-all hover:scale-105">
+                                    Ver Favoritos
+                                </div>
                             </a>
                         </div>
                     </div>
@@ -298,26 +310,47 @@ $conn = null;
                         </h4>
                         <div class="border rounded-lg overflow-hidden">
                             <div class="p-4 border-b flex flex-col md:flex-row md:items-center md:justify-between">
-                                <?php if ($agendamentoMaisRecente): ?>
-                                    <div>
-                                        <h5 class="font-semibold text-blue-900">Último Agendamento</h5>
-                                        <p class="text-gray-600 text-sm">
-                                            <?= date('d/m/Y', strtotime($agendamentoMaisRecente['data_consulta'])) ?> - <?= date('H:i', strtotime($agendamentoMaisRecente['horario'])) ?>
-                                        </p>
-                                        <p class="text-gray-600 text-sm">
-                                            <?= htmlspecialchars($agendamentoMaisRecente['rua_destino']) ?>, <?= htmlspecialchars($agendamentoMaisRecente['cidade_destino']) ?>
-                                        </p>
-                                    </div>
-                                    <div class="mt-2">
-                                        <span class="inline-block px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
-                                            <?= htmlspecialchars($agendamentoMaisRecente['situacao']) ?>
-                                        </span>
-                                    </div>
-                                <?php else: ?>
-                                    <div>
-                                        <p class="font-bold text-blue-900">Nenhum agendamento recente encontrado.</p>
-                                    </div>
-                                <?php endif; ?>
+                                <?php
+                                // Determina a classe de estilo com base na situação do último agendamento
+                                $statusClass = '';
+                                $ultimoAgendamento = $ultimasMensagens[0] ?? null; // Pega o último agendamento, se existir
+                                if (!is_null($ultimoAgendamento)) {
+
+                                    if ($ultimoAgendamento['situacao'] == 'Agendado') {
+                                        $statusClass = 'bg-yellow-500 text-black';
+                                    } elseif ($ultimoAgendamento['situacao'] == 'Concluido') {
+                                        $statusClass = 'bg-green-500 text-white';
+                                    } elseif ($ultimoAgendamento['situacao'] == 'Cancelado') {
+                                        $statusClass = 'bg-red-500 text-white';
+                                    } else {
+                                        $statusClass = 'bg-gray-500 text-white';
+                                    }
+                                }
+                                ?>
+
+                                <!-- Exibição do Último Agendamento -->
+                                <div class="p-4 border-b flex flex-col text-lg font-large md:flex-row md:items-center md:justify-between">
+                                    <?php if (!empty($ultimoAgendamento)): ?>
+                                        <div>
+                                            <h5 class="font-semibold text-blue-900">Último Agendamento</h5>
+                                            <p class="text-gray-600 text-sm">
+                                                <?= date('d/m/Y', strtotime($ultimoAgendamento['data_consulta'])) ?> - <?= date('H:i', strtotime($ultimoAgendamento['horario'])) ?>
+                                            </p>
+                                            <p class="text-gray-600 text-sm">
+                                                <?= htmlspecialchars($ultimoAgendamento['rua_destino']) ?>, <?= htmlspecialchars($ultimoAgendamento['cidade_destino']) ?>
+                                            </p>
+                                        </div>
+                                        <div class="mt-4 md:mt-0 md:ml-6">
+                                            <span class="inline-block px-2 py-1 rounded-full <?= $statusClass ?>">
+                                                <?= htmlspecialchars($ultimoAgendamento['situacao']) ?>
+                                            </span>
+                                        </div>
+                                    <?php else: ?>
+                                        <div>
+                                            <p class="font-bold text-blue-900">Nenhum agendamento recente encontrado.</p>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -350,7 +383,7 @@ $conn = null;
                                     <?php foreach ($ultimasMensagens as $mensagem): ?>
                                         <div class="bg-blue-50 border-l-4 border-blue-500 p-3 rounded">
                                             <p class="font-semibold text-blue-900">
-                                                <?= htmlspecialchars($mensagem['observacoes']) ?>
+                                                <?= empty($mensagem['observacoes']) ? 'Sem mensagens nesse agendamento' : htmlspecialchars($mensagem['observacoes']) ?>
                                             </p>
                                             <p class="text-sm text-gray-600">
                                                 Destino: <?= htmlspecialchars($mensagem['rua_destino']) ?>, <?= htmlspecialchars($mensagem['cidade_destino']) ?>

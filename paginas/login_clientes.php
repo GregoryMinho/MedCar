@@ -33,12 +33,12 @@ session_start();
                     <span>MedCar</span>
                 </a>
 
-                
+
                 <div class="hidden md:flex space-x-6">
-                    <a href="/MedQ-2/paginas/pagina_inicial.php" class="font-medium hover:text-teal-300 transition">Home</a>                   
+                    <a href="/MedQ-2/paginas/pagina_inicial.php" class="font-medium hover:text-teal-300 transition">Home</a>
                     <a href="#" class="font-medium hover:text-teal-300 transition">Contato</a>
                 </div>
-                
+
                 <button id="mobile-menu-button" class="md:hidden text-white">
                     <i data-lucide="menu" class="h-6 w-6"></i>
                 </button>
@@ -55,7 +55,7 @@ session_start();
         </div>
 
         <div class="flex flex-col items-center justify-center space-y-8 flex-grow text-xl">
-            <a href="/MedQ-2/paginas/pagina_inicial.php" class="font-medium hover:text-teal-300 transition">Home</a>    
+            <a href="/MedQ-2/paginas/pagina_inicial.php" class="font-medium hover:text-teal-300 transition">Home</a>
             <a href="#" class="font-medium hover:text-teal-300 transition">Contato</a>
         </div>
     </div>
@@ -115,15 +115,21 @@ session_start();
                         <!-- Add os links das paginas do face e google que não tinha -->
                         <div class="mt-8">
                             <p class="text-sm text-gray-600 mb-4">Entrar com redes sociais</p>
-                            <div class="grid grid-cols-2 gap-4">
-                                <a href="#" class="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                                    <i data-lucide="google" class="h-5 w-5 mr-2"></i>
-                                    Google
-                                </a>
-                                <a href="#" class="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                                    <i data-lucide="facebook" class="h-5 w-5 mr-2"></i>
-                                    Facebook
-                                </a>
+                            <div class="grid grid-cols-1">
+                                <script src="https://accounts.google.com/gsi/client" async></script>
+                                <div id="g_id_onload"
+                                    data-client_id="YOUR_GOOGLE_CLIENT_ID"
+                                    data-login_uri="https://your.domain/your_login_endpoint"
+                                    data-auto_prompt="false">
+                                </div>
+                                <div class="g_id_signin"
+                                    data-type="standard"
+                                    data-size="large"
+                                    data-theme="outline"
+                                    data-text="sign_in_with"
+                                    data-shape="rectangular"
+                                    data-logo_alignment="left">
+                                </div>                               
                             </div>
                         </div>
                     </div>

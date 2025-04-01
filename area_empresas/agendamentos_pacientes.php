@@ -5,6 +5,19 @@ require '../includes/valida_login.php'; // inclui o arquivo de validação de lo
 // verifica se o usuário logado é uma empresa
 //verificarPermissao('empresa'); 
 
+
+
+ //  as consultas sql precisam inluir o id da empresa na sessão, use pdo
+ /*$_SESSION['usuario'] = [
+    'id' => 1,
+    'tipo' => 'cliente',
+    'nome' => 'Transportadora João Silva',
+];*/
+
+
+
+
+
 // Função para gerar o calendário
 function gerarCalendario($mes, $ano, $agendamentos) {
     $mes = str_pad($mes, 2, '0', STR_PAD_LEFT); // Garante 2 dígitos
@@ -74,11 +87,13 @@ $sql = "SELECT
             c.nome 
         FROM medcar_agendamentos.agendamentos a
         JOIN medcar_cadastro_login.clientes c ON a.cliente_id = c.id
-        WHERE DATE(CONVERT_TZ(a.data_consulta, '+00:00', '+03:00')) BETWEEN :inicio_mes AND :fim_mes";
+        WHERE a.empresa_id = :empresa_id 
+        AND DATE(CONVERT_TZ(a.data_consulta, '+00:00', '+03:00')) BETWEEN :inicio_mes AND :fim_mes";
 
 $params = [
     ':inicio_mes' => $inicio_mes,
-    ':fim_mes' => $fim_mes
+    ':fim_mes' => $fim_mes,
+    ':empresa_id' => $_SESSION['usuario']['id'] // ID da empresa logada 
 ];
 
 if ($filtros['status'] != 'all') {
@@ -110,262 +125,7 @@ $calendario = gerarCalendario($mes, $ano, $agendamentos);
     <title>MedCar - Agendamentos</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-    :root {
-        --primary-color: #1a365d;
-        --secondary-color: #2a4f7e;
-        --accent-color: #38b2ac;
-        --confirmed-color: #28a745;
-        --pending-color: #ffc107;
-        --cancelled-color: #dc3545;
-    }
-
-    /* Layout do Calendário */
-    .calendar-container {
-        width: 100%;
-        max-width: 1200px;
-        margin: 0 auto;
-    }
-
-    .calendar-header-grid {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
-        gap: 2px;
-        margin-bottom: 5px;
-    }
-
-    .calendar-days-grid {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
-        gap: 2px;
-    }
-
-    .calendar-header {
-        text-align: center;
-        font-weight: bold;
-        padding: 10px;
-        background: var(--primary-color);
-        color: white;
-        border-radius: 5px;
-    }
-
-    .calendar-day {
-        background: white;
-        border-radius: 10px;
-        padding: 15px;
-        min-height: 120px;
-        cursor: pointer;
-        transition: all 0.3s;
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-    }
-
-    .calendar-day.empty {
-        background: #f8f9fa;
-        cursor: default;
-    }
-
-    .calendar-day.has-event {
-        border: 2px solid var(--accent-color);
-    }
-
-    .day-number {
-        font-weight: bold;
-        margin-bottom: 5px;
-    }
-
-    .event-dot {
-        width: 8px;
-        height: 8px;
-        background: var(--accent-color);
-        border-radius: 50%;
-        position: absolute;
-        bottom: 10px;
-        left: 50%;
-        transform: translateX(-50%);
-        z-index: 2;
-    }
-
-    /* Estilos Gerais */
-    body {
-        background: #f8f9fa;
-        font-family: Arial, sans-serif;
-    }
-
-    .schedule-dashboard {
-        background: #f8f9fa;
-        min-height: 100vh;
-    }
-
-    .schedule-card {
-        background: white;
-        border-radius: 15px;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        transition: all 0.3s;
-        margin-bottom: 20px;
-        padding: 20px;
-        position: relative;
-    }
-
-    .schedule-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-    }
-
-    .status-badge {
-        padding: 8px 15px;
-        border-radius: 20px;
-        font-size: 0.9em;
-        position: absolute;
-        top: 15px;
-        right: 15px;
-    }
-
-    .status-confirmed {
-        background: var(--confirmed-color);
-        color: white;
-    }
-
-    .status-pending {
-        background: var(--pending-color);
-        color: black;
-    }
-
-    .status-cancelled {
-        background: var(--cancelled-color);
-        color: white;
-    }
-
-    .schedule-icon {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: var(--accent-color);
-        color: white;
-    }
-
-    .timeline {
-        border-left: 3px solid var(--primary-color);
-        padding-left: 1rem;
-        margin: 1rem 0;
-    }
-
-    .btn-schedule {
-        background: var(--accent-color);
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 8px;
-        transition: all 0.3s;
-    }
-
-    .btn-schedule:hover {
-        background: #2c7a7b;
-        color: white;
-    }
-
-    .schedule-details {
-        display: none;
-        background: white;
-        border-radius: 15px;
-        padding: 20px;
-        margin-top: 20px;
-    }
-
-    .schedule-card-details {
-        background: white;
-        border-radius: 15px;
-        padding: 20px;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    }
-
-    .schedule-card-details label.form-label {
-        font-weight: bold;
-        color: var(--primary-color);
-    }
-
-    #appointmentDetails p {
-        margin-bottom: 0.5rem;
-        padding: 8px;
-        background: #f8f9fa;
-        border-radius: 5px;
-    }
-
-    /* Navbar */
-    .navbar {
-        background: var(--primary-color);
-    }
-
-    .navbar-brand {
-        font-weight: bold;
-    }
-
-    .navbar-brand i {
-        margin-right: 10px;
-    }
-
-    /* Sidebar */
-    .sidebar {
-        background: var(--secondary-color);
-        color: white;
-        min-height: 100vh;
-    }
-
-    .sidebar h5 {
-        color: white;
-    }
-
-    .sidebar .form-label {
-        color: white;
-    }
-
-    .sidebar .form-select,
-    .sidebar .form-control {
-        background-color: rgba(255, 255, 255, 0.1);
-        color: white;
-        border: none;
-    }
-
-    .sidebar .form-select:focus,
-    .sidebar .form-control:focus {
-        background-color: rgba(255, 255, 255, 0.2);
-        color: white;
-    }
-
-    .sidebar .btn-light {
-        background-color: rgba(255, 255, 255, 0.1);
-        color: white;
-        border: none;
-    }
-
-    .sidebar .btn-light:hover {
-        background-color: rgba(255, 255, 255, 0.2);
-    }
-
-    /* Modal */
-    .modal-content {
-        border-radius: 15px;
-    }
-
-    .modal-header {
-        background: var(--primary-color);
-        color: white;
-        border-radius: 15px 15px 0 0;
-    }
-
-    .modal-title {
-        font-weight: bold;
-    }
-
-    .modal-body {
-        padding: 20px;
-    }
-</style>
+    <link rel="stylesheet" href="style/style_agendamentos_pacientes.css">
 </head>
 <body>
     <!-- Navbar -->
