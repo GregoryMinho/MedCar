@@ -118,8 +118,8 @@ session_start();
                             <div class="grid grid-cols-1">
                                 <script src="https://accounts.google.com/gsi/client" async></script>
                                 <div id="g_id_onload"
-                                    data-client_id="YOUR_GOOGLE_CLIENT_ID"
-                                    data-login_uri="https://your.domain/your_login_endpoint"
+                                    data-client_id="162031456903-j67l39klr0m4p0js3cf4pjsl7kleqmp2.apps.googleusercontent.com"
+                                    data-login_uri="https://localhost/MedQ-2/area_cliente/menu_principal.php"
                                     data-auto_prompt="false">
                                 </div>
                                 <div class="g_id_signin"

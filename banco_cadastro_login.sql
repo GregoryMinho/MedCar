@@ -30,3 +30,12 @@ CREATE TABLE detalhe_medico (
     remedio_recorrente TEXT DEFAULT('NÃO USO'),
     FOREIGN KEY (id_cliente) REFERENCES clientes(id) ON DELETE CASCADE
 );
+
+CREATE TABLE login_google_cliente(
+    id int auto_increment primary key,
+    id_cliente int not null,
+    credencial varchar(255) not null,
+    foto_perfil varchar(255) not null,
+    FOREIGN KEY (id_cliente) REFERENCES clientes(id) ON DELETE CASCADE
+    
+)

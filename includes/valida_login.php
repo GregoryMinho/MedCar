@@ -1,9 +1,24 @@
 <?php
-session_start();
+namespace includes;
 
-// Função para verificar permissões
-function verificarPermissao($tipoPermitido)
+class Usuario{
+ 
+    /**
+     * Método para iniciar a sessão dentro da aplicação
+     * @return boolean
+     */
+private static function init(){
+return session_status() !== PHP_SESSION_ACTIVE ? session_start() : true;
+}
+
+/**
+ * Método para verificar tipo de usuario 
+ * @param string $tipoPermitido
+ */
+public static function verificarPermissao($tipoPermitido)
 {
+    self::init();
+
     if (!isset($_SESSION['usuario'])) {
         // Redireciona para a página de login se o usuario de usuário não estiver definido
         header("Location: ../paginas/pagina_inicial.php");
@@ -21,3 +36,6 @@ function verificarPermissao($tipoPermitido)
         exit();
     }
 }
+}
+
+
