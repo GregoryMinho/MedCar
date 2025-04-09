@@ -12,6 +12,27 @@ return session_status() !== PHP_SESSION_ACTIVE ? session_start() : true;
 }
 
 /**
+ * Método para encerrar a sessão do usuário
+ * @return void
+ */
+
+public static function logout()
+{
+    self::init();
+    session_unset(); // Remove todas as variáveis de sessão
+    session_destroy(); // Destroi a sessão
+    header("Location: ../paginas/pagina_inicial.php"); // Redireciona para a página inicial
+    exit();
+}
+
+public static function isLogged(){
+    self::init();
+
+    return isset($_SESSION['usuario']);
+}
+
+
+/**
  * Método para verificar tipo de usuario 
  * @param string $tipoPermitido
  */

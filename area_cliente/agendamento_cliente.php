@@ -1,5 +1,5 @@
 <?php // essa pagina é acessada apos o usuario selecionar a empresa para agendar
-require '../includes/valida_login.php'; // inclui o arquivo de validação de login
+require '../includes/classe_usuario.php'; // inclui o arquivo de validação de login
 
 verificarPermissao('cliente'); // verifica se o usuario logado é um cliente
 // pegar o id da empresa selecionada por sessão

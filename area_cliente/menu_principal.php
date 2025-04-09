@@ -1,37 +1,8 @@
 <?php
-require '../includes/valida_login.php'; // inclui o arquivo de validação de login
+require '../includes/classe_usuario.php'; // inclui o arquivo de validação de login
 require '../includes/conexao_BdAgendamento.php'; // inclui o arquivo de conexão com o banco de dados
 
-// autoload do composer
-require __DIR__.'/vendor/autoload.php';
-
-use Google\Client as GoogleClient;
-
-//verifica os campos obrigatórios do login com google
-if (!isset($_POST['credential']) || !isset($_POST['g_csrf_token'])) {
-    header('Location: ../paginas/login_clientes.php?erro=1'); // redireciona para a página de login com erro
-    exit;
-}
-
-$cookie = $_COOKIE['g_csrf_token'] ?? null; // pega o cookie de csrf
-
-// verifica o valor do cookei e do post para o csrf
-if ($cookie !== $_POST['g_csrf_token']) {
-    header('Location: ../paginas/login_clientes.php?erro=2'); // redireciona para a página de login com erro
-    exit;
-}
-
-// instancia cliente google
-$client = new GoogleClient(['client_id' => '162031456903-j67l39klr0m4p0js3cf4pjsl7kleqmp2.apps.googleusercontent.com']);  // Specify the CLIENT_ID of the app that accesses the backend
-// obtem os dados do usuario com base no jwt
-$payload = $client->verifyIdToken($_POST['credential']);
-//verifica os dados do payload
-if (isset($payload['email'])) {
-  print_r($payload);
-  exit;
-}
-
-//verificarPermissao('cliente'); // verifica se o usuário logado é um cliente
+// verificarPermissao('cliente'); // verifica se o usuário logado é um cliente
 
 $_SESSION['usuario'] = [
     'id' => 1,

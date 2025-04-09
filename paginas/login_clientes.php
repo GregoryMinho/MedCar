@@ -64,7 +64,7 @@ session_start();
     <section class="pt-32 pb-16">
         <div class="container mx-auto px-4">
             <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
-                <div class="bg-teal-500 text-white p-8 text-center">
+                <div class="bg-indigo-500 text-white p-8 text-center">
                     <h2 class="text-3xl font-bold mb-2">Olá! Você já é nosso cliente?</h2>
                     <p class="text-xl">Acesse sua conta para agendar seus transportes</p>
                 </div>

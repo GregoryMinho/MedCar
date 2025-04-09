@@ -21,7 +21,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 'id' => $empresa['id'],
                 'nome' => $empresa['nome'],
                 'email' => $empresa['email'],
-                'tipo' => $empresa['tipo'] // Define o tipo de usuário como empresa
+                'tipo' => $empresa['tipo'], // Define o tipo de usuário como empresa
+                'foto' => $empresa['picture'] // Adiciona a foto de perfil da empresa tipo link 
             ];
             header("Location: /MedQ-2/area_empresas/menu_principal.php");
             exit();
