@@ -1,30 +1,20 @@
 <?php
 require '../includes/conexao_BdAgendamento.php';
-require '../includes/valida_login.php'; // inclui o arquivo de validação de login
+require '../includes/classe_usuario.php'; // inclui o arquivo de validação de login
+use usuario\Usuario; // usa o namespace usuario\Usuario
 
-//verificarPermissao('empresa'); // verifica se o usuário logado é uma empresa
+// Usuario::verificarPermissao('empresa'); // verifica se o usuário logado é uma empresa
 
 // Recupera o mês selecionado via GET
 $selectedMonth = isset($_GET['month']) ? $_GET['month'] : '2024-03';
 
-// Verifica a conexão
-if ($conn->connect_error) {
-    die("Falha na conexão: " . $conn->connect_error);
-}
-
 // Query com filtro por mês usando consulta preparada
-$sql = "SELECT * FROM agendamentos WHERE DATE_FORMAT(data_consulta, '%Y-%m') = ? ORDER BY data_consulta DESC, horario DESC";
+$sql = "SELECT * FROM agendamentos WHERE DATE_FORMAT(data_consulta, '%Y-%m') = :selectedMonth ORDER BY data_consulta DESC, horario DESC";
 $stmt = $conn->prepare($sql);
-$stmt->bind_param("s", $selectedMonth);
+$stmt->bindParam(':selectedMonth', $selectedMonth, PDO::PARAM_STR);
 $stmt->execute();
-$result = $stmt->get_result();
+$patients = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$patients = [];
-if ($result->num_rows > 0) {
-    while ($row = $result->fetch_assoc()) {
-        $patients[] = $row;
-    }
-}
 $totalPatients = count($patients);
 
 $completedCount = 0;
@@ -38,8 +28,6 @@ $completionRate = ($totalPatients > 0) ? round(($completedCount / $totalPatients
 $dailyAverage = ($totalPatients / 30);
 $dailyAverage = number_format($dailyAverage, 1);
 
-$stmt->close();
-$conn->close();
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">

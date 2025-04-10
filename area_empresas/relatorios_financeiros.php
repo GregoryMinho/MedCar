@@ -1,7 +1,8 @@
 <?php
-require '../includes/valida_login.php'; // inclui o arquivo de validação de login
+require '../includes/classe_usuario.php'; // inclui o arquivo de validação de login
+use usuario\Usuario; // usa o namespace usuario\Usuario
 
-//verificarPermissao('empresa'); // verifica se o usuário logado é uma empresa
+// Usuario::verificarPermissao('empresa'); // verifica se o usuário logado é uma empresa
 
 // Conexão com o banco de dados
 $servername = "localhost";

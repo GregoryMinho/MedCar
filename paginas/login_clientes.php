@@ -64,7 +64,7 @@ session_start();
     <section class="pt-32 pb-16">
         <div class="container mx-auto px-4">
             <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
-                <div class="bg-indigo-500 text-white p-8 text-center">
+                <div class="bg-teal-500 text-white p-8 text-center">
                     <h2 class="text-3xl font-bold mb-2">Olá! Você já é nosso cliente?</h2>
                     <p class="text-xl">Acesse sua conta para agendar seus transportes</p>
                 </div>
@@ -113,13 +113,14 @@ session_start();
                         </ul>
 
                         <!-- Add os links das paginas do face e google que não tinha -->
+                         
                         <div class="mt-8">
                             <p class="text-sm text-gray-600 mb-4">Entrar com redes sociais</p>
                             <div class="grid grid-cols-1">
                                 <script src="https://accounts.google.com/gsi/client" async></script>
                                 <div id="g_id_onload"
                                     data-client_id="162031456903-j67l39klr0m4p0js3cf4pjsl7kleqmp2.apps.googleusercontent.com"
-                                    data-login_uri="https://localhost/MedQ-2/area_cliente/menu_principal.php"
+                                    data-login_uri="https://localhost/medq-2/includes/login_google.php"
                                     data-auto_prompt="false">
                                 </div>
                                 <div class="g_id_signin"

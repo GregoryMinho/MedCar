@@ -1,11 +1,9 @@
 <?php
 require '../includes/conexao_BdAgendamento.php'; // inclui o arquivo de conexão com o banco de dados
-require '../includes/valida_login.php'; // inclui o arquivo de validação de login
+require '../includes/classe_usuario.php'; // inclui o arquivo de validação de login
+use usuario\Usuario; // usa o namespace usuario\Usuario
 
-// verifica se o usuário logado é uma empresa
-//verificarPermissao('empresa'); 
-
-
+//Usuario::verificarPermissao('empresa'); // verifica se o usuário logado é uma empresa
 
  //  as consultas sql precisam inluir o id da empresa na sessão, use pdo
  /*$_SESSION['usuario'] = [

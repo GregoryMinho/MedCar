@@ -1,5 +1,8 @@
 <?php 
-require '../includes/valida_login.php';
+require '../includes/classe_usuario.php'; // inclui o arquivo de validação de login
+use usuario\Usuario; // usa o namespace usuario\Usuario
+
+// Usuario::verificarPermissao('empresa'); // verifica se o usuário logado é uma empresa
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Obtém os dados enviados pelo formulário

@@ -2,7 +2,8 @@
 require '../includes/classe_usuario.php'; // inclui o arquivo de validação de login
 require '../includes/conexao_BdAgendamento.php'; // inclui o arquivo de conexão com o banco de dados
 
-// verificarPermissao('cliente'); // verifica se o usuário logado é um cliente
+use usuario\Usuario;
+//Usuario::verificarPermissao('cliente'); // verifica se o usuário logado é um cliente
 
 $_SESSION['usuario'] = [
     'id' => 1,

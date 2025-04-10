@@ -1,6 +1,8 @@
 <?php
-//require '../includes/valida_login.php'; 
-//session_start();
+require '../includes/classe_usuario.php'; // inclui o arquivo de validação de login
+use usuario\Usuario; // usa o namespace usuario\Usuario
+
+// Usuario::verificarPermissao('empresa'); // verifica se o usuário logado é uma empresa
 
 // Conexão com o banco de dados de agendamentos
 $host = "localhost";

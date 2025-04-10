@@ -1,13 +1,13 @@
 <?php
-require '../../includes/conexao_BdCadastroLogin.php'; // Inclui a conexão com o banco de dados
+require 'conexao_BdCadastroLogin.php'; // Inclui a conexão com o banco de dados
 // autoload do composer
-require __DIR__ . '/vendor/autoload.php';
+require __DIR__ . '../../vendor/autoload.php';
 
 use Google\Client as GoogleClient;
 
 //verifica os campos obrigatórios do login com google
 if (!isset($_POST['credential']) || !isset($_POST['g_csrf_token'])) {
-    header('Location: ../paginas/login_clientes.php?erro=1'); // redireciona para a página de login com erro
+    header('Location: ../paginas/login_clientes.php'); // redireciona para a página de login com erro
     exit;
 }
 
@@ -15,20 +15,17 @@ $cookie = $_COOKIE['g_csrf_token'] ?? null; // pega o cookie de csrf
 
 // verifica o valor do cookei e do post para o csrf
 if ($cookie !== $_POST['g_csrf_token']) {
-    header('Location: ../paginas/login_clientes.php?erro=2'); // redireciona para a página de login com erro
+    header('Location: ../paginas/login_clientes.php'); // redireciona para a página de login com erro
     exit;
 }
 
 // instancia cliente google
-$client = new GoogleClient(['client_id' => '162031456903-j67l39klr0m4p0js3cf4pjsl7kleqmp2.apps.googleusercontent.com']);  // Specify the CLIENT_ID of the app that accesses the backend
+$client = new GoogleClient(['client_id' => '162031456903-j67l39klr0m4p0js3cf4pjsl7kleqmp2.apps.googleusercontent.com']);  // Especifica o CLIENT_ID do aplicativo que acessa o backend
 // obtem os dados do usuario com base no jwt
 $payload = $client->verifyIdToken($_POST['credential']);
 
 //verifica os dados do payload
 if (isset($payload['email'])) {
-
-    print_r($payload);
-    exit;
     // Consulta o banco de dados para verificar as credenciais
     $query = "SELECT * FROM clientes WHERE email = :email";
     $stmt = $conn->prepare($query);
@@ -52,6 +49,6 @@ if (isset($payload['email'])) {
         // E-mail não encontrado, redireciona para a página de login com erro
         $_SESSION['erro'] = "Conta não encontrada. Faça o cadastro.";
         // Redireciona para a página de cadastro de cliente
-        header('Location: ../paginas/cadastro_cliente.php?erro=3');
+        header('Location: ../paginas/cadastro_cliente.php');
     }
 }
