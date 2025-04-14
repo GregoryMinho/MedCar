@@ -5,7 +5,7 @@ use usuario\Usuario; // usa o namespace usuario\Usuario
 // Usuario::verificarPermissao('empresa'); // verifica se o usuário logado é uma empresa
 
 // Conexão com o banco de dados de agendamentos
-$host = "localhost:3307";
+$host = "localhost";
 $user = "root";
 $pass = "";
 $dbname = "medcar_agendamentos";
