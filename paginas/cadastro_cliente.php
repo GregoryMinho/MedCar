@@ -1,8 +1,9 @@
 <?php
-session_start();// Inicia a sessão
+session_start(); // Inicia a sessão
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -27,6 +28,12 @@ session_start();// Inicia a sessão
         <nav class="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-blue-900 to-blue-800 text-white shadow-md">
             <div class="container mx-auto px-4">
                 <div class="flex items-center justify-between h-16">
+                    <div class="flex items-center space-x-4">
+                        <a href="../area_cliente/menu_principal.php" class="flex items-center space-x-2 text-white hover:text-teal-300 transition">
+                            <i data-lucide="arrow-left" class="h-6 w-6"></i>
+                            <span>Voltar</span>
+                        </a>
+                    </div>
                     <a href="#" class="flex items-center space-x-2 text-xl font-bold">
                         <i data-lucide="ambulance" class="h-6 w-6"></i>
                         <span>MedCar</span>
@@ -71,13 +78,25 @@ session_start();// Inicia a sessão
                     <!-- Cadastro Form -->
                     <div class="w-full md:w-1/2 p-8">
                         <form id="cadastro-form" class="space-y-6" action="actions/action_cadastro_cliente.php" method="POST">
+                            <p class="text-m text-red-600">
+                                <?php // impremir mensagem de erro, então limpa a variável de sessão
+                                if (isset($_SESSION['erro'])) {
+                                    echo $_SESSION['erro'];
+                                    unset($_SESSION['erro']);
+                                }
+                                ?>
+                            </p>
                             <div>
                                 <label for="nome" class="block text-sm font-medium text-gray-700">Nome Completo</label>
                                 <input type="text" id="nome" name="nome" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" placeholder="Seu nome completo" required>
                             </div>
                             <div>
+
                                 <label for="email" class="block text-sm font-medium text-gray-700">E-mail</label>
-                                <input type="email" id="email" name="email" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" placeholder="seunome@exemplo.com" required>
+                                <?php
+                                $email = isset($_GET['email']) ? base64_decode($_GET['email']) : '';
+                                ?>
+                                <input type="email" id="email" name="email" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" placeholder="seunome@exemplo.com" value="<?php echo htmlspecialchars($email, ENT_QUOTES, 'UTF-8'); ?>" required>
                             </div>
                             <div>
                                 <label for="cpf" class="block text-sm font-medium text-gray-700">CPF</label>
@@ -89,20 +108,12 @@ session_start();// Inicia a sessão
                             </div>
                             <div>
                                 <label for="senha" class="block text-sm font-medium text-gray-700">Senha</label>
-                                <input type="password" id="senha" name="senha" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" placeholder="••••••••" required>
+                                <input type="password" id="senha" name="senha" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" placeholder="••••••••" minlength="8" required>
                             </div>
                             <div>
                                 <label for="confirmar_senha" class="block text-sm font-medium text-gray-700">Confirmar Senha</label>
-                                <input type="password" id="confirmar_senha" name="confirmar_senha" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" placeholder="••••••••" required>
+                                <input type="password" id="confirmar_senha" name="confirmar_senha" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" placeholder="••••••••" minlength="8" required>
                             </div>
-                            <p class="text-m text-red-600">
-                            <?php // impremir mensagem de erro, então limpa a variável de sessão
-                                    if (isset($_SESSION['erro'])) {
-                                        echo $_SESSION['erro'];
-                                        unset($_SESSION['erro']);
-                                    }
-                                ?>
-                            </p>
                             <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-teal-500 hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500">
                                 Cadastrar
                             </button>
@@ -185,4 +196,5 @@ session_start();// Inicia a sessão
     </script>
 
 </body>
+
 </html>

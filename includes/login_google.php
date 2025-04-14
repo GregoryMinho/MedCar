@@ -1,4 +1,5 @@
 <?php
+
 require 'conexao_BdCadastroLogin.php'; // Inclui a conexão com o banco de dados
 // autoload do composer
 require __DIR__ . '../../vendor/autoload.php';
@@ -33,8 +34,8 @@ if (isset($payload['email'])) {
     $stmt->execute();
     $cliente = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($cliente) {     
-        // Verifica a senha
+    session_start(); // Inicia a sessão se ainda não estiver iniciada
+    if ($cliente) {
         // Inicia a sessão e armazena as informações do cliente
         $_SESSION['usuario'] = [
             'id' => $cliente['id'],
@@ -48,7 +49,9 @@ if (isset($payload['email'])) {
     } else {
         // E-mail não encontrado, redireciona para a página de login com erro
         $_SESSION['erro'] = "Conta não encontrada. Faça o cadastro.";
-        // Redireciona para a página de cadastro de cliente
-        header('Location: ../paginas/cadastro_cliente.php');
+        // Criptografa o e-mail antes de passar pela URL
+        $encryptedEmail = urlencode(base64_encode($payload['email']));
+        // Redireciona para a página de cadastro de cliente com o e-mail criptografado
+        header('Location: ../paginas/cadastro_cliente.php?email=' . $encryptedEmail);
     }
 }

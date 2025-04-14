@@ -1,0 +1,61 @@
+.mobile-menu {
+    transition: transform 0.3s ease-in-out;
+    transform: translateX(100%);
+}
+
+.mobile-menu.open {
+    transform: translateX(0);
+}
+
+.dashboard-card {
+    transition: all 0.3s ease;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+}
+
+.emergency-card {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.02);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.dashboard-card::before {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(56, 178, 172, 0.1));
+    transform: rotate(45deg);
+    transition: all 0.5s;
+}
+
+.dashboard-card:hover::before {
+    animation: shine 1.5s;
+}
+
+@keyframes shine {
+    0% {
+        transform: rotate(45deg) translate(-50%, -50%);
+    }
+
+    100% {
+        transform: rotate(45deg) translate(100%, 100%);
+    }
+}
+

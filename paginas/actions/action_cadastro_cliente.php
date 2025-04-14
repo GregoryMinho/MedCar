@@ -28,7 +28,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             'email' => $email,
             'tipo' => 'cliente' // Define o tipo de usuário como cliente
         ];
-
+        $conn = null; // Fecha a conexão com o banco de dados
+        // Redireciona para a página principal do cliente
+        
         header('Location: ../../area_cliente/menu_principal.php');
         exit();
     } catch (PDOException $e) {

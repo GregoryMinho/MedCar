@@ -6,6 +6,7 @@ CREATE TABLE clientes (
     nome VARCHAR(100) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     senha VARCHAR(255) NOT NULL, -- A senha será armazenada criptografada
+    cpf VARCHAR(20) UNIQUE NOT NULL,
     telefone VARCHAR(20),
     tipo VARCHAR(20) DEFAULT 'cliente', 
     data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP --  ^ a mesma coisa pq não sei se isso vai ser viável 

@@ -78,7 +78,7 @@ session_start();
                             </div>
                             <div>
                                 <label for="password" class="block text-sm font-medium text-gray-700">Senha</label>
-                                <input type="password" id="password" name="password" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" placeholder="••••••••" required>
+                                <input type="password" id="password" name="password" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" placeholder="••••••••" minlength="8" required>
                             </div>
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center">
@@ -120,7 +120,7 @@ session_start();
                                 <script src="https://accounts.google.com/gsi/client" async></script>
                                 <div id="g_id_onload"
                                     data-client_id="162031456903-j67l39klr0m4p0js3cf4pjsl7kleqmp2.apps.googleusercontent.com"
-                                    data-login_uri="https://localhost/medq-2/includes/login_google.php"
+                                    data-login_uri="https://localhost/MedQ-2/includes/login_google.php"
                                     data-auto_prompt="false">
                                 </div>
                                 <div class="g_id_signin"

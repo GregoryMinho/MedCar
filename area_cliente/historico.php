@@ -2,7 +2,9 @@
 require '../includes/classe_usuario.php'; // inclui o arquivo de validação de login
 require '../includes/conexao_BdAgendamento.php'; // inclui o arquivo de conexão com o banco de dados
 
-verificarPermissao('cliente'); // verifica se o usuario logado é um cliente
+use usuario\Usuario;
+//Usuario::verificarPermissao('cliente'); // verifica se o usuário logado é um cliente
+
 
 $cliente_id = $_SESSION['usuario']['id'];  // ID do cliente logado
 // Query para buscar os agendamentos do cliente logado
@@ -44,6 +46,12 @@ $anos = array_keys($agendamentosPorAno);
     <!-- Navbar -->
     <nav class="bg-blue-900 text-white p-4">
         <div class="container mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-4">
+                <a href="../area_cliente/menu_principal.php" class="flex items-center space-x-2 text-white hover:text-teal-300 transition">
+                    <i data-lucide="arrow-left" class="h-6 w-6"></i>
+                    <span>Voltar</span>
+                </a>
+            </div>
             <a class="text-xl font-bold" href="#">
                 <i class="fas fa-calendar-alt mr-2"></i>
                 MedQ - Histórico

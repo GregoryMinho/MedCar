@@ -90,11 +90,11 @@ session_start();
                             </div>
                             <div>
                                 <label for="senha" class="block text-sm font-medium text-gray-700">Senha</label>
-                                <input type="password" id="senha" name="senha" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" placeholder="••••••••" required>
+                                <input type="password" id="senha" name="senha" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" placeholder="••••••••"  minlength="8" required>
                             </div>
                             <div>
                                 <label for="confirmar_senha" class="block text-sm font-medium text-gray-700">Confirmar Senha</label>
-                                <input type="password" id="confirmar_senha" name="confirmar_senha" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" placeholder="••••••••" required>
+                                <input type="password" id="confirmar_senha" name="confirmar_senha" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" placeholder="••••••••" minlength="8" required>
                             </div>
                             <p class="text-m text-red-600">
                                 <?php // impremir mensagem de erro, então limpa a variável de sessão
