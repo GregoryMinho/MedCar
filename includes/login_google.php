@@ -1,57 +1,56 @@
 <?php
+require_once '../vendor/autoload.php';
+require_once 'conexao_BdCadastroLogin.php';
 
-require 'conexao_BdCadastroLogin.php'; // Inclui a conexão com o banco de dados
-// autoload do composer
-require __DIR__ . '../../vendor/autoload.php';
 
-use Google\Client as GoogleClient;
+session_start();
 
-//verifica os campos obrigatórios do login com google
-if (!isset($_POST['credential']) || !isset($_POST['g_csrf_token'])) {
-    header('Location: ../paginas/login_clientes.php'); // redireciona para a página de login com erro
-    exit;
-}
+$client = new Google_Client();
+$client->setAuthConfig('../includes/client_secret_162031456903-j67l39klr0m4p0js3cf4pjsl7kleqmp2.apps.googleusercontent.com.json');
+$client->setRedirectUri('https://localhost/MedQ-2/includes/login_google.php');
+$client->addScope('email');
+$client->addScope('profile');
 
-$cookie = $_COOKIE['g_csrf_token'] ?? null; // pega o cookie de csrf
+if (isset($_GET['code'])) {
+    $token = $client->fetchAccessTokenWithAuthCode($_GET['code']);
 
-// verifica o valor do cookei e do post para o csrf
-if ($cookie !== $_POST['g_csrf_token']) {
-    header('Location: ../paginas/login_clientes.php'); // redireciona para a página de login com erro
-    exit;
-}
+    if (!isset($token['error'])) {
+        $client->setAccessToken($token['access_token']);
+        $oauth2 = new         composer require google/apiclient($client);
+        $userInfo = $oauth2->userinfo->get();
 
-// instancia cliente google
-$client = new GoogleClient(['client_id' => '162031456903-j67l39klr0m4p0js3cf4pjsl7kleqmp2.apps.googleusercontent.com']);  // Especifica o CLIENT_ID do aplicativo que acessa o backend
-// obtem os dados do usuario com base no jwt
-$payload = $client->verifyIdToken($_POST['credential']);
+        $email = $userInfo->email;
 
-//verifica os dados do payload
-if (isset($payload['email'])) {
-    // Consulta o banco de dados para verificar as credenciais
-    $query = "SELECT * FROM clientes WHERE email = :email";
-    $stmt = $conn->prepare($query);
-    $stmt->bindParam(':email', $payload['email']);
-    $stmt->execute();
-    $cliente = $stmt->fetch(PDO::FETCH_ASSOC);
+        // Consulta no banco usando PDO
+        $stmt = $conn->prepare("SELECT * FROM clientes WHERE email = :email");
+        $stmt->bindParam(':email', $email, PDO::PARAM_STR);
+        $stmt->execute();
+        $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
+        $stmt = null;
 
-    session_start(); // Inicia a sessão se ainda não estiver iniciada
-    if ($cliente) {
-        // Inicia a sessão e armazena as informações do cliente
-        $_SESSION['usuario'] = [
-            'id' => $cliente['id'],
-            'nome' => $payload['name'],
-            'email' => $cliente['email'],
-            'tipo' => $cliente['tipo'], // Define o tipo de usuário como cliente
-            'foto' => $payload['picture'] // Adiciona a foto de perfil do usuário google
-        ];
-        header("Location: /MedQ-2/area_cliente/menu_principal.php");
-        exit();
+        if ($resultado) {
+            $_SESSION['usuario'] = $resultado;
+            $_SESSION['usuario']['foto'] = $userInfo->picture;
+
+            // Redireciona para o menu adequado conforme o tipo no session
+            if ($_SESSION['tipo_login_google'] == 'cliente') {
+                header('Location: ../area_cliente/menu_principal.php');
+                exit;
+            } elseif ($_SESSION['tipo_login_google'] == 'empresa') {
+                header('Location: ../area_empresas/menu_principal.php');
+                exit;
+            }
+        } else {
+            // Caso o email não exista no banco, redirecionar para uma página de erro ou cadastro
+            header('Location: ../area_cliente/cadastro.php');
+            exit;
+        }
     } else {
-        // E-mail não encontrado, redireciona para a página de login com erro
-        $_SESSION['erro'] = "Conta não encontrada. Faça o cadastro.";
-        // Criptografa o e-mail antes de passar pela URL
-        $encryptedEmail = urlencode(base64_encode($payload['email']));
-        // Redireciona para a página de cadastro de cliente com o e-mail criptografado
-        header('Location: ../paginas/cadastro_cliente.php?email=' . $encryptedEmail);
+        echo 'Erro ao autenticar com o Google.';
     }
+} else {
+    $loginUrl = $client->createAuthUrl();
+    header('Location: ' . $loginUrl);
+    exit;
 }
+?>

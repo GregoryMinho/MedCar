@@ -22,6 +22,14 @@ class Usuario
     public static function logout()
     {
         self::init();
+        require_once("./login/vendor/autoload.php");
+        
+        $client = new Google_Client(); // Instancia o cliente
+        $client->setAuthConfig('../includes/client_secret_162031456903-j67l39klr0m4p0js3cf4pjsl7kleqmp2.apps.googleusercontent.com.json'); /* REPLACE WITH YOUR CREDENTIALS.json FILE NAME FROM GOOGLE */
+        
+        unset($_SESSION['upload_token']); // Remove o token de upload da sessão
+        $client->revokeToken();
+        
         session_unset(); // Remove todas as variáveis de sessão
         session_destroy(); // Destroi a sessão
         header("Location: ../paginas/pagina_inicial.php"); // Redireciona para a página inicial

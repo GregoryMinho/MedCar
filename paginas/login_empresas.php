@@ -1,3 +1,9 @@
+<?php 
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+$_SESSION['tipo_login_google'] = 'empresa'; // Define o tipo de login como empresa
+?>
 <!DOCTYPE html>
 <html lang="pt-br">
 

@@ -1,5 +1,8 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+$_SESSION['tipo_login_google'] = 'cliente'; // Define o tipo de login como cliente
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
