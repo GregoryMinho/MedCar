@@ -1,11 +1,8 @@
 <?php 
 require '../includes/valida_login.php';
-
+require '../includes/conexao_BdAgendamento.php'; 
 // Conexão com o banco de dados de agendamentos
-$host = "localhost";
-$user = "root";
-$pass = "";
-$dbname = "medcar_agendamentos";
+
 
 $conn = new mysqli($host, $user, $pass, $dbname);
 if ($conn->connect_error) {

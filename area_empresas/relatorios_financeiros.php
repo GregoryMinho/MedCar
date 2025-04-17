@@ -4,12 +4,7 @@ use usuario\Usuario; // usa o namespace usuario\Usuario
 
 // Usuario::verificarPermissao('empresa'); // verifica se o usuário logado é uma empresa
 
-// Conexão com o banco de dados
-$servername = "localhost";
-$username   = "root";
-$password   = ""; // Senha do banco de dados que botei temporariamente no meu note, caso necessario retirar, ass:Lukas
-$dbname     = "medcar_financeiro";
-
+require '../includes/conexao_BdAgendamento.php'; 
 $conn = new mysqli($servername, $username, $password, $dbname);
 
 if ($conn->connect_error) {
