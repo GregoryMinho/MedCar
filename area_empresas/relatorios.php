@@ -3,7 +3,7 @@ require '../includes/conexao_BdAgendamento.php';
 require '../includes/classe_usuario.php'; // inclui o arquivo de validação de login
 use usuario\Usuario; // usa o namespace usuario\Usuario
 
-// Usuario::verificarPermissao('empresa'); // verifica se o usuário logado é uma empresa
+Usuario::verificarPermissao('empresa'); // verifica se o usuário logado é uma empresa
 
 // Recupera o mês selecionado via GET
 $selectedMonth = isset($_GET['month']) ? $_GET['month'] : '2024-03';

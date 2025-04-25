@@ -2,7 +2,7 @@
 require '../includes/classe_usuario.php'; // inclui o arquivo de validação de login
 
 use usuario\Usuario;
-//Usuario::verificarPermissao('cliente'); // verifica se o usuário logado é um cliente
+Usuario::verificarPermissao('cliente'); // verifica se o usuário logado é um cliente
 
 // pegar o id da empresa selecionada por sessão
 // $empresa_id = $_SESSION['empresa_id'];
@@ -117,7 +117,7 @@ $empresa_id = 1;    //////// temporario////////////////////////
                                     <i data-lucide="settings" class="h-4 w-4 inline mr-2"></i>Configurações
                                 </a>
                                 <div class="border-t border-gray-100"></div>
-                                <a href="#" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
+                                <a href="../includes/logout.php" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
                                     <i data-lucide="log-out" class="h-4 w-4 inline mr-2"></i>Sair
                                 </a>
                             </div>

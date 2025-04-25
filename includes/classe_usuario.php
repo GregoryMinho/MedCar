@@ -22,7 +22,7 @@ class Usuario
     public static function logout()
     {
         self::init();
-        require_once("./login/vendor/autoload.php");
+        require_once("../login/vendor/autoload.php");
         
         $client = new Google_Client(); // Instancia o cliente
         $client->setAuthConfig('../includes/client_secret_162031456903-j67l39klr0m4p0js3cf4pjsl7kleqmp2.apps.googleusercontent.com.json'); /* REPLACE WITH YOUR CREDENTIALS.json FILE NAME FROM GOOGLE */

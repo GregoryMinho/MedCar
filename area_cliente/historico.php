@@ -3,7 +3,7 @@ require '../includes/classe_usuario.php'; // inclui o arquivo de validação de 
 require '../includes/conexao_BdAgendamento.php'; // inclui o arquivo de conexão com o banco de dados
 
 use usuario\Usuario;
-//Usuario::verificarPermissao('cliente'); // verifica se o usuário logado é um cliente
+Usuario::verificarPermissao('cliente'); // verifica se o usuário logado é um cliente
 
 
 $cliente_id = $_SESSION['usuario']['id'];  // ID do cliente logado
@@ -38,7 +38,7 @@ $anos = array_keys($agendamentosPorAno);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MedQ - Histórico de Agendamentos</title>
+    <title>MedCar - Histórico de Agendamentos</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 

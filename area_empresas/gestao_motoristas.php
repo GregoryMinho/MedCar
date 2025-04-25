@@ -2,7 +2,7 @@
 require '../includes/classe_usuario.php'; // inclui o arquivo de validação de login
 use usuario\Usuario; // usa o namespace usuario\Usuario
 
-// Usuario::verificarPermissao('empresa'); // verifica se o usuário logado é uma empresa
+Usuario::verificarPermissao('empresa'); // verifica se o usuário logado é uma empresa
 require '../includes/conexao_BdAgendamento.php'; 
 
 try {
