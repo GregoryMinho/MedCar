@@ -83,7 +83,7 @@ unset($_SESSION['sucesso'], $_SESSION['erro']);
 </head>
 
 <body class="min-h-screen bg-gray-50">
-
+<!-- modal mensagens -->
     <?php if ($mensagemSucesso || $mensagemErro): ?>
         <div id="modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
             <div class="bg-white rounded-lg shadow-lg p-6 w-96">
@@ -202,14 +202,13 @@ unset($_SESSION['sucesso'], $_SESSION['erro']);
                 </div>
             </nav>
         </div>
-
         <!-- Main Content Area -->
         <div class="flex-1">
             <!-- Header Section -->
             <section class="pt-24 pb-16 bg-gradient-to-r from-blue-900 to-blue-800 text-white">
                 <div class="container mx-auto px-4">
                     <h1 class="text-3xl md:text-4xl font-bold mb-6">Área do Paciente</h1>
-
+                    
                     <!-- Stats Cards -->
                     <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
                         <!-- Próximo Transporte -->

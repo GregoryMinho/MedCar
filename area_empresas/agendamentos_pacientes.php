@@ -13,9 +13,6 @@ use usuario\Usuario; // usa o namespace usuario\Usuario
 ];*/
 
 
-
-
-
 // Função para gerar o calendário
 function gerarCalendario($mes, $ano, $agendamentos) {
     $mes = str_pad($mes, 2, '0', STR_PAD_LEFT); // Garante 2 dígitos

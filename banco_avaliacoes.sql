@@ -1,5 +1,5 @@
 -- Criação do banco de dados
-CREATE DATABASE medq_avaliacoes;
+CREATE DATABASE medcar_avaliacoes;
 USE medcar_avaliacoes;
 
 -- Tabela de Motoristas

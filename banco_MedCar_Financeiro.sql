@@ -1,8 +1,8 @@
 -- Criação do banco de dados
-CREATE DATABASE MedCar_Financeiro;
+CREATE DATABASE medcar_financeiro;
 
 -- Selecionando o banco de dados
-USE MedCar_Financeiro;
+USE medcar_financeiro;
 
 -- Tabela para armazenar as transações, agora relacionadas a clientes, empresas e agendamentos
 CREATE TABLE transacoes (

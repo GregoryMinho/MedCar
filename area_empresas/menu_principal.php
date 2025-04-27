@@ -2,34 +2,23 @@
 require '../includes/classe_usuario.php'; // inclui o arquivo de validação de login
 use usuario\Usuario; // usa o namespace usuario\Usuario
 
-Usuario::verificarPermissao('empresa'); // verifica se o usuário logado é uma empresa
+//Usuario::verificarPermissao('empresa'); // verifica se o usuário logado é uma empresa
 
-require '../includes/conexao_BdAgendamento.php'; 
-
-$conn = new mysqli($host, $user, $pass, $dbname);
-if ($conn->connect_error) {
-    die("Erro na conexão: " . $conn->connect_error);
-}
+require '../includes/conexao_BdAgendamento.php';  // Conexão com o banco de dados de agendamentos
 
 // Consulta para contar os agendamentos do dia de hoje com situacao = 'Agendado'
-$query = "SELECT COUNT(*) AS total FROM agendamentos WHERE situacao = 'Agendado' AND data_consulta = CURDATE()";
-$result = $conn->query($query);
-$totalAgendadosHoje = 0;
-if ($result && $result->num_rows > 0) {
-    $row = $result->fetch_assoc();
-    $totalAgendadosHoje = $row['total'];
-}
+
+$stmt = $conn->prepare("SELECT COUNT(*) AS total FROM agendamentos WHERE situacao = 'Agendado' AND data_consulta = CURDATE() AND empresa_id = :empresa_id");
+$stmt->bindParam(':empresa_id', $_SESSION['usuario']['id']);
+$stmt->execute();
+$totalAgendadosHoje = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
 
 
-
-
-$query_pendentes = "SELECT COUNT(*) AS total FROM agendamentos WHERE situacao = 'Pendente'";
-$result_pendentes = $conn->query($query_pendentes);
-$totalPendentes = 0;
-if ($result_pendentes && $result_pendentes->num_rows > 0) {
-    $row_pendentes = $result_pendentes->fetch_assoc();
-    $totalPendentes = $row_pendentes['total'];
-}
+// Consulta para contar os agendamentos pendentes
+$stmt = $conn->prepare("SELECT COUNT(*) AS total FROM agendamentos WHERE situacao = 'Pendente' AND empresa_id = :empresa_id");
+$stmt->bindParam(':empresa_id', $_SESSION['usuario']['id']);
+$stmt->execute();
+$totalPendentes = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
 
 // Consulta para obter o próximo agendamento
 $query_proximo = "SELECT 
@@ -37,71 +26,63 @@ $query_proximo = "SELECT
                     CONCAT(a.cidade_origem, ' - ', a.rua_origem, ', ', a.numero_origem) AS local_origem,
                     a.horario 
                   FROM agendamentos a
-                  JOIN medcar_cadastro_login.clientes c ON a.cliente_id = c.id
+                 INNER JOIN medcar_cadastro_login.clientes c ON a.cliente_id = c.id
                   WHERE a.data_consulta = CURDATE() 
-                    AND a.situacao = 'Agendado'
-                  ORDER BY a.horario ASC
-                  LIMIT 1";
+                    AND a.situacao = 'Agendado' 
+                    AND a.empresa_id = :empresa_id
+                  ORDER BY a.horario ASC";
+$stmt = $conn->prepare($query_proximo);
+$stmt->bindParam(':empresa_id', $_SESSION['usuario']['id']);
+$stmt->execute();
+$proximo_agendamento = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$result_proximo = $conn->query($query_proximo);
-$proximo_agendamento = null;
-if ($result_proximo && $result_proximo->num_rows > 0) {
-    $proximo_agendamento = $result_proximo->fetch_assoc();
-}
-
-$conn->close();
+$conn = null; // Fecha a conexão com o banco de dados de agendamentos
 
 
+require '../includes/conexao_BdFinanceiro.php'; // Conexão com o banco de dados financeiro
+
+// Consulta para buscar o faturamento na tabela metricas
+
+// Consulta para buscar o faturamento mensal do banco financeiro
+$stmt = $conn->prepare("SELECT mes, ano, faturamento FROM faturamento_mensal WHERE empresa_id = :empresa_id ORDER BY ano DESC, mes DESC LIMIT 1");
+$stmt->execute(['empresa_id' => $_SESSION['usuario']['id']]);
+$faturamento_mensal = $stmt->fetch(PDO::FETCH_ASSOC);
+
+$faturamento_mes = $faturamento_mensal['faturamento'] ?? 0;
+$mes = $faturamento_mensal['mes'] ?? null;
+$ano = $faturamento_mensal['ano'] ?? null;
+
+// Vetor para mapear os meses
+$meses = [
+    1 => 'Janeiro',
+    2 => 'Fevereiro',
+    3 => 'Março',
+    4 => 'Abril',
+    5 => 'Maio',
+    6 => 'Junho',
+    7 => 'Julho',
+    8 => 'Agosto',
+    9 => 'Setembro',
+    10 => 'Outubro',
+    11 => 'Novembro',
+    12 => 'Dezembro'
+];
+$mes_formatado = $meses[$mes] ?? null; // Formata o mês para o nome completo
+$conn = null; // Fecha a conexão com o banco de dados financeiro
 
 
-// Conexão com o banco financeiro para buscar o faturamento
-$db_fin = "MedCar_Financeiro";
-$conn_fin = new mysqli($host, $user, $pass, $db_fin);
-if ($conn_fin->connect_error) {
-    die("Erro na conexão com financeiro: " . $conn_fin->connect_error);
-}
-
-// Consulta para buscar o faturamento na tabela metricas (assumindo que tipo = 'faturamento')
-$query_fin = "SELECT valor FROM metricas WHERE tipo = 'faturamento' LIMIT 1";
-$result_fin = $conn_fin->query($query_fin);
-$faturamento = 0;
-if ($result_fin && $result_fin->num_rows > 0) {
-    $row_fin = $result_fin->fetch_assoc();
-    $faturamento = $row_fin['valor'];
-}
-$conn_fin->close();
-
-
-
-
-$db_avaliacoes = "medcar_avaliacoes";
-$conn_avaliacoes = new mysqli($host, $user, $pass, $db_avaliacoes);
-if ($conn_avaliacoes->connect_error) {
-    die("Erro na conexão com avaliações: " . $conn_avaliacoes->connect_error);
-}
-
+require '../includes/conexao_BdAvaliacoes.php'; // Conexão com o banco de dados de avaliações
 // Consulta para calcular a média de avaliações
-$query_avaliacoes = "SELECT AVG(nota) AS media FROM avaliacoes";
-$result_avaliacoes = $conn_avaliacoes->query($query_avaliacoes);
-$media_avaliacoes = 0.0;
-if ($result_avaliacoes && $result_avaliacoes->num_rows > 0) {
-    $row_avaliacoes = $result_avaliacoes->fetch_assoc();
-    $media_avaliacoes = number_format($row_avaliacoes['media'], 1);
-}
+$stmt = $conn->prepare("SELECT AVG(nota) AS media FROM avaliacoes");
+$stmt->execute();
+$media_avaliacoes = number_format($stmt->fetch(PDO::FETCH_ASSOC)['media'] ?? 0.0, 1);
 
+// Consulta para contar o total de avaliações
+$stmt = $conn->prepare("SELECT COUNT(*) AS total FROM avaliacoes");
+$stmt->execute();
+$total_avaliacoes = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
 
-$query_total = "SELECT COUNT(*) AS total FROM avaliacoes";
-$result_total = $conn_avaliacoes->query($query_total);
-$total_avaliacoes = 0;
-if ($result_total && $result_total->num_rows > 0) {
-    $row_total = $result_total->fetch_assoc();
-    $total_avaliacoes = $row_total['total'];
-}
-$conn_avaliacoes->close();
-
-
-
-
+$conn = null; // Fecha a conexão com o banco de dados de avaliações
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -113,92 +94,8 @@ $conn_avaliacoes->close();
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="style/style_menu_principal.css">
     <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        @media (max-width: 768px) {
-            .logout-menu {
-                display: none;
-            }
-        }
-
-        .mobile-menu {
-            transition: transform 0.3s ease-in-out;
-            transform: translateX(100%);
-        }
-
-        .mobile-menu.open {
-            transform: translateX(0);
-        }
-
-        .dashboard-card {
-            transition: all 0.3s ease;
-        }
-
-        .dashboard-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .dashboard-card::before {
-            content: "";
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(56, 178, 172, 0.1));
-            transform: rotate(45deg);
-            transition: all 0.5s;
-        }
-
-        .dashboard-card:hover::before {
-            animation: shine 1.5s;
-        }
-
-        @keyframes shine {
-            0% {
-                transform: rotate(45deg) translate(-50%, -50%);
-            }
-
-            100% {
-                transform: rotate(45deg) translate(100%, 100%);
-            }
-        }
-
-        .vehicle-status {
-            width: 15px;
-            height: 15px;
-            border-radius: 50%;
-            display: inline-block;
-        }
-
-        .status-available {
-            background: #10b981;
-        }
-
-        .status-in-use {
-            background: #f59e0b;
-        }
-
-        .status-maintenance {
-            background: #ef4444;
-        }
-
-        .schedule-timeline {
-            border-left: 3px solid #38b2ac;
-            padding-left: 20px;
-        }
-
-        nav a {
-            display: flex;
-            align-items: center;
-            padding: 12px 16px;
-            text-decoration: none;
-        }
-
-        nav a i {
-            margin-right: 8px;
-        }
-    </style>
 </head>
 
 <body class="min-h-screen bg-gray-50">
@@ -348,9 +245,10 @@ $conn_avaliacoes->close();
                             <div class="mb-2">
                                 <i data-lucide="dollar-sign" class="h-8 w-8 mx-auto text-teal-500"></i>
                             </div>
-                            <h5 class="text-sm font-semibold mb-1">Faturamento</h5>
-                            <p class="text-xl font-bold">R$ <?php echo number_format($faturamento, 2, ',', '.'); ?></p>
+                            <h5 class="text-sm font-semibold mb-1">Faturamento (<?php echo $mes_formatado . ' ' . $ano; ?>)</h5>
+                            <p class="text-xl font-bold">R$ <?php echo number_format($faturamento_mes, 2, ',', '.'); ?></p>
                         </div>
+
                         <!-- Avaliação -->
                         <div class="dashboard-card relative overflow-hidden bg-white text-blue-900 rounded-xl shadow-lg p-4 text-center">
                             <div class="mb-2">
@@ -387,25 +285,32 @@ $conn_avaliacoes->close();
                         <i data-lucide="calendar-days" class="h-5 w-5 mr-2 text-teal-500"></i>
                         Agenda de Hoje
                     </h4>
-                    <div class="schedule-timeline mt-3">
-                        <?php if ($proximo_agendamento): ?>
-                            <div class="mb-4">
-                                <div class="flex flex-col md:flex-row md:justify-between md:items-center">
-                                    <div>
-                                        <h5 class="font-semibold text-blue-900">Paciente: <?php echo htmlspecialchars($proximo_agendamento['paciente']); ?></h5>
-                                        <p class="text-gray-600 text-sm">
-                                            <?php echo htmlspecialchars($proximo_agendamento['local_origem']); ?> -
-                                            <?php echo date('H:i', strtotime($proximo_agendamento['horario'])); ?>
-                                        </p>
+                    <?php if ($proximo_agendamento): ?>
+                        <div class=" mt-3 h-56 overflow-y-auto">
+                            <?php foreach ($proximo_agendamento as $chave): ?>
+                                <a href="agendamentos_pacientes.php">
+                                    <div class="schedule-timeline mb-4 bg-teal-50 hover:bg-gray-100 transition duration-200 ease-in-out rounded-lg p-4">
+                                        <div class="flex flex-col md:flex-row md:justify-between md:items-center">
+                                            <div>
+                                                <h5 class="font-semibold text-blue-900">Paciente: <?php echo htmlspecialchars($chave['paciente']); ?></h5>
+                                                <p class="text-gray-600 text-sm">
+                                                    <?php echo htmlspecialchars($chave['local_origem']); ?> -
+                                                    <?php echo date('H:i', strtotime($chave['horario'])); ?>
+                                                </p>
+                                            </div>
+                                            <div class="mt-2 md:mt-0">
+                                                <span class="inline-block px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
+                                                    Agendado
+                                                </span>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="mt-2 md:mt-0">
-                                        <span class="inline-block px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
-                                            Agendado
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        <?php else: ?>
+                                </a>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php else: ?>
+                        <div class=" mt-3">
+
                             <div class="mb-4">
                                 <div class="flex flex-col md:flex-row md:justify-between md:items-center">
                                     <div>
@@ -414,8 +319,8 @@ $conn_avaliacoes->close();
                                     </div>
                                 </div>
                             </div>
-                        <?php endif; ?>
-                    </div>
+                        </div>
+                    <?php endif; ?>
                 </div>
                 <!-- Gestão de Frota e Motoristas -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
