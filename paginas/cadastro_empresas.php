@@ -88,6 +88,79 @@ session_start();
                                 <label for="telefone" class="block text-sm font-medium text-gray-700">Telefone</label>
                                 <input type="text" id="telefone" name="telefone" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" placeholder="(00) 00000-0000" required>
                             </div>
+                            
+
+                                     <!-- adicionei esses campos aqui -->
+                           
+
+                            <!-- add o  campo cep que não tinha --> 
+                            <div>
+                                <label for="cep" class="block text-sm font-medium text-gray-700">CEP</label>
+                                <input type="text" id="cep" name="cep" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" placeholder="00000-000" required>
+                            </div>
+                            
+                            <!-- Localização -->
+                            <div>
+                                <label for="localizacao" class="block text-sm font-medium text-gray-700">Localização</label>
+                                <select name="localizacao" id="localizacao" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" required>
+                                    <option value="">Selecione sua localização</option>
+                                    <option value="Salvador">Salvador - BA</option>
+                                    <option value="Lauro de Freitas">Lauro de Freitas - BA</option>
+                                    <option value="Camaçari">Camaçari - BA</option>
+                                    <option value="Candeias">Candeias - BA</option>
+                                </select>
+                            </div>
+                            
+                            <!-- Especialidades (como select) -->
+                            <div>
+                                <label for="especialidade" class="block text-sm font-medium text-gray-700">Especialidade Principal</label>
+                                <select name="especialidade" id="especialidade" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" required>
+                                    <option value="">Selecione a especialidade principal</option>
+                                    <option value="UTI">UTI Móvel</option>
+                                    <option value="Cardíaco">Cardíaco</option>
+                                    <option value="Cadeirantes">Cadeirantes</option>
+                                    <option value="Idosos">Idosos</option>
+                                    <option value="Fisioterapia">Fisioterapia</option>
+                                </select>
+                            </div>
+                            
+                            <!-- Tipos de Veículos (como select) -->
+                            <div>
+                                <label for="tipo_veiculo" class="block text-sm font-medium text-gray-700">Tipo de Veículo Principal</label>
+                                <select name="tipo_veiculo" id="tipo_veiculo" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" required>
+                                    <option value="">Selecione o tipo de veículo principal</option>
+                                    <option value="UTI">Ambulância UTI</option>
+                                    <option value="Leito">Ambulância Leito</option>
+                                    <option value="Adaptado">Veículo Adaptado</option>
+                                    <option value="Suporte Básico">Veículo de Suporte Básico</option>
+                                </select>
+                            </div>
+                            
+                            <!-- Disponibilidade (como checkboxes) -->
+                             <P>Disponibilidade</P>
+                            <div class="mt-2 space-y-2">
+                                <div class="flex items-center">
+                                    <input id="horas24" name="horas24" type="checkbox" value="1" class="h-4 w-4 text-teal-500 focus:ring-teal-500 border-gray-300 rounded">
+                                    <label for="horas24" class="ml-2 block text-sm text-gray-700">Atendimento 24 Horas</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input id="plantao" name="plantao" type="checkbox" value="1" class="h-4 w-4 text-teal-500 focus:ring-teal-500 border-gray-300 rounded">
+                                    <label for="plantao" class="ml-2 block text-sm text-gray-700">Plantão Fixo (Ex: 12h, 18h, etc.)</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input id="agendamento" name="agendamento" type="checkbox" value="1" class="h-4 w-4 text-teal-500 focus:ring-teal-500 border-gray-300 rounded">
+                                    <label for="agendamento" class="ml-2 block text-sm text-gray-700">Atendimento com Agendamento</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input id="finais_semana" name="finais_semana" type="checkbox" value="1" class="h-4 w-4 text-teal-500 focus:ring-teal-500 border-gray-300 rounded">
+                                    <label for="finais_semana" class="ml-2 block text-sm text-gray-700">Disponível em Finais de Semana</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input id="feriados" name="feriados" type="checkbox" value="1" class="h-4 w-4 text-teal-500 focus:ring-teal-500 border-gray-300 rounded">
+                                    <label for="feriados" class="ml-2 block text-sm text-gray-700">Disponível em Feriados</label>
+                                </div>
+                            </div>
+                            
                             <div>
                                 <label for="senha" class="block text-sm font-medium text-gray-700">Senha</label>
                                 <input type="password" id="senha" name="senha" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" placeholder="••••••••"  minlength="8" required>
@@ -97,7 +170,7 @@ session_start();
                                 <input type="password" id="confirmar_senha" name="confirmar_senha" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" placeholder="••••••••" minlength="8" required>
                             </div>
                             <p class="text-m text-red-600">
-                                <?php // impremir mensagem de erro, então limpa a variável de sessão
+                                <?php // imprimir mensagem de erro, então limpa a variável de sessão
                                     if (isset($_SESSION['erro'])) {
                                         echo $_SESSION['erro'];
                                         unset($_SESSION['erro']);
@@ -168,6 +241,21 @@ session_start();
     <script>
         $('#cnpj').mask('00.000.000/0000-00');
         $('#telefone').mask('(00) 00000-0000');
+        $('#cep').mask('00000-000');
+        
+        // isso aqui pode ser opcional ou não, mas isso vai buscar endereço via api quando cep for preenchido 
+        // obs: ainda deve ser testada.
+        $('#cep').blur(function() {
+            var cep = $(this).val().replace(/\D/g, '');
+            if (cep.length === 8) {
+                $.getJSON(`https://viacep.com.br/ws/${cep}/json/`, function(data) {
+                    if (!data.erro) {
+                        // aqui você pode preencher automaticamente outros campos de endereço se quiser
+                        console.log(data); // ver os dados retornados
+                    }
+                });
+            }
+        });
     </script>
 </body>
 
