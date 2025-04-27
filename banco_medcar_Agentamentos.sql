@@ -30,6 +30,9 @@ CREATE TABLE agendamentos(
     tipo_transporte VARCHAR(50),
     situacao ENUM('Pendente','Agendado', 'Concluido', 'Cancelado') NOT NULL default('Pendente'),
     observacoes VARCHAR(255), -- Campo para observações adicionais, como motivo do cancelamento
+    valor DECIMAL(10, 2), -- Campo para armazenar o valor do agendamento
+    data_cancelamento TIMESTAMP NULL, -- Campo para armazenar a data de cancelamento, se aplicável
+    data_conclusao TIMESTAMP NULL, -- Campo para armazenar a data de conclusão, se aplicável
     agendado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
