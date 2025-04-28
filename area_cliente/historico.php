@@ -2,14 +2,16 @@
 require '../includes/classe_usuario.php'; // inclui o arquivo de validação de login
 require '../includes/conexao_BdAgendamento.php'; // inclui o arquivo de conexão com o banco de dados
 
-verificarPermissao('cliente'); // verifica se o usuario logado é um cliente
+use usuario\Usuario;
 
-$cliente_id = $_SESSION['usuario']['id'];  // ID do cliente logado
+//Usuario::verificarPermissao('cliente'); // verifica se o usuario logado é um cliente
+
+$_SESSION['usuario']['id'] = 1;  // ID do cliente logado
 // Query para buscar os agendamentos do cliente logado
 try {
     $sql = "SELECT * FROM agendamentos WHERE cliente_id = :cliente_id ORDER BY data_consulta DESC, horario DESC";
     $stmt = $conn->prepare($sql);
-    $stmt->bindParam(':cliente_id', $cliente_id, PDO::PARAM_INT);
+    $stmt->bindParam(':cliente_id', $_SESSION['usuario']['id'], PDO::PARAM_INT);
     $stmt->execute();
     $agendamentos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {

@@ -19,25 +19,13 @@ class Usuario
      * @return void
      */
 
-    public static function logout()
+    public static function logOut()
     {
         self::init();
         session_unset(); // Remove todas as variáveis de sessão
         session_destroy(); // Destroi a sessão
         header("Location: ../paginas/pagina_inicial.php"); // Redireciona para a página inicial
         exit();
-    }
-
-    /**
-     * Método para verificar se o usuário está logado
-     * @return boolean
-     */
-
-    public function isLogged()
-    {
-        self::init();
-
-        return isset($_SESSION['usuario']);
     }
 
 

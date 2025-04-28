@@ -31,24 +31,67 @@ if (isset($payload['email'])) {
     $stmt = $conn->prepare($query);
     $stmt->bindParam(':email', $payload['email']);
     $stmt->execute();
-    $cliente = $stmt->fetch(PDO::FETCH_ASSOC);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($cliente) {     
-        // Verifica a senha
-        // Inicia a sessão e armazena as informações do cliente
-        $_SESSION['usuario'] = [
-            'id' => $cliente['id'],
-            'nome' => $payload['name'],
-            'email' => $cliente['email'],
-            'tipo' => $cliente['tipo'], // Define o tipo de usuário como cliente
-            'foto' => $payload['picture'] // Adiciona a foto de perfil do usuário google
-        ];
-        header("Location: /MedQ-2/area_cliente/menu_principal.php");
-        exit();
-    } else {
-        // E-mail não encontrado, redireciona para a página de login com erro
-        $_SESSION['erro'] = "Conta não encontrada. Faça o cadastro.";
+    if ($result) {
+        // E-mail encontrado, armazena os dados na sessão
+
+        $_SESSION['usuario'] = $result;
+        $_SESSION['usuario']['foto'] = $payload['picture']; // Atualiza a foto do usuário com a do Google
+
+        // Atualiza o campo 'foto' no banco de dados com a foto do Google
+        $updateQuery = "UPDATE clientes SET foto = :foto WHERE email = :email";
+        $updateStmt = $conn->prepare($updateQuery);
+        $updateStmt->bindParam(':foto', $payload['picture']);
+        $updateStmt->bindParam(':email', $payload['email']);
+        $updateStmt->execute();
+        $conn = null; // Fecha a conexão com o banco de dados
         // Redireciona para a página de cadastro de cliente
-        header('Location: ../paginas/cadastro_cliente.php');
+        header('Location: ../area_cliente/menu_principal.php');
+        exit;
+    } else {
+        // Exibe um modal para o usuário cadastrar CPF e telefone
+        echo '
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Cadastro Necessário</title>
+            <script src="https://cdn.tailwindcss.com"></script>
+            <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+        </head>
+        <body class="min-h-screen bg-gradient-to-r from-blue-900 to-blue-800 flex items-center justify-center">
+            <div class="max-w-md w-full bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-2xl font-bold text-center text-gray-800 mb-4">Complete seu Cadastro</h2>
+                <p class="text-center text-gray-600 mb-6">Por favor, insira seu CPF e telefone para continuar.</p>
+                <form action="./actions/completa_cadastro_cliente.php" method="POST" class="space-y-4">
+                    <input type="hidden" name="email" value="' . base64_encode($payload['email']) . '">
+                    <input type="hidden" name="nome" value="' . base64_encode($payload['name']) . '">
+                    <div>
+                        <label for="cpf" class="block text-sm font-medium text-gray-700">CPF</label>
+                        <input type="text" id="cpf" name="cpf" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" placeholder="000.000.000-00" required>
+                    </div>
+                    <div>
+                        <label for="telefone" class="block text-sm font-medium text-gray-700">Telefone</label>
+                        <input type="text" id="telefone" name="telefone" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" placeholder="(00) 00000-0000" required>
+                    </div>
+                    <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-teal-500 hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500">
+                        Continuar
+                    </button>
+                </form>
+            </div>
+            <script src="https://code.jquery.com/jquery-3.7.1.slim.min.js" integrity="sha256-kmHvs0B+OpCW5GVHUNjv9rOmY0IvSIRcf7zGUDTDQM8=" crossorigin="anonymous"></script>
+            <script src="../jquery.mask.min.js"></script>
+            <script>
+                $("#cpf").mask("000.000.000-00");
+                $("#telefone").mask("(00) 00000-0000");
+            </script>
+        </body>
+        </html>';
     }
+}else {
+    // Token inválido ou expirado, redireciona para a página de login
+    header('Location: ../paginas/login_clientes.php'); // redireciona para a página de login com erro
+    exit;
 }
