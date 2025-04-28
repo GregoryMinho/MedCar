@@ -20,6 +20,13 @@ session_start();
         .mobile-menu.open {
             transform: translateX(0);
         }
+        
+        #sugestoes-cidades div {
+            transition: background-color 0.2s;
+        }
+        #sugestoes-cidades div:hover {
+            background-color: #f3f4f6;
+        }
     </style>
 </head>
 
@@ -70,105 +77,166 @@ session_start();
                 </div>
                 <div class="flex flex-col md:flex-row">
                     <!-- Cadastro Form -->
-                    <div class="w-full md:w-1/2 p-8">
+                    <div class="w-full md:w-1/2 p-8 relative">
                         <form action="actions/action_cadastro_empresa.php" method="POST" id="cadastro-form" class="space-y-6">
+                            <!-- Nome da Empresa -->
                             <div>
-                                <label for="nome" class="block text-sm font-medium text-gray-700">Nome da Empresa</label>
+                                <div class="flex items-center mb-1">
+                                    <i data-lucide="building-2" class="h-4 w-4 mr-2 text-teal-500"></i>
+                                    <label for="nome" class="block text-sm font-medium text-gray-700">Nome da Empresa</label>
+                                </div>
                                 <input type="text" id="nome" name="nome" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" placeholder="Nome da empresa" required>
                             </div>
+
+                            <!-- E-mail Corporativo -->
                             <div>
-                                <label for="email" class="block text-sm font-medium text-gray-700">E-mail Corporativo</label>
+                                <div class="flex items-center mb-1">
+                                    <i data-lucide="mail" class="h-4 w-4 mr-2 text-teal-500"></i>
+                                    <label for="email" class="block text-sm font-medium text-gray-700">E-mail Corporativo</label>
+                                </div>
                                 <input type="email" id="email" name="email" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" placeholder="empresa@exemplo.com" required>
                             </div>
+
+                            <!-- CNPJ -->
                             <div>
-                                <label for="cnpj" class="block text-sm font-medium text-gray-700">CNPJ</label>
+                                <div class="flex items-center mb-1">
+                                    <i data-lucide="id-card" class="h-4 w-4 mr-2 text-teal-500"></i>
+                                    <label for="cnpj" class="block text-sm font-medium text-gray-700">CNPJ</label>
+                                </div>
                                 <input type="text" id="cnpj" name="cnpj" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" placeholder="00.000.000/0000-00" required>
                             </div>
+
+                            <!-- Telefone -->
                             <div>
-                                <label for="telefone" class="block text-sm font-medium text-gray-700">Telefone</label>
+                                <div class="flex items-center mb-1">
+                                    <i data-lucide="phone" class="h-4 w-4 mr-2 text-teal-500"></i>
+                                    <label for="telefone" class="block text-sm font-medium text-gray-700">Telefone</label>
+                                </div>
                                 <input type="text" id="telefone" name="telefone" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" placeholder="(00) 00000-0000" required>
                             </div>
-                            
 
-                                     <!-- adicionei esses campos aqui -->
-                           
-
-                            <!-- add o  campo cep que não tinha --> 
+                            <!-- CEP -->
                             <div>
-                                <label for="cep" class="block text-sm font-medium text-gray-700">CEP</label>
+                                <div class="flex items-center mb-1">
+                                    <i data-lucide="map-pin" class="h-4 w-4 mr-2 text-teal-500"></i>
+                                    <label for="cep" class="block text-sm font-medium text-gray-700">CEP</label>
+                                </div>
                                 <input type="text" id="cep" name="cep" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" placeholder="00000-000" required>
                             </div>
-                            
+
                             <!-- Localização -->
-                            <div>
-                                <label for="localizacao" class="block text-sm font-medium text-gray-700">Localização</label>
-                                <select name="localizacao" id="localizacao" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" required>
-                                    <option value="">Selecione sua localização</option>
-                                    <option value="Salvador">Salvador - BA</option>
-                                    <option value="Lauro de Freitas">Lauro de Freitas - BA</option>
-                                    <option value="Camaçari">Camaçari - BA</option>
-                                    <option value="Candeias">Candeias - BA</option>
-                                </select>
+                            <div class="relative">
+                                <div class="flex items-center mb-1">
+                                    <i data-lucide="map" class="h-4 w-4 mr-2 text-teal-500"></i>
+                                    <label for="localizacao" class="block text-sm font-medium text-gray-700">Localização (Cidade - UF)</label>
+                                </div>
+                                <input type="text" id="localizacao" name="localizacao" 
+                                       class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" 
+                                       placeholder="Digite a cidade" required autocomplete="off">
+                                <div id="sugestoes-cidades" class="hidden absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto"></div>
                             </div>
-                            
-                            <!-- Especialidades (como select) -->
+
+                            <!-- Especialidades -->
                             <div>
-                                <label for="especialidade" class="block text-sm font-medium text-gray-700">Especialidade Principal</label>
-                                <select name="especialidade" id="especialidade" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" required>
-                                    <option value="">Selecione a especialidade principal</option>
-                                    <option value="UTI">UTI Móvel</option>
-                                    <option value="Cardíaco">Cardíaco</option>
-                                    <option value="Cadeirantes">Cadeirantes</option>
-                                    <option value="Idosos">Idosos</option>
-                                    <option value="Fisioterapia">Fisioterapia</option>
-                                </select>
-                            </div>
-                            
-                            <!-- Tipos de Veículos (como select) -->
-                            <div>
-                                <label for="tipo_veiculo" class="block text-sm font-medium text-gray-700">Tipo de Veículo Principal</label>
-                                <select name="tipo_veiculo" id="tipo_veiculo" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" required>
-                                    <option value="">Selecione o tipo de veículo principal</option>
-                                    <option value="UTI">Ambulância UTI</option>
-                                    <option value="Leito">Ambulância Leito</option>
-                                    <option value="Adaptado">Veículo Adaptado</option>
-                                    <option value="Suporte Básico">Veículo de Suporte Básico</option>
-                                </select>
-                            </div>
-                            
-                            <!-- Disponibilidade (como checkboxes) -->
-                             <P>Disponibilidade</P>
-                            <div class="mt-2 space-y-2">
-                                <div class="flex items-center">
-                                    <input id="horas24" name="horas24" type="checkbox" value="1" class="h-4 w-4 text-teal-500 focus:ring-teal-500 border-gray-300 rounded">
-                                    <label for="horas24" class="ml-2 block text-sm text-gray-700">Atendimento 24 Horas</label>
+                                <div class="flex items-center mb-1">
+                                    <i data-lucide="stethoscope" class="h-4 w-4 mr-2 text-teal-500"></i>
+                                    <label class="block text-sm font-medium text-gray-700">Especialidades</label>
                                 </div>
-                                <div class="flex items-center">
-                                    <input id="plantao" name="plantao" type="checkbox" value="1" class="h-4 w-4 text-teal-500 focus:ring-teal-500 border-gray-300 rounded">
-                                    <label for="plantao" class="ml-2 block text-sm text-gray-700">Plantão Fixo (Ex: 12h, 18h, etc.)</label>
-                                </div>
-                                <div class="flex items-center">
-                                    <input id="agendamento" name="agendamento" type="checkbox" value="1" class="h-4 w-4 text-teal-500 focus:ring-teal-500 border-gray-300 rounded">
-                                    <label for="agendamento" class="ml-2 block text-sm text-gray-700">Atendimento com Agendamento</label>
-                                </div>
-                                <div class="flex items-center">
-                                    <input id="finais_semana" name="finais_semana" type="checkbox" value="1" class="h-4 w-4 text-teal-500 focus:ring-teal-500 border-gray-300 rounded">
-                                    <label for="finais_semana" class="ml-2 block text-sm text-gray-700">Disponível em Finais de Semana</label>
-                                </div>
-                                <div class="flex items-center">
-                                    <input id="feriados" name="feriados" type="checkbox" value="1" class="h-4 w-4 text-teal-500 focus:ring-teal-500 border-gray-300 rounded">
-                                    <label for="feriados" class="ml-2 block text-sm text-gray-700">Disponível em Feriados</label>
+                                <div class="space-y-2">
+                                    <div class="flex items-center">
+                                        <input id="especialidade_cardiaco" name="especialidades[]" type="checkbox" value="Cardíaco" class="h-4 w-4 text-teal-500 focus:ring-teal-500 border-gray-300 rounded">
+                                        <label for="especialidade_cardiaco" class="ml-2 block text-sm text-gray-700">
+                                            <span class="font-medium">Cardíaco</span>
+                                            <p class="text-xs text-gray-500">Monitoramento cardíaco especializado</p>
+                                        </label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input id="especialidade_cadeirantes" name="especialidades[]" type="checkbox" value="Cadeirantes" class="h-4 w-4 text-teal-500 focus:ring-teal-500 border-gray-300 rounded">
+                                        <label for="especialidade_cadeirantes" class="ml-2 block text-sm text-gray-700">
+                                            <span class="font-medium">Cadeirantes</span>
+                                            <p class="text-xs text-gray-500">Veículos adaptados para mobilidade reduzida</p>
+                                        </label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input id="especialidade_idosos" name="especialidades[]" type="checkbox" value="Idosos" class="h-4 w-4 text-teal-500 focus:ring-teal-500 border-gray-300 rounded">
+                                        <label for="especialidade_idosos" class="ml-2 block text-sm text-gray-700">
+                                            <span class="font-medium">Idosos</span>
+                                            <p class="text-xs text-gray-500">Atendimento especializado para a terceira idade</p>
+                                        </label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input id="especialidade_fisioterapia" name="especialidades[]" type="checkbox" value="Fisioterapia" class="h-4 w-4 text-teal-500 focus:ring-teal-500 border-gray-300 rounded">
+                                        <label for="especialidade_fisioterapia" class="ml-2 block text-sm text-gray-700">
+                                            <span class="font-medium">Fisioterapia</span>
+                                            <p class="text-xs text-gray-500">Transporte para sessões de fisioterapia</p>
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
-                            
+
+                             <!-- Tipos de Veículos -->
+<div>
+    <div class="flex items-center mb-1">
+        <i data-lucide="ambulance" class="h-4 w-4 mr-2 text-teal-500"></i>
+        <label class="block text-sm font-medium text-gray-700">Tipos de Veículos Disponíveis</label>
+    </div>
+    <div class="space-y-2">
+        <div class="flex items-center">
+            <input id="veiculo_padrao" name="tipos_veiculos[]" type="checkbox" value="Padrão" class="h-4 w-4 text-teal-500 focus:ring-teal-500 border-gray-300 rounded">
+            <label for="veiculo_padrao" class="ml-2 block text-sm text-gray-700">
+                <span class="font-medium">Veículo Padrão</span>
+                <p class="text-xs text-gray-500">Para pacientes que podem se sentar durante o transporte</p>
+            </label>
+        </div>
+        <div class="flex items-center">
+            <input id="veiculo_cadeira" name="tipos_veiculos[]" type="checkbox" value="Cadeira de Rodas" class="h-4 w-4 text-teal-500 focus:ring-teal-500 border-gray-300 rounded">
+            <label for="veiculo_cadeira" class="ml-2 block text-sm text-gray-700">
+                <span class="font-medium">Adaptado para Cadeira de Rodas</span>
+                <p class="text-xs text-gray-500">Veículo com elevador e fixação para cadeira de rodas</p>
+            </label>
+        </div>
+        <div class="flex items-center">
+            <input id="veiculo_maca" name="tipos_veiculos[]" type="checkbox" value="Maca" class="h-4 w-4 text-teal-500 focus:ring-teal-500 border-gray-300 rounded">
+            <label for="veiculo_maca" class="ml-2 block text-sm text-gray-700">
+                <span class="font-medium">Transporte com Maca</span>
+                <p class="text-xs text-gray-500">Para pacientes que precisam permanecer deitados</p>
+            </label>
+        </div>
+        <div class="flex items-center">
+            <input id="veiculo_van" name="tipos_veiculos[]" type="checkbox" value="Van Adaptada" class="h-4 w-4 text-teal-500 focus:ring-teal-500 border-gray-300 rounded">
+            <label for="veiculo_van" class="ml-2 block text-sm text-gray-700">
+                <span class="font-medium">Van Adaptada</span>
+                <p class="text-xs text-gray-500">Veículo amplo com adaptações para transporte de pacientes</p>
+            </label>
+        </div>
+        <div class="flex items-center">
+            <input id="veiculo_carro" name="tipos_veiculos[]" type="checkbox" value="Carro Comum" class="h-4 w-4 text-teal-500 focus:ring-teal-500 border-gray-300 rounded">
+            <label for="veiculo_carro" class="ml-2 block text-sm text-gray-700">
+                <span class="font-medium">Carro Comum</span>
+                <p class="text-xs text-gray-500">Veículo padrão para transporte de pacientes ambulatoriais</p>
+            </label>
+        </div>
+    </div>
+</div>
+
+                            <!-- Senha -->
                             <div>
-                                <label for="senha" class="block text-sm font-medium text-gray-700">Senha</label>
-                                <input type="password" id="senha" name="senha" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" placeholder="••••••••"  minlength="8" required>
+                                <div class="flex items-center mb-1">
+                                    <i data-lucide="lock" class="h-4 w-4 mr-2 text-teal-500"></i>
+                                    <label for="senha" class="block text-sm font-medium text-gray-700">Senha</label>
+                                </div>
+                                <input type="password" id="senha" name="senha" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" placeholder="••••••••" minlength="8" required>
                             </div>
+
+                            <!-- Confirmar Senha -->
                             <div>
-                                <label for="confirmar_senha" class="block text-sm font-medium text-gray-700">Confirmar Senha</label>
+                                <div class="flex items-center mb-1">
+                                    <i data-lucide="lock-keyhole" class="h-4 w-4 mr-2 text-teal-500"></i>
+                                    <label for="confirmar_senha" class="block text-sm font-medium text-gray-700">Confirmar Senha</label>
+                                </div>
                                 <input type="password" id="confirmar_senha" name="confirmar_senha" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" placeholder="••••••••" minlength="8" required>
                             </div>
+
                             <p class="text-m text-red-600">
                                 <?php // imprimir mensagem de erro, então limpa a variável de sessão
                                     if (isset($_SESSION['erro'])) {
@@ -239,24 +307,95 @@ session_start();
     <script src="../jquery.mask.min.js"></script>
 
     <script>
+        // Máscaras para os campos
         $('#cnpj').mask('00.000.000/0000-00');
         $('#telefone').mask('(00) 00000-0000');
         $('#cep').mask('00000-000');
         
-        // isso aqui pode ser opcional ou não, mas isso vai buscar endereço via api quando cep for preenchido 
-        // obs: ainda deve ser testada.
+        // buscar endereço via api quando cep for preenchido
         $('#cep').blur(function() {
             var cep = $(this).val().replace(/\D/g, '');
             if (cep.length === 8) {
                 $.getJSON(`https://viacep.com.br/ws/${cep}/json/`, function(data) {
                     if (!data.erro) {
-                        // aqui você pode preencher automaticamente outros campos de endereço se quiser
+                        // preenche automaticamente campos de endereco se necessario
                         console.log(data); // ver os dados retornados
                     }
                 });
             }
         });
+
+        // funcao para buscar cidades via api ibge
+        async function buscarCidades(termo) {
+            try {
+                const response = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/municipios`);
+                const cidades = await response.json();
+                
+                return cidades
+                    .filter(cidade => cidade.nome.toLowerCase().includes(termo.toLowerCase()))
+                    .map(cidade => ({
+                        nome: `${cidade.nome} - ${cidade.microrregiao.mesorregiao.UF.sigla}`,
+                        uf: cidade.microrregiao.mesorregiao.UF.sigla
+                    }));
+            } catch (error) {
+                console.error('Erro ao buscar cidades:', error);
+                return [];
+            }
+        }
+
+        // elementos do dom para autocomplete de cidades
+        const inputLocalizacao = document.getElementById('localizacao');
+        const sugestoesContainer = document.getElementById('sugestoes-cidades');
+
+        // evento de input para autocomplete
+        inputLocalizacao.addEventListener('input', async function(e) {
+            const termo = e.target.value.trim();
+            
+            if (termo.length < 3) {
+                sugestoesContainer.classList.add('hidden');
+                return;
+            }
+            
+            const cidades = await buscarCidades(termo);
+            
+            if (cidades.length > 0) {
+                sugestoesContainer.innerHTML = cidades.map(cidade => `
+                    <div class="px-4 py-2 hover:bg-gray-100 cursor-pointer" 
+                         data-value="${cidade.nome}">
+                        ${cidade.nome}
+                    </div>
+                `).join('');
+                
+                sugestoesContainer.classList.remove('hidden');
+            } else {
+                sugestoesContainer.classList.add('hidden');
+            }
+        });
+
+        // evento para selecionar uma cidade
+        sugestoesContainer.addEventListener('click', function(e) {
+            if (e.target.dataset.value) {
+                inputLocalizacao.value = e.target.dataset.value;
+                sugestoesContainer.classList.add('hidden');
+            }
+        });
+
+        // esconder sugestoes ao clicar fora
+        document.addEventListener('click', function(e) {
+            if (!inputLocalizacao.contains(e.target) && !sugestoesContainer.contains(e.target)) {
+                sugestoesContainer.classList.add('hidden');
+            }
+        });
+
+        // validacao ao submeter o formulario
+        document.getElementById('cadastro-form').addEventListener('submit', function(e) {
+            const cidade = inputLocalizacao.value.trim();
+            if (!cidade || !cidade.match(/^[A-Za-zÀ-ÿ\s]+ - [A-Z]{2}$/)) {
+                alert('Por favor, selecione uma cidade válida no formato "Cidade - UF"');
+                e.preventDefault();
+                inputLocalizacao.focus();
+            }
+        });
     </script>
 </body>
-
 </html>
