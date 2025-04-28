@@ -34,6 +34,13 @@ CREATE TABLE detalhe_medico (
     FOREIGN KEY (id_cliente) REFERENCES clientes(id) ON DELETE CASCADE
 );
 
+CREATE TABLE login_google_cliente(
+    id int auto_increment primary key,
+    id_cliente int not null,
+    foto_perfil varchar(255) not null,
+    FOREIGN KEY (id_cliente) REFERENCES clientes(id) ON DELETE CASCADE
+    
+)
 
 INSERT INTO clientes (nome, email, senha, cpf, telefone) VALUES
 ('João Silva', 'joao.silva@email.com', '$2a$10$Xp1Q4J9z7JQZJZJZJZJZJO', '123.456.789-01', '(11) 98765-4321'),
