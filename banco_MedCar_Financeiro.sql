@@ -46,18 +46,18 @@ CREATE TABLE metodos_pagamento (
 INSERT INTO transacoes (cliente_id, empresa_id, agendamento_id, data, descricao, valor, status, paypal_transaction_id) 
 VALUES 
 -- Transações de clientes
-(1, NULL, 1, '2024-03-15', 'Pagamento de corrida - Agendamento 1', 850.00, 'Pago', 'PAYPAL12345'),
-(2, NULL, 3, '2024-03-16', 'Pagamento de corrida - Agendamento 3', 1200.00, 'Pago', 'PAYPAL67890'),
+(1, NULL, 1, '2024-03-15', 'Pagamento de corrida - Agendamento 1', 850.00, 'Pago', 'PAGBANK12345'),
+(2, NULL, 3, '2024-03-16', 'Pagamento de corrida - Agendamento 3', 1200.00, 'Pago', 'PAGBANK67890'),
 (3, NULL, 5, '2024-03-17', 'Pagamento de corrida - Agendamento 5', 950.00, 'Pendente', NULL),
-(4, NULL, 7, '2024-03-18', 'Pagamento de corrida - Agendamento 7', 1500.00, 'Pago', 'PAYPAL54321'),
+(4, NULL, 7, '2024-03-18', 'Pagamento de corrida - Agendamento 7', 1500.00, 'Pago', 'PAGBANK54321'),
 (5, NULL, 9, '2024-03-19', 'Pagamento de corrida - Agendamento 9', 750.00, 'Cancelado', NULL),
 
 -- Transações de empresas
 (NULL, 1, 2, '2024-03-14', 'Pagamento de corrida - Agendamento 2', 2350.00, 'Pendente', NULL),
-(NULL, 2, 4, '2024-03-15', 'Pagamento de corrida - Agendamento 4', 1800.00, 'Pago', 'PAYPAL98765'),
-(NULL, 1, 6, '2024-03-16', 'Pagamento de corrida - Agendamento 6', 3200.00, 'Pago', 'PAYPAL24680'),
+(NULL, 2, 4, '2024-03-15', 'Pagamento de corrida - Agendamento 4', 1800.00, 'Pago', 'PAGBANK98765'),
+(NULL, 1, 6, '2024-03-16', 'Pagamento de corrida - Agendamento 6', 3200.00, 'Pago', 'PAGBANK24680'),
 (NULL, 3, 8, '2024-03-17', 'Pagamento de corrida - Agendamento 8', 1450.00, 'Pendente', NULL),
-(NULL, 2, 10, '2024-03-18', 'Pagamento de corrida - Agendamento 10', 2100.00, 'Pago', 'PAYPAL13579');
+(NULL, 2, 10, '2024-03-18', 'Pagamento de corrida - Agendamento 10', 2100.00, 'Pago', 'PAGBANK13579');
 
 
 -- Inserção de dados de faturamento mensal de exemplo
