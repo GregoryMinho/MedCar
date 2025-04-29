@@ -1,6 +1,6 @@
 <?php
 session_start();
-require '../../includes/conexao_BdCadastroLogin.php'; // Inclui a conexão com o banco de dados
+require '../../includes/conexao_loginDasEmpresas.php'; // Inclui a conexão com o banco de dados
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = $_POST['email'];

@@ -1,42 +1,43 @@
 <?php
 session_start();
-require '../../includes/conexao_BdCadastroLogin.php'; // Inclui a conexão com o banco de dados
+require '../../includes/conexao_loginDasEmpresas.php';  // Arquivo de conexão com o banco
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $email = $_POST['email'];
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
     $senha = $_POST['password'];
 
-    // Consulta o banco de dados para verificar as credenciais
-    $query = "SELECT * FROM empresas WHERE email = :email";
-    $stmt = $conn->prepare($query);
-    $stmt->bindParam(':email', $email);
-    $stmt->execute();
-    $empresa = $stmt->fetch(PDO::FETCH_ASSOC);
+    try {
+        // Consulta preparada para buscar o usuário
+        $stmt = $pdo->prepare("SELECT * FROM empresas_transporte WHERE email = :email");
+        $stmt->bindParam(':email', $email);
+        $stmt->execute();
+        
+        $empresa = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($empresa) {
-        // Verifica a senha
-        if (password_verify($senha, $empresa['senha'])) {
-            // Inicia a sessão e armazena as informações da empresa
+        if ($empresa && password_verify($senha, $empresa['senha_hash'])) {
+            // Autenticação bem-sucedida
+            $_SESSION['logado'] = true;
             $_SESSION['usuario'] = [
                 'id' => $empresa['id'],
-                'nome' => $empresa['nome'],
                 'email' => $empresa['email'],
-                'tipo' => $empresa['tipo'], // Define o tipo de usuário como empresa
-                'foto' => $empresa['picture'] // Adiciona a foto de perfil da empresa tipo link 
+                'nome' => $empresa['nome_empresa'],
+                'tipo' => 'empresa'
             ];
-            header("Location: /MedQ-2/area_empresas/menu_principal.php");
+            
+            header('Location: ../../area_empresas/menu_principal.php');
             exit();
         } else {
-            // Senha incorreta
-            $_SESSION['login_erro'] = "Senha ou E-mail incorreto.";
+            $_SESSION['login_erro'] = "Credenciais inválidas!";
+            header('Location: ../../paginas/login_empresas.php');
+            exit();
         }
-    } else {
-        // E-mail não encontrado
-        $_SESSION['login_erro'] = "Senha ou E-mail incorreto.";
+    } catch (PDOException $e) {
+        error_log("Erro de login: " . $e->getMessage());
+        $_SESSION['login_erro'] = "Erro ao processar login. Tente novamente.";
+        header('Location: ../../paginas/login_empresas.php');
+        exit();
     }
-    header("Location: /MedQ-2/paginas/login_empresas.php");
-    exit();
 } else {
-    header("Location: /MedQ-2/paginas/login_empresas.php");
+    header('Location: ../../paginas/login_empresas.php');
     exit();
 }

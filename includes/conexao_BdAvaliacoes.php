@@ -1,5 +1,5 @@
 <?php
-$servidor = "localhost:3307";
+$servidor = "localhost:3306";
 $usuario = "root";
 $senha = ""; // cimatec
 $banco = "medcar_avaliacoes";
