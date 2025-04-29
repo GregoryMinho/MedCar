@@ -28,20 +28,31 @@ $payload = $client->verifyIdToken($_POST['credential']);
 //verifica os dados do payload
 session_start();
 if (isset($payload['email'])) {
-
-    // Consulta o banco de dados para verificar as credenciais
-    $query = "SELECT * FROM clientes WHERE email = :email";
-    $stmt = $conn->prepare($query);
+    
+    // Consulta o banco de dados para verificar as credenciais    
+    $stmt = $conn->prepare("SELECT id, nome, email, cpf, telefone, foto, tipo FROM clientes WHERE email = :email");
     $stmt->bindParam(':email', $payload['email']);
     $stmt->execute();
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($result) { 
+    if ($result) {
         // E-mail encontrado, armazena os dados na sessão
-        
+
         $_SESSION['usuario'] = $result;
-        $_SESSION['usuario']['foto'] = $payload['picture']; // Atualiza a foto do usuário com a do Google
-      
+
+        // Atualiza o campo 'foto' no banco de dados com a foto do Google
+        $updateQuery = "UPDATE clientes SET foto = :foto WHERE email = :email";
+        $updateStmt = $conn->prepare($updateQuery);
+        $updateStmt->bindParam(':foto', $payload['picture']);
+        $updateStmt->bindParam(':email', $payload['email']);
+
+       if(!$updateStmt->execute()){
+            // Atualização bem-sucedida
+            echo "Erro ao atualizar a foto do usuário no banco de dados.";
+            exit;
+        } 
+
+        $conn = null; // Fecha a conexão com o banco de dados
         // Redireciona para a página de cadastro de cliente
         header('Location: ../area_cliente/menu_principal.php');
         exit;

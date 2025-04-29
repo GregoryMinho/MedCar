@@ -8,6 +8,7 @@ CREATE TABLE clientes (
     senha VARCHAR(255) NOT NULL, -- A senha será armazenada criptografada
     cpf VARCHAR(20) UNIQUE NOT NULL,
     telefone VARCHAR(20),
+    foto varchar(255) DEFAULT null , -- atualizado a cada login com o google
     tipo VARCHAR(20) DEFAULT 'cliente', 
     data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP --  ^ a mesma coisa pq não sei se isso vai ser viável 
 );
@@ -30,17 +31,23 @@ CREATE TABLE detalhe_medico (
     id_cliente INT NOT NULL,
     tipo_sanguineo ENUM('A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'NÃO IDENTIFICADO') NOT NULL,
     alergias TEXT DEFAULT('NÃO IDENTIFICADO/POSSUO'),
+    doencas_cronicas TEXT DEFAULT('NÃO IDENTIFICADO/POSSUO'),
     remedio_recorrente TEXT DEFAULT('NÃO USO'),
     FOREIGN KEY (id_cliente) REFERENCES clientes(id) ON DELETE CASCADE
 );
 
-CREATE TABLE login_google_cliente(
-    id int auto_increment primary key,
-    id_cliente int not null,
-    foto_perfil varchar(255) not null,
+CREATE TABLE enderecos_clientes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_cliente INT NOT NULL,
+    rua VARCHAR(255) NOT NULL,
+    numero VARCHAR(20) NOT NULL,
+    complemento VARCHAR(255),
+    bairro VARCHAR(100),
+    cidade VARCHAR(100) NOT NULL,
+    estado VARCHAR(2) NOT NULL,
+    cep VARCHAR(20) NOT NULL,
     FOREIGN KEY (id_cliente) REFERENCES clientes(id) ON DELETE CASCADE
-    
-)
+);
 
 INSERT INTO clientes (nome, email, senha, cpf, telefone) VALUES
 ('João Silva', 'joao.silva@email.com', '$2a$10$Xp1Q4J9z7JQZJZJZJZJZJO', '123.456.789-01', '(11) 98765-4321'),

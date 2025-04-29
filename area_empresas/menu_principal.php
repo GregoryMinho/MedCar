@@ -1,4 +1,7 @@
 <?php
+if(session_status() === PHP_SESSION_NONE) {
+    session_start(); // Inicia a sessão se ainda não estiver iniciada
+}
 require '../includes/classe_usuario.php'; // inclui o arquivo de validação de login
 use usuario\Usuario; // usa o namespace usuario\Usuario
 

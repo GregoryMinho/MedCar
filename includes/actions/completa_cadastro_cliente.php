@@ -11,10 +11,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $cpf = $_POST['cpf'];
     $telefone = $_POST['telefone'];
 
-    if (empty($email) || empty($cpf) || empty($telefone)) {
-        echo json_encode(['success' => false, 'message' => 'Todos os campos são obrigatórios.']);
-        exit;
-    }
 
     try {
         $query = "INSERT INTO clientes (email, nome, cpf, telefone) VALUES (:email, :nome, :cpf, :telefone)";

@@ -1,0 +1,49 @@
+.mobile-menu {
+    transition: transform 0.3s ease-in-out;
+    transform: translateX(100%);
+}
+
+.mobile-menu.open {
+    transform: translateX(0);
+}
+
+.calendar-day {
+    transition: all 0.2s ease;
+}
+
+.calendar-day:hover:not(.calendar-day-disabled) {
+    background-color: rgba(56, 178, 172, 0.1);
+    transform: scale(1.05);
+}
+
+.calendar-day-selected {
+    background-color: rgba(56, 178, 172, 0.2);
+    border: 2px solid #38b2ac;
+    color: #38b2ac;
+    font-weight: bold;
+}
+
+.calendar-day-disabled {
+    color: #cbd5e0;
+    cursor: not-allowed;
+}
+
+.form-card {
+    transition: all 0.3s ease;
+}
+
+.form-card:hover {
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.group:hover .group-hover\:visible {
+    visibility: visible;
+}
+
+.group:hover .group-hover\:opacity-100 {
+    opacity: 1;
+}
+
+.group:hover .group-hover\:translate-y-0 {
+    transform: translateY(0);
+}

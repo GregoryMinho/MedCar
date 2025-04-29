@@ -83,7 +83,7 @@ unset($_SESSION['sucesso'], $_SESSION['erro']);
 </head>
 
 <body class="min-h-screen bg-gray-50">
-<!-- modal mensagens -->
+    <!-- modal mensagens -->
     <?php if ($mensagemSucesso || $mensagemErro): ?>
         <div id="modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
             <div class="bg-white rounded-lg shadow-lg p-6 w-96">
@@ -104,21 +104,40 @@ unset($_SESSION['sucesso'], $_SESSION['erro']);
     <nav class="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-blue-900 to-blue-800 text-white shadow-md">
         <div class="container mx-auto px-4">
             <div class="flex items-center justify-between h-16">
-                <a href="/MedQ-2/paginas/pagina_inicial.php" class="flex items-center space-x-2 text-xl font-bold">
+                <a href="" class="flex items-center space-x-2 text-xl font-bold">
                     <i data-lucide="ambulance" class="h-6 w-6"></i>
                     <span>MedCar</span>
                 </a>
 
-                <div id="desktop-menu" class="hidden md:flex items-center space-x-6">
-                    <a href="menu_principal.php" class="font-medium hover:text-teal-300 transition">Home</a>
-                    <a href="/MedQ-2/paginas/abas_menu_principal/aba_empresas.php" class="font-medium hover:text-teal-300 transition">Empresas</a>
-                    <a href="#" class="font-medium hover:text-teal-300 transition">Contato</a>
-                    <a href="../includes/logout.php" class="font-medium hover:text-teal-300 transition">Logout</a>
+                <div class="flex items-center space-x-6">
+                    <div class="relative group">
+                        <button class="flex items-center space-x-1 font-medium hover:text-teal-300 transition">
+                            <i data-lucide="user" class="h-5 w-5"></i>
+                            <span>Perfil</span>
+                            <i data-lucide="chevron-down" class="h-4 w-4"></i>
+                        </button>
+                        <div class="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50 invisible group-hover:visible transition-all duration-300 opacity-0 group-hover:opacity-100 transform group-hover:translate-y-0 translate-y-2">
+                            <div class="py-1">
+                                <a href="perfil_cliente.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-900">
+                                    <i data-lucide="user" class="h-4 w-4 inline mr-2"></i>Minha Conta
+                                </a>
+                                <a href="../paginas/abas_menu_principal/aba_empresas.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-900">
+                                    <i data-lucide="calendar" class="h-4 w-4 inline mr-2"></i>Agendar
+                                </a>
+                                <a href="historico.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-900">
+                                    <i data-lucide="clock" class="h-4 w-4 inline mr-2"></i>Meus Agendamentos
+                                </a>
+                                <div class="border-t border-gray-300"></div>
+                                <a href="../includes/logout.php" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
+                                    <i data-lucide="log-out" class="h-4 w-4 inline mr-2"></i>Sair
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <button id="mobile-menu-button" class="md:hidden text-white ml-2">
+                        <i data-lucide="menu" class="h-6 w-6"></i>
+                    </button>
                 </div>
-
-                <button id="mobile-menu-button" class="md:hidden text-white ml-2">
-                    <i data-lucide="menu" class="h-6 w-6"></i>
-                </button>
             </div>
         </div>
     </nav>
@@ -130,41 +149,35 @@ unset($_SESSION['sucesso'], $_SESSION['erro']);
                 <i data-lucide="x" class="h-6 w-6"></i>
             </button>
         </div>
-        <div class="flex flex-col items-start space-y-6 flex-grow text-xl ps-4">
-            <a href="menu_principal.php" class="font-medium hover:text-teal-300 transition">Home</a>
-            <a href="../paginas/abas_menu_principal/aba_empresas.php" class="font-medium hover:text-teal-300 transition">Empresas</a>
-            <a href="#" class="font-medium hover:text-teal-300 transition">Contato</a>
-            <a href="../includes/logout.php" class="font-medium hover:text-teal-300 transition">Logout</a>
-            <!-- Adicionando itens do menu lateral -->
-            <a href="#" class="flex items-center space-x-2 px-4 py-3 rounded-lg bg-blue-800 text-white hover:bg-blue-700 transition">
-                <i data-lucide="home" class="h-5 w-5"></i>
-                <span>Dashboard</span>
-            </a>
-            <a href="#" class="flex items-center space-x-2 px-4 py-3 rounded-lg text-white hover:bg-blue-800 transition">
-                <i data-lucide="calendar" class="h-5 w-5"></i>
-                <span>Agendar</span>
-            </a>
-            <a href="historico.php" class="flex items-center space-x-2 px-4 py-3 rounded-lg text-white hover:bg-blue-800 transition">
-                <i data-lucide="clock" class="h-5 w-5"></i>
-                <span>Histórico</span>
-            </a>
-            <a href="#" class="flex items-center space-x-2 px-4 py-3 rounded-lg text-white hover:bg-blue-800 transition">
-                <i data-lucide="heart" class="h-5 w-5"></i>
-                <span>Favoritos</span>
-            </a>
-            <div class="relative">
-                <button id="mobile-dropdown-button" class="flex items-center space-x-2 px-4 py-3 rounded-lg text-white hover:bg-blue-800 transition focus:outline-none">
-                    <i data-lucide="settings" class="h-5 w-5"></i>
-                    <span>Configurações</span>
-                    <i data-lucide="chevron-down" class="h-5 w-5"></i>
-                </button>
-                <div id="mobile-dropdown-menu" class="hidden bg-white text-blue-900 rounded-lg shadow-lg mt-2 w-48">
-                    <a href="editar_cliente.php" class="block px-4 py-2 hover:bg-gray-100">Editar Cadastro</a>
-                    <a href="seguranca.php" class="block px-4 py-2 hover:bg-gray-100">Segurança</a>
-                    <a href="preferencias.php" class="block px-4 py-2 hover:bg-gray-100">Preferências</a>
-                </div>
+        <!-- Adicionando itens do menu lateral -->
+        <a href="#" class="flex items-center space-x-2 px-4 py-3 rounded-lg bg-blue-800 text-white hover:bg-blue-700 transition">
+            <i data-lucide="home" class="h-5 w-5"></i>
+            <span>Dashboard</span>
+        </a>
+        <a href="../paginas/abas_menu_principal/aba_empresas.php" class="flex items-center space-x-2 px-4 py-3 rounded-lg text-white hover:bg-blue-800 transition">
+            <i data-lucide="calendar" class="h-5 w-5"></i>
+            <span>Agendar</span>
+        </a>
+        <a href="historico.php" class="flex items-center space-x-2 px-4 py-3 rounded-lg text-white hover:bg-blue-800 transition">
+            <i data-lucide="clock" class="h-5 w-5"></i>
+            <span>Histórico</span>
+        </a>
+        <a href="#" class="flex items-center space-x-2 px-4 py-3 rounded-lg text-white hover:bg-blue-800 transition">
+            <i data-lucide="heart" class="h-5 w-5"></i>
+            <span>Favoritos</span>
+        </a>
+        <div class="relative">
+            <button id="mobile-dropdown-button" class="flex items-center space-x-2 px-4 py-3 rounded-lg text-white hover:bg-blue-800 transition focus:outline-none">
+                <i data-lucide="settings" class="h-5 w-5"></i>
+                <span>Configurações</span>
+                <i data-lucide="chevron-down" class="h-5 w-5"></i>
+            </button>
+            <div id="mobile-dropdown-menu" class="hidden bg-white text-blue-900 rounded-lg shadow-lg mt-2 w-48">
+                <a href="perfil_cliente.php" class="block px-4 py-2 hover:bg-gray-100">Editar Cadastro</a>
+                <a href="#" class="block px-4 py-2 hover:bg-gray-100">Alterar Senha</a>
             </div>
         </div>
+    </div>
     </div>
 
     <!-- Main Content -->
@@ -208,7 +221,7 @@ unset($_SESSION['sucesso'], $_SESSION['erro']);
             <section class="pt-24 pb-16 bg-gradient-to-r from-blue-900 to-blue-800 text-white">
                 <div class="container mx-auto px-4">
                     <h1 class="text-3xl md:text-4xl font-bold mb-6">Área do Paciente</h1>
-                    
+
                     <!-- Stats Cards -->
                     <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
                         <!-- Próximo Transporte -->

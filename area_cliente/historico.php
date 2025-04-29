@@ -3,6 +3,7 @@ require '../includes/classe_usuario.php'; // inclui o arquivo de validação de 
 require '../includes/conexao_BdAgendamento.php'; // inclui o arquivo de conexão com o banco de dados
 
 use usuario\Usuario;
+
 Usuario::verificarPermissao('cliente'); // verifica se o usuário logado é um cliente
 
 
@@ -40,6 +41,8 @@ $anos = array_keys($agendamentosPorAno);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MedCar - Histórico de Agendamentos</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
 <body class="bg-gray-100 min-h-screen">
@@ -47,20 +50,44 @@ $anos = array_keys($agendamentosPorAno);
     <nav class="bg-blue-900 text-white p-4">
         <div class="container mx-auto flex justify-between items-center">
             <div class="flex items-center space-x-4">
-                <a href="../area_cliente/menu_principal.php" class="flex items-center space-x-2 text-white hover:text-teal-300 transition">
+                <a onclick="window.history.back();" class="flex items-center space-x-2 text-white hover:text-teal-300 transition">
                     <i data-lucide="arrow-left" class="h-6 w-6"></i>
                     <span>Voltar</span>
                 </a>
             </div>
-            <a class="text-xl font-bold" href="#">
+            <a class="text-xl font-bold" href="menu_principal.php">
                 <i class="fas fa-calendar-alt mr-2"></i>
-                MedQ - Histórico
+                MedCar - Histórico
             </a>
-            <div class="flex items-center">
-                <span class="mr-3">Histórico de Agendamentos</span>
-                <img src="https://source.unsplash.com/random/40x40/?icon" class="rounded-full" alt="Perfil">
-                <a href="../includes/logout.php" class="font-medium hover:text-teal-300 transition">Logout</a>
+
+            <div class="relative group">
+                <button class="flex items-center space-x-1 font-medium hover:text-teal-300 transition">
+                    <i data-lucide="user" class="h-5 w-5"></i>
+                    <span>Perfil</span>
+                    <i data-lucide="chevron-down" class="h-4 w-4"></i>
+                </button>
+                <div class="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50 invisible group-hover:visible transition-all duration-300 opacity-0 group-hover:opacity-100 transform group-hover:translate-y-0 translate-y-2">
+                    <div class="py-1">
+                        <a href="menu_principal.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-900">
+                            <i data-lucide="panels-top-left" class="h-4 w-4 inline mr-2"></i>Menu Principal
+                        </a>
+                        <a href="perfil_cliente.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-900">
+                            <i data-lucide="user" class="h-4 w-4 inline mr-2"></i>Minha Conta
+                        </a>
+                        <a href="../paginas/abas_menu_principal/aba_empresas.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-900">
+                            <i data-lucide="calendar" class="h-4 w-4 inline mr-2"></i>Agendar
+                        </a>
+                        <a href="" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-900">
+                            <i data-lucide="clock" class="h-4 w-4 inline mr-2"></i>Meus Agendamentos
+                        </a>
+                        <div class="border-t border-gray-100"></div>
+                        <a href="../includes/logout.php" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
+                            <i data-lucide="log-out" class="h-4 w-4 inline mr-2"></i>Sair
+                        </a>
+                    </div>
+                </div>
             </div>
+
         </div>
     </nav>
 
@@ -173,6 +200,9 @@ $anos = array_keys($agendamentosPorAno);
     </div>
 
     <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
         // Script para abrir e fechar modais
         document.querySelectorAll('[data-modal-target]').forEach(button => {
             button.addEventListener('click', () => {

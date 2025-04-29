@@ -2,6 +2,7 @@
 require '../includes/classe_usuario.php'; // inclui o arquivo de validação de login
 
 use usuario\Usuario;
+
 Usuario::verificarPermissao('cliente'); // verifica se o usuário logado é um cliente
 
 // pegar o id da empresa selecionada por sessão
@@ -17,6 +18,7 @@ $empresa_id = 1;    //////// temporario////////////////////////
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MedCar - Agendar Transporte</title>
+    <link rel="stylesheet" href="style/style_agendamento_cliente.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -28,57 +30,6 @@ $empresa_id = 1;    //////// temporario////////////////////////
             document.getElementById('hidden_transport_type').value = selectedTransportType;
         }
     </script>
-    <style>
-        .mobile-menu {
-            transition: transform 0.3s ease-in-out;
-            transform: translateX(100%);
-        }
-
-        .mobile-menu.open {
-            transform: translateX(0);
-        }
-
-        .calendar-day {
-            transition: all 0.2s ease;
-        }
-
-        .calendar-day:hover:not(.calendar-day-disabled) {
-            background-color: rgba(56, 178, 172, 0.1);
-            transform: scale(1.05);
-        }
-
-        .calendar-day-selected {
-            background-color: rgba(56, 178, 172, 0.2);
-            border: 2px solid #38b2ac;
-            color: #38b2ac;
-            font-weight: bold;
-        }
-
-        .calendar-day-disabled {
-            color: #cbd5e0;
-            cursor: not-allowed;
-        }
-
-        .form-card {
-            transition: all 0.3s ease;
-        }
-
-        .form-card:hover {
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-        }
-
-        .group:hover .group-hover\:visible {
-            visibility: visible;
-        }
-
-        .group:hover .group-hover\:opacity-100 {
-            opacity: 1;
-        }
-
-        .group:hover .group-hover\:translate-y-0 {
-            transform: translateY(0);
-        }
-    </style>
 </head>
 
 <body class="min-h-screen bg-gray-50">
@@ -88,12 +39,12 @@ $empresa_id = 1;    //////// temporario////////////////////////
         <div class="container mx-auto px-4">
             <div class="flex items-center justify-between h-16">
                 <div class="flex items-center space-x-4">
-                    <a href="../area_cliente/menu_principal.php" class="flex items-center space-x-2 text-white hover:text-teal-300 transition">
+                    <a onclick="window.history.back();" class="flex items-center space-x-2 text-white hover:text-teal-300 transition">
                         <i data-lucide="arrow-left" class="h-6 w-6"></i>
                         <span>Voltar</span>
                     </a>
                 </div>
-                <a href="/MedQ-2/paginas/pagina_inicial.php" class="flex items-center space-x-2 text-xl font-bold">
+                <a href="menu_principal.php" class="flex items-center space-x-2 text-xl font-bold">
                     <i data-lucide="ambulance" class="h-6 w-6"></i>
                     <span>MedCar</span>
                 </a>
@@ -107,66 +58,28 @@ $empresa_id = 1;    //////// temporario////////////////////////
                         </button>
                         <div class="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50 invisible group-hover:visible transition-all duration-300 opacity-0 group-hover:opacity-100 transform group-hover:translate-y-0 translate-y-2">
                             <div class="py-1">
-                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-900">
+                                <a href="menu_principal.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-900">
+                                    <i data-lucide="panels-top-left" class="h-4 w-4 inline mr-2"></i>Menu Principal
+                                </a>
+                                <a href="perfil_cliente.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-900">
                                     <i data-lucide="user" class="h-4 w-4 inline mr-2"></i>Minha Conta
                                 </a>
-                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-900">
+                                <a href="../paginas/abas_menu_principal/aba_empresas.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-900">
                                     <i data-lucide="calendar" class="h-4 w-4 inline mr-2"></i>Agendamentos
                                 </a>
-                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-900">
-                                    <i data-lucide="settings" class="h-4 w-4 inline mr-2"></i>Configurações
+                                <a href="historico.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-900">
+                                    <i data-lucide="clock" class="h-4 w-4 inline mr-2"></i>Histórico
                                 </a>
-                                <div class="border-t border-gray-100"></div>
+                                <div class="border-t border-gray-300"></div>
                                 <a href="../includes/logout.php" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
                                     <i data-lucide="log-out" class="h-4 w-4 inline mr-2"></i>Sair
                                 </a>
                             </div>
                         </div>
                     </div>
-                    <a href="index.html#funcionalidades" class="font-medium hover:text-teal-300 transition">Funcionalidades</a>
-                    <a href="index.html#vantagens" class="font-medium hover:text-teal-300 transition">Vantagens</a>
-                    <a href="index.html#contato" class="font-medium hover:text-teal-300 transition">Contato</a>
-                    <a href="../includes/logout.php" class="font-medium hover:text-teal-300 transition">Logout</a>
-                    <button id="mobile-menu-button" class="md:hidden text-white ml-2">
-                        <i data-lucide="menu" class="h-6 w-6"></i>
-                    </button>
                 </div>
             </div>
-        </div>
     </nav>
-
-    <!-- Mobile Menu -->
-    <div id="mobile-menu" class="fixed inset-0 z-50 bg-blue-900 bg-opacity-95 flex flex-col text-white p-6 mobile-menu">
-        <div class="flex justify-end">
-            <button id="close-menu-button" class="text-white">
-                <i data-lucide="x" class="h-6 w-6"></i>
-            </button>
-        </div>
-
-        <div class="flex flex-col items-center justify-center space-y-8 flex-grow text-xl">
-            <div class="flex flex-col items-center space-y-4">
-                <span class="font-medium text-teal-300">Perfil</span>
-                <div class="flex flex-col items-center space-y-3 text-base">
-                    <a href="#" class="font-medium hover:text-teal-300 transition flex items-center">
-                        <i data-lucide="user" class="h-5 w-5 mr-2"></i>Minha Conta
-                    </a>
-                    <a href="#" class="font-medium hover:text-teal-300 transition flex items-center">
-                        <i data-lucide="calendar" class="h-5 w-5 mr-2"></i>Agendamentos
-                    </a>
-                    <a href="#" class="font-medium hover:text-teal-300 transition flex items-center">
-                        <i data-lucide="settings" class="h-5 w-5 mr-2"></i>Configurações
-                    </a>
-                    <a href="#" class="font-medium text-red-400 hover:text-red-300 transition flex items-center">
-                        <i data-lucide="log-out" class="h-5 w-5 mr-2"></i>Sair
-                    </a>
-                </div>
-            </div>
-            <a href="index.html#funcionalidades" class="font-medium hover:text-teal-300 transition">Funcionalidades</a>
-            <a href="index.html#vantagens" class="font-medium hover:text-teal-300 transition">Vantagens</a>
-            <a href="index.html#contato" class="font-medium hover:text-teal-300 transition">Contato</a>
-        </div>
-    </div>
-
     <!-- Header Section -->
     <section class="pt-24 pb-10 bg-gradient-to-r from-blue-900 to-blue-800 text-white">
         <div class="container mx-auto px-4">
@@ -477,19 +390,6 @@ $empresa_id = 1;    //////// temporario////////////////////////
         // Initialize Lucide icons
         lucide.createIcons();
 
-        // Mobile menu functionality
-        const mobileMenuButton = document.getElementById('mobile-menu-button');
-        const closeMenuButton = document.getElementById('close-menu-button');
-        const mobileMenu = document.getElementById('mobile-menu');
-
-        mobileMenuButton.addEventListener('click', () => {
-            mobileMenu.classList.add('open');
-        });
-
-        closeMenuButton.addEventListener('click', () => {
-            mobileMenu.classList.remove('open');
-        });
-
         // Calendar functionality
         const currentDate = new Date();
         let currentMonth = currentDate.getMonth();
@@ -667,7 +567,7 @@ $empresa_id = 1;    //////// temporario////////////////////////
         });
     </script>
     <script>
-        // Alerta de produto cadastrado com sucesso
+        // alerta para mensagem se o agendamento foi realizado com sucesso ou não
         document.addEventListener('DOMContentLoaded', function() {
             var cadastrado = <?php echo json_encode($_SESSION['cadastrado']); ?> ?? null;
 
@@ -677,8 +577,8 @@ $empresa_id = 1;    //////// temporario////////////////////////
                 alert('ERRO AO AGENDAR! (T_T) \n\nPor favor, tente novamente.');
             }
 
-            <?php $_SESSION['cadastrado'] = null?>;
-           
+            <?php $_SESSION['cadastrado'] = null ?>;
+
         });
     </script>
 </body>
