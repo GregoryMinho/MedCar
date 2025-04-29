@@ -36,16 +36,24 @@ if (isset($payload['email'])) {
     $stmt->execute();
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($result) { 
+    if ($result) {
         // E-mail encontrado, armazena os dados na sessão
-        
+
         $_SESSION['usuario'] = $result;
         $_SESSION['usuario']['foto'] = $payload['picture']; // Atualiza a foto do usuário com a do Google
-      
+
+        // Atualiza o campo 'foto' no banco de dados com a foto do Google
+        $updateQuery = "UPDATE clientes SET foto = :foto WHERE email = :email";
+        $updateStmt = $conn->prepare($updateQuery);
+        $updateStmt->bindParam(':foto', $payload['picture']);
+        $updateStmt->bindParam(':email', $payload['email']);
+        $updateStmt->execute();
+        $conn = null; // Fecha a conexão com o banco de dados
         // Redireciona para a página de cadastro de cliente
         header('Location: ../area_cliente/menu_principal.php');
         exit;
-    } else { 
+    } else {
+
         // Exibe um modal para o usuário cadastrar CPF e telefone
         echo '
         <!DOCTYPE html>
@@ -86,4 +94,8 @@ if (isset($payload['email'])) {
         </body>
         </html>';
     }
+}else {
+    // Token inválido ou expirado, redireciona para a página de login
+    header('Location: ../paginas/login_clientes.php'); // redireciona para a página de login com erro
+    exit;
 }
