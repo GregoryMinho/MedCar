@@ -7,12 +7,14 @@ use usuario\Usuario;
 Usuario::verificarPermissao('cliente'); // verifica se o usuário logado é um cliente
 
 
-$cliente_id = $_SESSION['usuario']['id'];  // ID do cliente logado
+//Usuario::verificarPermissao('cliente'); // verifica se o usuario logado é um cliente
+
+$_SESSION['usuario']['id'] = 1;  // ID do cliente logado
 // Query para buscar os agendamentos do cliente logado
 try {
     $sql = "SELECT * FROM agendamentos WHERE cliente_id = :cliente_id ORDER BY data_consulta DESC, horario DESC";
     $stmt = $conn->prepare($sql);
-    $stmt->bindParam(':cliente_id', $cliente_id, PDO::PARAM_INT);
+    $stmt->bindParam(':cliente_id', $_SESSION['usuario']['id'], PDO::PARAM_INT);
     $stmt->execute();
     $agendamentos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {

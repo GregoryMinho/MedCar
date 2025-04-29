@@ -62,3 +62,4 @@ INSERT INTO empresas (nome, email, senha, telefone, cnpj, endereco, cidade) VALU
 ('CarService Express', 'express@email.com', '$2a$10$Xp1Q4J9z7JQZJZJZJZJZJO', '(31) 9876-5432', '34.567.890/0001-03', 'Rua dos Motores, 300', 'Belo Horizonte'),
 ('AutoCenter Total', 'total@email.com', '$2a$10$Xp1Q4J9z7JQZJZJZJZJZJO', '(41) 3456-1234', '45.678.901/0001-04', 'Avenida das Peças, 400', 'Curitiba'),
 ('Mecânica Premium', 'premium@email.com', '$2a$10$Xp1Q4J9z7JQZJZJZJZJZJO', '(51) 3344-7788', '56.789.012/0001-05', 'Rua dos Veículos, 500', 'Porto Alegre');
+

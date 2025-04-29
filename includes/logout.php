@@ -1,5 +1,4 @@
 <?php
-require __DIR__ . '../../vendor/autoload.php';
 require 'classe_usuario.php'; // Inclui a classe Usuario
 
 use usuario\Usuario;
