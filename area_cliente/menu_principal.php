@@ -3,13 +3,16 @@ require '../includes/classe_usuario.php'; // inclui o arquivo de validação de 
 require '../includes/conexao_BdAgendamento.php'; // inclui o arquivo de conexão com o banco de dados
 
 use usuario\Usuario;
-//Usuario::verificarPermissao('cliente'); // verifica se o usuário logado é um cliente
 
-$_SESSION['usuario'] = [
-    'id' => 1,
-    'tipo' => 'cliente',
-    'nome' => 'João Silva',
-];
+Usuario::verificarPermissao('cliente'); // verifica se o usuário logado é um cliente
+
+/////// excluir depois //////
+// $_SESSION['usuario'] = [
+//     'id' => 1,
+//     'tipo' => 'cliente',
+//     'nome' => 'João Silva',
+// ];
+
 
 // Busca o próximo agendamento agendado mais próximo para o usuário logado 
 $usuarioId = $_SESSION['usuario']['id'];
@@ -23,6 +26,7 @@ $stmt->bindParam(':cliente_id', $usuarioId, PDO::PARAM_INT);
 $stmt->execute();
 $proximoTransporte = $stmt->fetch(PDO::FETCH_ASSOC);
 
+
 // Consulta para buscar o número total de agendamentos concluídos do usuário
 $queryConcluidos = "SELECT COUNT(*) AS total_concluidos 
                     FROM agendamentos 
@@ -31,6 +35,7 @@ $stmtConcluidos = $conn->prepare($queryConcluidos);
 $stmtConcluidos->bindParam(':cliente_id', $usuarioId, PDO::PARAM_INT);
 $stmtConcluidos->execute();
 $totalConcluidos = $stmtConcluidos->fetch(PDO::FETCH_ASSOC)['total_concluidos'];
+
 
 // Consulta para buscar o número de agendamentos confirmados no mês atual
 $queryConfirmadosMes = "SELECT COUNT(*) AS total_confirmados_mes 
@@ -41,6 +46,7 @@ $stmtConfirmadosMes = $conn->prepare($queryConfirmadosMes);
 $stmtConfirmadosMes->bindParam(':cliente_id', $usuarioId, PDO::PARAM_INT);
 $stmtConfirmadosMes->execute();
 $totalConfirmadosMes = $stmtConfirmadosMes->fetch(PDO::FETCH_ASSOC)['total_confirmados_mes'];
+
 
 // Consulta para buscar os dois últimos registros de agendamento do usuário logado
 $queryMensagens = "SELECT data_consulta, horario, observacoes, rua_destino, cidade_destino, situacao
@@ -55,7 +61,13 @@ $ultimasMensagens = $stmtMensagens->fetchAll(PDO::FETCH_ASSOC);
 
 $conn = null;
 
-echo $_POST;
+
+// Verifica se há mensagens de sucesso ou erro na sessão
+$mensagemSucesso = $_SESSION['sucesso'] ?? null;
+$mensagemErro = $_SESSION['erro'] ?? null;
+
+// Remove as mensagens da sessão
+unset($_SESSION['sucesso'], $_SESSION['erro']);
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -67,71 +79,27 @@ echo $_POST;
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        .mobile-menu {
-            transition: transform 0.3s ease-in-out;
-            transform: translateX(100%);
-        }
-
-        .mobile-menu.open {
-            transform: translateX(0);
-        }
-
-        .dashboard-card {
-            transition: all 0.3s ease;
-        }
-
-        .dashboard-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .emergency-card {
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% {
-                transform: scale(1);
-            }
-
-            50% {
-                transform: scale(1.02);
-            }
-
-            100% {
-                transform: scale(1);
-            }
-        }
-
-        .dashboard-card::before {
-            content: "";
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(56, 178, 172, 0.1));
-            transform: rotate(45deg);
-            transition: all 0.5s;
-        }
-
-        .dashboard-card:hover::before {
-            animation: shine 1.5s;
-        }
-
-        @keyframes shine {
-            0% {
-                transform: rotate(45deg) translate(-50%, -50%);
-            }
-
-            100% {
-                transform: rotate(45deg) translate(100%, 100%);
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="style/style_menu_principal.css">
 </head>
 
 <body class="min-h-screen bg-gray-50">
+<!-- modal mensagens -->
+    <?php if ($mensagemSucesso || $mensagemErro): ?>
+        <div id="modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+            <div class="bg-white rounded-lg shadow-lg p-6 w-96">
+                <h2 class="text-lg font-bold mb-4 <?= $mensagemSucesso ? 'text-green-600' : 'text-red-600' ?>">
+                    <?= $mensagemSucesso ? 'Sucesso' : 'Erro' ?>
+                </h2>
+                <p class="text-gray-700 mb-4">
+                    <?= htmlspecialchars($mensagemSucesso ?? $mensagemErro) ?>
+                </p>
+                <button id="close-modal" class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg">
+                    Fechar
+                </button>
+            </div>
+        </div>
+    <?php endif; ?>
+
     <!-- Navbar -->
     <nav class="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-blue-900 to-blue-800 text-white shadow-md">
         <div class="container mx-auto px-4">
@@ -141,31 +109,61 @@ echo $_POST;
                     <span>MedCar</span>
                 </a>
 
-                <div class="flex items-center space-x-6">
+                <div id="desktop-menu" class="hidden md:flex items-center space-x-6">
                     <a href="menu_principal.php" class="font-medium hover:text-teal-300 transition">Home</a>
-                    <a href="/MedQ-2/paginas/abas_menu_principal/aba_empresas.php" class="font-medium hover:text-teal-300 transition">Empresas</a> <!-- conectado as empresas , checa os outros butooes estao funcionando. -->
+                    <a href="/MedQ-2/paginas/abas_menu_principal/aba_empresas.php" class="font-medium hover:text-teal-300 transition">Empresas</a>
                     <a href="#" class="font-medium hover:text-teal-300 transition">Contato</a>
                     <a href="../includes/logout.php" class="font-medium hover:text-teal-300 transition">Logout</a>
-                    <button id="mobile-menu-button" class="md:hidden text-white ml-2">
-                        <i data-lucide="menu" class="h-6 w-6"></i>
-                    </button>
                 </div>
+
+                <button id="mobile-menu-button" class="md:hidden text-white ml-2">
+                    <i data-lucide="menu" class="h-6 w-6"></i>
+                </button>
             </div>
         </div>
     </nav>
 
     <!-- Mobile Menu -->
-    <div id="mobile-menu" class="fixed inset-0 z-50 bg-blue-900 bg-opacity-95 flex flex-col text-white p-6 mobile-menu">
+    <div id="mobile-menu" class="fixed inset-0 z-50 bg-blue-900 bg-opacity-95 flex flex-col text-white p-6 hidden overflow-y-auto">
         <div class="flex justify-end">
             <button id="close-menu-button" class="text-white">
                 <i data-lucide="x" class="h-6 w-6"></i>
             </button>
         </div>
-
-        <div class="flex flex-col items-center justify-center space-y-8 flex-grow text-xl">
+        <div class="flex flex-col items-start space-y-6 flex-grow text-xl ps-4">
             <a href="menu_principal.php" class="font-medium hover:text-teal-300 transition">Home</a>
             <a href="../paginas/abas_menu_principal/aba_empresas.php" class="font-medium hover:text-teal-300 transition">Empresas</a>
             <a href="#" class="font-medium hover:text-teal-300 transition">Contato</a>
+            <a href="../includes/logout.php" class="font-medium hover:text-teal-300 transition">Logout</a>
+            <!-- Adicionando itens do menu lateral -->
+            <a href="#" class="flex items-center space-x-2 px-4 py-3 rounded-lg bg-blue-800 text-white hover:bg-blue-700 transition">
+                <i data-lucide="home" class="h-5 w-5"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="#" class="flex items-center space-x-2 px-4 py-3 rounded-lg text-white hover:bg-blue-800 transition">
+                <i data-lucide="calendar" class="h-5 w-5"></i>
+                <span>Agendar</span>
+            </a>
+            <a href="historico.php" class="flex items-center space-x-2 px-4 py-3 rounded-lg text-white hover:bg-blue-800 transition">
+                <i data-lucide="clock" class="h-5 w-5"></i>
+                <span>Histórico</span>
+            </a>
+            <a href="#" class="flex items-center space-x-2 px-4 py-3 rounded-lg text-white hover:bg-blue-800 transition">
+                <i data-lucide="heart" class="h-5 w-5"></i>
+                <span>Favoritos</span>
+            </a>
+            <div class="relative">
+                <button id="mobile-dropdown-button" class="flex items-center space-x-2 px-4 py-3 rounded-lg text-white hover:bg-blue-800 transition focus:outline-none">
+                    <i data-lucide="settings" class="h-5 w-5"></i>
+                    <span>Configurações</span>
+                    <i data-lucide="chevron-down" class="h-5 w-5"></i>
+                </button>
+                <div id="mobile-dropdown-menu" class="hidden bg-white text-blue-900 rounded-lg shadow-lg mt-2 w-48">
+                    <a href="editar_cliente.php" class="block px-4 py-2 hover:bg-gray-100">Editar Cadastro</a>
+                    <a href="seguranca.php" class="block px-4 py-2 hover:bg-gray-100">Segurança</a>
+                    <a href="preferencias.php" class="block px-4 py-2 hover:bg-gray-100">Preferências</a>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -190,20 +188,27 @@ echo $_POST;
                     <i data-lucide="heart" class="h-5 w-5"></i>
                     <span>Favoritos</span>
                 </a>
-                <a href="#" class="flex items-center space-x-2 px-4 py-3 rounded-lg text-white hover:bg-blue-800 transition">
-                    <i data-lucide="settings" class="h-5 w-5"></i>
-                    <span>Configurações</span>
-                </a>
+                <div class="relative">
+                    <button id="dropdown-button" class="flex items-center space-x-2 px-4 py-3 rounded-lg text-white hover:bg-blue-800 transition focus:outline-none">
+                        <i data-lucide="settings" class="h-5 w-5"></i>
+                        <span>Configurações</span>
+                        <i data-lucide="chevron-down" class="h-5 w-5"></i>
+                    </button>
+                    <div id="dropdown-menu" class="absolute hidden bg-white text-blue-900 rounded-lg shadow-lg mt-2 w-48">
+                        <a href="editar_cliente.php" class="block px-4 py-2 hover:bg-gray-100">Editar Cadastro</a>
+                        <a href="seguranca.php" class="block px-4 py-2 hover:bg-gray-100">Segurança</a>
+                        <a href="preferencias.php" class="block px-4 py-2 hover:bg-gray-100">Preferências</a>
+                    </div>
+                </div>
             </nav>
         </div>
-
         <!-- Main Content Area -->
         <div class="flex-1">
             <!-- Header Section -->
             <section class="pt-24 pb-16 bg-gradient-to-r from-blue-900 to-blue-800 text-white">
                 <div class="container mx-auto px-4">
                     <h1 class="text-3xl md:text-4xl font-bold mb-6">Área do Paciente</h1>
-
+                    
                     <!-- Stats Cards -->
                     <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
                         <!-- Próximo Transporte -->
@@ -414,14 +419,54 @@ echo $_POST;
         const mobileMenuButton = document.getElementById('mobile-menu-button');
         const closeMenuButton = document.getElementById('close-menu-button');
         const mobileMenu = document.getElementById('mobile-menu');
+        const desktopMenu = document.getElementById('desktop-menu');
+        const mobileDropdownButton = document.getElementById('mobile-dropdown-button');
+        const mobileDropdownMenu = document.getElementById('mobile-dropdown-menu');
 
         mobileMenuButton.addEventListener('click', () => {
-            mobileMenu.classList.add('open');
+            mobileMenu.classList.remove('hidden');
+            desktopMenu.classList.add('invisible');
         });
 
         closeMenuButton.addEventListener('click', () => {
-            mobileMenu.classList.remove('open');
+            mobileMenu.classList.add('hidden');
+            desktopMenu.classList.remove('invisible');
         });
+
+        mobileDropdownButton.addEventListener('click', () => {
+            mobileDropdownMenu.classList.toggle('hidden');
+        });
+    </script>
+
+    <script>
+        const dropdownButton = document.getElementById('dropdown-button');
+        const dropdownMenu = document.getElementById('dropdown-menu');
+
+        // Toggle dropdown visibility on button click
+        dropdownButton.addEventListener('click', () => {
+            dropdownMenu.classList.toggle('hidden');
+        });
+
+        // Close dropdown if clicked outside
+        document.addEventListener('click', (event) => {
+            if (!dropdownButton.contains(event.target) && !dropdownMenu.contains(event.target)) {
+                dropdownMenu.classList.add('hidden');
+            }
+        });
+    </script>
+    <script>
+        // Inicializa os ícones do Lucide
+        lucide.createIcons();
+
+        // Fecha o modal de avisos ao clicar no botão "Fechar"
+        const closeModalButton = document.getElementById('close-modal');
+        const modal = document.getElementById('modal');
+
+        if (closeModalButton) {
+            closeModalButton.addEventListener('click', () => {
+                modal.style.display = 'none';
+            });
+        }
     </script>
 </body>
 

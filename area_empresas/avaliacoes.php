@@ -1,10 +1,6 @@
 <?php
 // avaliacoes.php
-
-$host = "localhost";
-$user = "root";
-$pass = "";
-$dbname = "medcar_avaliacoes"; // Verifique se o nome do banco está correto
+require '../includes/conexao_BdAgendamento.php'; 
 
 // Cria a conexão com o banco de dados
 $conn = new mysqli($host, $user, $pass, $dbname);

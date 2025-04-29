@@ -11,6 +11,7 @@ if (!isset($_POST['credential']) || !isset($_POST['g_csrf_token'])) {
     exit;
 }
 
+
 $cookie = $_COOKIE['g_csrf_token'] ?? null; // pega o cookie de csrf
 
 // verifica o valor do cookei e do post para o csrf
@@ -25,7 +26,9 @@ $client = new GoogleClient(['client_id' => '162031456903-j67l39klr0m4p0js3cf4pjs
 $payload = $client->verifyIdToken($_POST['credential']);
 
 //verifica os dados do payload
+session_start();
 if (isset($payload['email'])) {
+
     // Consulta o banco de dados para verificar as credenciais
     $query = "SELECT * FROM clientes WHERE email = :email";
     $stmt = $conn->prepare($query);
@@ -50,6 +53,7 @@ if (isset($payload['email'])) {
         header('Location: ../area_cliente/menu_principal.php');
         exit;
     } else {
+
         // Exibe um modal para o usuário cadastrar CPF e telefone
         echo '
         <!DOCTYPE html>

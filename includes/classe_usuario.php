@@ -21,7 +21,8 @@ class Usuario
 
     public static function logOut()
     {
-        self::init();
+        self::init();  // Verifica se a sessão está ativa
+        
         session_unset(); // Remove todas as variáveis de sessão
         session_destroy(); // Destroi a sessão
         header("Location: ../paginas/pagina_inicial.php"); // Redireciona para a página inicial

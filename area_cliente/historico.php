@@ -4,6 +4,9 @@ require '../includes/conexao_BdAgendamento.php'; // inclui o arquivo de conexão
 
 use usuario\Usuario;
 
+Usuario::verificarPermissao('cliente'); // verifica se o usuário logado é um cliente
+
+
 //Usuario::verificarPermissao('cliente'); // verifica se o usuario logado é um cliente
 
 $_SESSION['usuario']['id'] = 1;  // ID do cliente logado
@@ -38,7 +41,7 @@ $anos = array_keys($agendamentosPorAno);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MedQ - Histórico de Agendamentos</title>
+    <title>MedCar - Histórico de Agendamentos</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 
@@ -46,6 +49,12 @@ $anos = array_keys($agendamentosPorAno);
     <!-- Navbar -->
     <nav class="bg-blue-900 text-white p-4">
         <div class="container mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-4">
+                <a href="../area_cliente/menu_principal.php" class="flex items-center space-x-2 text-white hover:text-teal-300 transition">
+                    <i data-lucide="arrow-left" class="h-6 w-6"></i>
+                    <span>Voltar</span>
+                </a>
+            </div>
             <a class="text-xl font-bold" href="#">
                 <i class="fas fa-calendar-alt mr-2"></i>
                 MedQ - Histórico

@@ -1,12 +1,7 @@
 <?php
 require '../includes/valida_login.php'; // inclui o arquivo de validação de login
 
-//verificarPermissao('empresa'); // verifica se o usuário logado é uma empresa
-// Configuração do banco de dados
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "dashboard_medcar";
+require '../includes/conexao_BdAgendamento.php'; 
 
 // Criar conexão
 $conn = new mysqli($servername, $username, $password, $dbname);

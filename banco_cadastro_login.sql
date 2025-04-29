@@ -6,6 +6,7 @@ CREATE TABLE clientes (
     nome VARCHAR(100) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     senha VARCHAR(255) NOT NULL, -- A senha será armazenada criptografada
+    cpf VARCHAR(20) UNIQUE NOT NULL,
     telefone VARCHAR(20),
     foto VARCHAR(255) DEFAULT NULL, -- URL para foto do google, atualizado pelo login com google
     tipo VARCHAR(20) DEFAULT 'cliente', 
@@ -42,7 +43,9 @@ CREATE TABLE endereco_cliente (
     estado VARCHAR(100) NOT NULL,
     cep VARCHAR(20) NOT NULL,
     FOREIGN KEY (id_cliente) REFERENCES clientes(id) ON DELETE CASCADE
+
 );
+
 
 INSERT INTO clientes (nome, email, senha, cpf, telefone) VALUES
 ('João Silva', 'joao.silva@email.com', '$2a$10$Xp1Q4J9z7JQZJZJZJZJZJO', '123.456.789-01', '(11) 98765-4321'),
@@ -57,3 +60,4 @@ INSERT INTO empresas (nome, email, senha, telefone, cnpj, endereco, cidade) VALU
 ('CarService Express', 'express@email.com', '$2a$10$Xp1Q4J9z7JQZJZJZJZJZJO', '(31) 9876-5432', '34.567.890/0001-03', 'Rua dos Motores, 300', 'Belo Horizonte'),
 ('AutoCenter Total', 'total@email.com', '$2a$10$Xp1Q4J9z7JQZJZJZJZJZJO', '(41) 3456-1234', '45.678.901/0001-04', 'Avenida das Peças, 400', 'Curitiba'),
 ('Mecânica Premium', 'premium@email.com', '$2a$10$Xp1Q4J9z7JQZJZJZJZJZJO', '(51) 3344-7788', '56.789.012/0001-05', 'Rua dos Veículos, 500', 'Porto Alegre');
+
