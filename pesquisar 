@@ -1,0 +1,216 @@
+<?php
+// Arquivo pesquisar_empresa.php - Formulário de pesquisa que envia parâmetros para aba_empresas.php via GET
+
+// Inicializa variáveis para evitar erros
+$localizacao = isset($_GET['localizacao']) ? $_GET['localizacao'] : '';
+$especialidade = isset($_GET['especialidade']) ? $_GET['especialidade'] : '';
+$min_preco = isset($_GET['min_preco']) ? $_GET['min_preco'] : '';
+$max_preco = isset($_GET['max_preco']) ? $_GET['max_preco'] : '';
+$tipo_veiculo = isset($_GET['tipo_veiculo']) ? $_GET['tipo_veiculo'] : '';
+$avaliacao = isset($_GET['avaliacao']) ? $_GET['avaliacao'] : '';
+$horas24 = isset($_GET['horas24']) ? $_GET['horas24'] : '';
+$emergencia = isset($_GET['emergencia']) ? $_GET['emergencia'] : '';
+$busca = isset($_GET['busca']) ? $_GET['busca'] : '';
+?>
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedCar - Pesquisar Empresas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .mobile-menu {
+            transition: transform 0.3s ease-in-out;
+            transform: translateX(100%);
+        }
+        .mobile-menu.open {
+            transform: translateX(0);
+        }
+        .search-section {
+            background-color: #f3f4f6;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-white">
+    <!-- Navbar -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-blue-900 to-blue-800 text-white shadow-md">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between h-16">
+                <a href="#" class="flex items-center space-x-2 text-xl font-bold">
+                    <i data-lucide="ambulance" class="h-6 w-6"></i>
+                    <span>MedCar</span>
+                </a>
+                
+                <div class="hidden md:flex space-x-6">
+                    <a href="/MedQ-2/area_cliente/menu_principal.php" class="font-medium hover:text-teal-300 transition">Home</a>
+                    <a href="aba_entrar.php" class="font-medium hover:text-teal-300 transition">Entrar</a>
+                    <a href="../abas_menu_principal/aba_empresas.php" class="font-medium hover:text-teal-300 transition">Empresas</a>
+                </div>
+                
+                <button id="mobile-menu-button" class="md:hidden text-white">
+                    <i data-lucide="menu" class="h-6 w-6"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="fixed inset-0 z-50 bg-blue-900 bg-opacity-95 flex flex-col text-white p-6 mobile-menu">
+        <div class="flex justify-end">
+            <button id="close-menu-button" class="text-white">
+                <i data-lucide="x" class="h-6 w-6"></i>
+            </button>
+        </div>
+        
+        <div class="flex flex-col items-center justify-center space-y-8 flex-grow text-xl">
+            <a href="#" class="font-medium hover:text-teal-300 transition">Home</a>
+            <a href="aba_entrar.php" class="font-medium hover:text-teal-300 transition">Entrar</a>
+            <a href="#" class="font-medium hover:text-teal-300 transition">Empresas</a>
+        </div>
+    </div>
+
+    <!-- Header Section -->
+    <section class="pt-32 pb-16 bg-gradient-to-r from-blue-900 to-blue-800 text-white">
+        <div class="container mx-auto px-4 text-center">
+            <h1 class="text-4xl md:text-5xl font-bold mb-6">
+                Pesquisar Empresas
+            </h1>
+            <p class="text-xl mb-8 max-w-2xl mx-auto">
+                Encontre a melhor empresa para seu transporte médico
+            </p>
+        </div>
+    </section>
+            
+    <!-- Formulário de Pesquisa -->
+    <section class="py-8 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="search-section p-6 mb-8">
+                <form action="aba_empresas.php" method="GET">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4 md:mb-0">Pesquisar Empresas</h2>
+                        <div class="relative w-full md:w-1/3">
+                            <input type="text" name="busca" id="search-input" placeholder="Buscar por nome ou especialidade..." 
+                                value="<?php echo htmlspecialchars($busca); ?>"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
+                            <button type="submit" class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-teal-500">
+                                <i data-lucide="search" class="h-5 w-5"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2">Localização</label>
+                            <select name="localizacao" id="location-filter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
+                                <option value="">Todas as localizações</option>
+                                <option value="Salvador" <?php echo ($localizacao == 'Salvador') ? 'selected' : ''; ?>>Salvador - BA</option>
+                                <option value="Pernambuco" <?php echo ($localizacao == 'Pernambuco') ? 'selected' : ''; ?>>Pernambuco - PE</option>
+                                <option value="Curitiba" <?php echo ($localizacao == 'Curitiba') ? 'selected' : ''; ?>>Curitiba - PR</option>
+                                <option value="Fortaleza" <?php echo ($localizacao == 'Fortaleza') ? 'selected' : ''; ?>>Fortaleza - CE</option>
+                                <option value="Porto Alegre" <?php echo ($localizacao == 'Porto Alegre') ? 'selected' : ''; ?>>Porto Alegre - RS</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2">Especialidade</label>
+                            <select name="especialidade" id="specialty-filter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
+                                <option value="">Todas as especialidades</option>
+                                <option value="UTI" <?php echo ($especialidade == 'UTI') ? 'selected' : ''; ?>>UTI Móvel</option>
+                                <option value="Cardíaco" <?php echo ($especialidade == 'Cardíaco') ? 'selected' : ''; ?>>Cardíaco</option>
+                                <option value="Cadeirantes" <?php echo ($especialidade == 'Cadeirantes') ? 'selected' : ''; ?>>Cadeirantes</option>
+                                <option value="Idosos" <?php echo ($especialidade == 'Idosos') ? 'selected' : ''; ?>>Idosos</option>
+                                <option value="Fisioterapia" <?php echo ($especialidade == 'Fisioterapia') ? 'selected' : ''; ?>>Fisioterapia</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2">Faixa de Preço</label>
+                            <div class="flex items-center space-x-4">
+                                <input type="number" name="min_preco" id="min-price" placeholder="Mínimo" 
+                                       value="<?php echo htmlspecialchars($min_preco); ?>"
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
+                                <span class="text-gray-500">até</span>
+                                <input type="number" name="max_preco" id="max-price" placeholder="Máximo" 
+                                       value="<?php echo htmlspecialchars($max_preco); ?>"
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2">Tipo de Veículo</label>
+                            <select name="tipo_veiculo" id="vehicle-filter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
+                                <option value="">Todos os veículos</option>
+                                <option value="UTI" <?php echo ($tipo_veiculo == 'UTI') ? 'selected' : ''; ?>>Ambulância UTI</option>
+                                <option value="Leito" <?php echo ($tipo_veiculo == 'Leito') ? 'selected' : ''; ?>>Ambulância Leito</option>
+                                <option value="Adaptado" <?php echo ($tipo_veiculo == 'Adaptado') ? 'selected' : ''; ?>>Veículo Adaptado</option>
+                                <option value="Suporte Básico" <?php echo ($tipo_veiculo == 'Suporte Básico') ? 'selected' : ''; ?>>Veículo de Suporte Básico</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2">Avaliação Mínima</label>
+                            <select name="avaliacao" id="rating-select" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
+                                <option value="">Qualquer avaliação</option>
+                                <option value="1" <?php echo ($avaliacao == '1') ? 'selected' : ''; ?>>1 estrela ou mais</option>
+                                <option value="2" <?php echo ($avaliacao == '2') ? 'selected' : ''; ?>>2 estrelas ou mais</option>
+                                <option value="3" <?php echo ($avaliacao == '3') ? 'selected' : ''; ?>>3 estrelas ou mais</option>
+                                <option value="4" <?php echo ($avaliacao == '4') ? 'selected' : ''; ?>>4 estrelas ou mais</option>
+                                <option value="5" <?php echo ($avaliacao == '5') ? 'selected' : ''; ?>>5 estrelas</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2">Disponibilidade</label>
+                            <div class="flex items-center space-x-4">
+                                <label class="inline-flex items-center">
+                                    <input type="checkbox" name="horas24" value="1" <?php echo ($horas24 == '1') ? 'checked' : ''; ?> class="form-checkbox h-5 w-5 text-teal-500">
+                                    <span class="ml-2 text-gray-700">24 Horas</span>
+                                </label>
+                                <label class="inline-flex items-center">
+                                    <input type="checkbox" name="emergencia" value="1" <?php echo ($emergencia == '1') ? 'checked' : ''; ?> class="form-checkbox h-5 w-5 text-teal-500">
+                                    <span class="ml-2 text-gray-700">Emergência</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-end mt-6">
+                        <a href="pesquisar_empresa.php" class="px-4 py-2 mr-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 focus:outline-none">
+                            Limpar Filtros
+                        </a>
+                        <button type="submit" class="px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 focus:outline-none">
+                            Pesquisar Empresas
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Mobile menu functionality
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const closeMenuButton = document.getElementById('close-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.add('open');
+        });
+
+        closeMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.remove('open');
+        });
+    </script>
+</body>
+</html>
