@@ -1,19 +1,10 @@
 <?php
 require '../includes/classe_usuario.php'; // inclui o arquivo de validação de login
-require '../includes/conexao_BdAgendamento.php'; 
+use usuario\Usuario; // usa o namespace usuario\Usuario
 
-session_start();
+//Usuario::verificarPermissao('empresa'); // verifica se o usuário logado é uma empresa
 
-// Verificação de sessão melhorada
-if (!isset($_SESSION['logado']) || 
-    $_SESSION['logado'] !== true || 
-    !isset($_SESSION['usuario']['tipo']) || 
-    $_SESSION['usuario']['tipo'] !== 'empresa') {
-    
-    header('Location: ../../paginas/login_empresas.php');
-    exit();
-}
- 
+require '../includes/conexao_BdAgendamento.php';  // Conexão com o banco de dados de agendamentos
 
 // Consulta para contar os agendamentos do dia de hoje com situacao = 'Agendado'
 
