@@ -8,75 +8,121 @@ use usuario\Usuario;
 
 //Usuario::verificarPermissao('empresa');
 
+// --- CONEXÃO AGENDAMENTOS ---
 require '../includes/conexao_BdAgendamento.php';
 
-// --- CONSULTA: PRÓXIMO AGENDAMENTO ---
-$stmt = $conn->prepare("
-    SELECT 
-        c.nome AS paciente,
-        CONCAT(a.cidade_origem, ' - ', a.rua_origem, ', ', a.numero_origem) AS local_origem,
-        a.horario
-    FROM agendamentos a
-    INNER JOIN medcar_cadastro_login.clientes c ON a.cliente_id = c.id
-    WHERE a.data_consulta = CURDATE()
-        AND a.situacao = 'Agendado'
-        AND a.empresa_id = ?
-    ORDER BY a.horario ASC
-    LIMIT 1
-");
-$stmt->bindParam('?', $_SESSION['usuario']['id'], PDO::PARAM_INT);
-$stmt->execute();
-$proximo_agendamento = $stmt->fetch(PDO::FETCH_ASSOC);
+// =============================================
+// CONSULTA 1: PRÓXIMO AGENDAMENTO (HOJE)
+// =============================================
+$proximo_agendamento = null;
+try {
+    $stmt = $conn->prepare("
+        SELECT 
+            c.nome AS paciente,
+            CONCAT(a.cidade_origem, ' - ', a.rua_origem, ', ', a.numero_origem) AS local_origem,
+            a.horario
+        FROM agendamentos a
+        INNER JOIN medcar_cadastro_login.clientes c ON a.cliente_id = c.id
+        WHERE a.data_consulta = CURDATE()
+            AND a.situacao = 'Agendado'
+            AND a.empresa_id = :empresa_id
+        ORDER BY a.horario ASC
+        LIMIT 1
+    ");
+    $stmt->bindValue(':empresa_id', $_SESSION['usuario']['id'], PDO::PARAM_INT);
+    $stmt->execute();
+    $proximo_agendamento = $stmt->fetch(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    error_log("Erro ao buscar próximo agendamento: " . $e->getMessage());
+}
 
-// --- CONSULTA: AGENDAMENTOS PENDENTES ---
-$stmt = $conn->prepare("
-    SELECT COUNT(*) AS total 
-    FROM agendamentos 
-    WHERE situacao = 'Pendente' AND empresa_id = ?
-");
-$stmt->bindParam('?', $_SESSION['usuario']['id'], PDO::PARAM_INT);
-$stmt->execute();
-$totalPendentes = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+// =============================================
+// CONSULTA 2: AGENDAMENTOS PENDENTES
+// =============================================
+$totalPendentes = 0;
+try {
+    $stmt = $conn->prepare("
+        SELECT COUNT(*) AS total 
+        FROM agendamentos 
+        WHERE situacao = 'Pendente' 
+        AND empresa_id = :empresa_id
+    ");
+    $stmt->bindValue(':empresa_id', $_SESSION['usuario']['id'], PDO::PARAM_INT);
+    $stmt->execute();
+    $totalPendentes = $stmt->fetchColumn();
+} catch (PDOException $e) {
+    error_log("Erro ao contar agendamentos pendentes: " . $e->getMessage());
+}
 
 $conn = null; // Fecha conexão agendamentos
 
-// --- CONSULTA: FATURAMENTO MENSAL ---
+// =============================================
+// CONSULTA 3: FATURAMENTO MENSAL (ÚLTIMO REGISTRO)
+// =============================================
 require '../includes/conexao_BdFinanceiro.php';
 
-$stmt = $conn->prepare("
-    SELECT faturamento, mes, ano 
-    FROM faturamento_mensal 
-    WHERE empresa_id = ?
-    ORDER BY ano DESC, mes DESC 
-    LIMIT 1
-");
-$stmt->bindParam('?', $_SESSION['usuario']['id'], PDO::PARAM_INT);
-$stmt->execute();
-$faturamento_mensal = $stmt->fetch(PDO::FETCH_ASSOC);
+$faturamento_mes = 0;
+$mes_formatado = 'Mês desconhecido';
+try {
+    $stmt = $conn->prepare("
+        SELECT faturamento, mes, ano 
+        FROM faturamento_mensal 
+        WHERE empresa_id = :empresa_id
+        ORDER BY ano DESC, mes DESC 
+        LIMIT 1
+    ");
+    $stmt->bindValue(':empresa_id', $_SESSION['usuario']['id'], PDO::PARAM_INT);
+    $stmt->execute();
+    $faturamento_mensal = $stmt->fetch(PDO::FETCH_ASSOC);
 
-$faturamento_mes = $faturamento_mensal['faturamento'] ?? 0;
-$mes = $faturamento_mensal['mes'] ?? null;
-$ano = $faturamento_mensal['ano'] ?? null;
-
-$meses = [
-    1 => 'Janeiro', 2 => 'Fevereiro', 3 => 'Março', 4 => 'Abril',
-    5 => 'Maio', 6 => 'Junho', 7 => 'Julho', 8 => 'Agosto',
-    9 => 'Setembro', 10 => 'Outubro', 11 => 'Novembro', 12 => 'Dezembro'
-];
-$mes_formatado = $meses[$mes] ?? 'Mês desconhecido';
+    // Formatação do mês
+    $meses = [
+        1 => 'Janeiro', 2 => 'Fevereiro', 3 => 'Março', 4 => 'Abril',
+        5 => 'Maio', 6 => 'Junho', 7 => 'Julho', 8 => 'Agosto',
+        9 => 'Setembro', 10 => 'Outubro', 11 => 'Novembro', 12 => 'Dezembro'
+    ];
+    
+    if ($faturamento_mensal) {
+        $faturamento_mes = $faturamento_mensal['faturamento'];
+        $mes_formatado = $meses[$faturamento_mensal['mes']] ?? 'Mês desconhecido';
+    }
+} catch (PDOException $e) {
+    error_log("Erro ao buscar faturamento: " . $e->getMessage());
+}
 
 $conn = null; // Fecha conexão financeiro
 
-// --- CONSULTA: AVALIAÇÕES ---
+// =============================================
+// CONSULTA 4: AVALIAÇÕES (MÉDIA E TOTAL)
+// =============================================
 require '../includes/conexao_BdAvaliacoes.php';
 
-$stmt = $conn->prepare("SELECT AVG(nota) AS media FROM avaliacoes");
-$stmt->execute();
-$media_avaliacoes = number_format($stmt->fetch(PDO::FETCH_ASSOC)['media'] ?? 0.0, 1);
+$media_avaliacoes = 0.0;
+$total_avaliacoes = 0;
+try {
+    // Média das avaliações
+    $stmt = $conn->prepare("
+        SELECT AVG(nota) AS media 
+        FROM avaliacoes 
+        WHERE empresa_id = :empresa_id
+    ");
+    $stmt->bindValue(':empresa_id', $_SESSION['usuario']['id'], PDO::PARAM_INT);
+    $stmt->execute();
+    $media = $stmt->fetchColumn();
+    $media_avaliacoes = number_format($media ?? 0.0, 1);
 
-$stmt = $conn->prepare("SELECT COUNT(*) AS total FROM avaliacoes");
-$stmt->execute();
-$total_avaliacoes = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+    // Total de avaliações
+    $stmt = $conn->prepare("
+        SELECT COUNT(*) AS total 
+        FROM avaliacoes 
+        WHERE empresa_id = :empresa_id
+    ");
+    $stmt->bindValue(':empresa_id', $_SESSION['usuario']['id'], PDO::PARAM_INT);
+    $stmt->execute();
+    $total_avaliacoes = $stmt->fetchColumn();
+} catch (PDOException $e) {
+    error_log("Erro ao buscar avaliações: " . $e->getMessage());
+}
 
 $conn = null; // Fecha conexão avaliações
 ?>
