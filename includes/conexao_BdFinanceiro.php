@@ -1,14 +1,12 @@
 <?php
-$servidor = "localhost:3307";
-$usuario = "root";
-$senha = ""; // cimatec
-$banco = "medcar_financeiro";
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "medcar_financeiro";
 
-try {
-    $conn = new PDO("mysql:host=$servidor;dbname=$banco", $usuario, $senha);
-    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+$conn = new mysqli($servername, $username, $password, $dbname);
 
-} catch (PDOException $e) {
-    die("Erro de conexão: " . $e->getMessage());
+if ($conn->connect_error) {
+    die("Falha na conexão: " . $conn->connect_error);
 }
 ?>

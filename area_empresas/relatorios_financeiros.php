@@ -4,7 +4,8 @@ use usuario\Usuario; // usa o namespace usuario\Usuario
 
 Usuario::verificarPermissao('empresa'); // verifica se o usuário logado é uma empresa
 
-require '../includes/conexao_BdAgendamento.php'; 
+
+require '../includes/conexao_BdFinanceiro.php'; 
 $conn = new mysqli($servername, $username, $password, $dbname);
 
 if ($conn->connect_error) {

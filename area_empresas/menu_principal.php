@@ -1,92 +1,86 @@
 <?php
-if(session_status() === PHP_SESSION_NONE) {
-    session_start(); // Inicia a sessão se ainda não estiver iniciada
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
 }
-require '../includes/classe_usuario.php'; // inclui o arquivo de validação de login
-use usuario\Usuario; // usa o namespace usuario\Usuario
 
-//Usuario::verificarPermissao('empresa'); // verifica se o usuário logado é uma empresa
+require '../includes/classe_usuario.php';
+use usuario\Usuario;
 
-require '../includes/conexao_BdAgendamento.php';  // Conexão com o banco de dados de agendamentos
+//Usuario::verificarPermissao('empresa');
 
-// Consulta para contar os agendamentos do dia de hoje com situacao = 'Agendado'
+require '../includes/conexao_BdAgendamento.php';
 
-$stmt = $conn->prepare("SELECT COUNT(*) AS total FROM agendamentos WHERE situacao = 'Agendado' AND data_consulta = CURDATE() AND empresa_id = :empresa_id");
-$stmt->bindParam(':empresa_id', $_SESSION['usuario']['id']);
+// --- CONSULTA: PRÓXIMO AGENDAMENTO ---
+$stmt = $conn->prepare("
+    SELECT 
+        c.nome AS paciente,
+        CONCAT(a.cidade_origem, ' - ', a.rua_origem, ', ', a.numero_origem) AS local_origem,
+        a.horario
+    FROM agendamentos a
+    INNER JOIN medcar_cadastro_login.clientes c ON a.cliente_id = c.id
+    WHERE a.data_consulta = CURDATE()
+        AND a.situacao = 'Agendado'
+        AND a.empresa_id = ?
+    ORDER BY a.horario ASC
+    LIMIT 1
+");
+$stmt->bindParam('?', $_SESSION['usuario']['id'], PDO::PARAM_INT);
 $stmt->execute();
-$totalAgendadosHoje = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+$proximo_agendamento = $stmt->fetch(PDO::FETCH_ASSOC);
 
-
-// Consulta para contar os agendamentos pendentes
-$stmt = $conn->prepare("SELECT COUNT(*) AS total FROM agendamentos WHERE situacao = 'Pendente' AND empresa_id = :empresa_id");
-$stmt->bindParam(':empresa_id', $_SESSION['usuario']['id']);
+// --- CONSULTA: AGENDAMENTOS PENDENTES ---
+$stmt = $conn->prepare("
+    SELECT COUNT(*) AS total 
+    FROM agendamentos 
+    WHERE situacao = 'Pendente' AND empresa_id = ?
+");
+$stmt->bindParam('?', $_SESSION['usuario']['id'], PDO::PARAM_INT);
 $stmt->execute();
 $totalPendentes = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
 
-// Consulta para obter o próximo agendamento
-$query_proximo = "SELECT 
-                    c.nome AS paciente,
-                    CONCAT(a.cidade_origem, ' - ', a.rua_origem, ', ', a.numero_origem) AS local_origem,
-                    a.horario 
-                  FROM agendamentos a
-                 INNER JOIN medcar_cadastro_login.clientes c ON a.cliente_id = c.id
-                  WHERE a.data_consulta = CURDATE() 
-                    AND a.situacao = 'Agendado' 
-                    AND a.empresa_id = :empresa_id
-                  ORDER BY a.horario ASC";
-$stmt = $conn->prepare($query_proximo);
-$stmt->bindParam(':empresa_id', $_SESSION['usuario']['id']);
+$conn = null; // Fecha conexão agendamentos
+
+// --- CONSULTA: FATURAMENTO MENSAL ---
+require '../includes/conexao_BdFinanceiro.php';
+
+$stmt = $conn->prepare("
+    SELECT faturamento, mes, ano 
+    FROM faturamento_mensal 
+    WHERE empresa_id = ?
+    ORDER BY ano DESC, mes DESC 
+    LIMIT 1
+");
+$stmt->bindParam('?', $_SESSION['usuario']['id'], PDO::PARAM_INT);
 $stmt->execute();
-$proximo_agendamento = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-$conn = null; // Fecha a conexão com o banco de dados de agendamentos
-
-
-require '../includes/conexao_BdFinanceiro.php'; // Conexão com o banco de dados financeiro
-
-// Consulta para buscar o faturamento na tabela metricas
-
-// Consulta para buscar o faturamento mensal do banco financeiro
-$stmt = $conn->prepare("SELECT mes, ano, faturamento FROM faturamento_mensal WHERE empresa_id = :empresa_id ORDER BY ano DESC, mes DESC LIMIT 1");
-$stmt->execute(['empresa_id' => $_SESSION['usuario']['id']]);
 $faturamento_mensal = $stmt->fetch(PDO::FETCH_ASSOC);
 
 $faturamento_mes = $faturamento_mensal['faturamento'] ?? 0;
 $mes = $faturamento_mensal['mes'] ?? null;
 $ano = $faturamento_mensal['ano'] ?? null;
 
-// Vetor para mapear os meses
 $meses = [
-    1 => 'Janeiro',
-    2 => 'Fevereiro',
-    3 => 'Março',
-    4 => 'Abril',
-    5 => 'Maio',
-    6 => 'Junho',
-    7 => 'Julho',
-    8 => 'Agosto',
-    9 => 'Setembro',
-    10 => 'Outubro',
-    11 => 'Novembro',
-    12 => 'Dezembro'
+    1 => 'Janeiro', 2 => 'Fevereiro', 3 => 'Março', 4 => 'Abril',
+    5 => 'Maio', 6 => 'Junho', 7 => 'Julho', 8 => 'Agosto',
+    9 => 'Setembro', 10 => 'Outubro', 11 => 'Novembro', 12 => 'Dezembro'
 ];
-$mes_formatado = $meses[$mes] ?? null; // Formata o mês para o nome completo
-$conn = null; // Fecha a conexão com o banco de dados financeiro
+$mes_formatado = $meses[$mes] ?? 'Mês desconhecido';
 
+$conn = null; // Fecha conexão financeiro
 
-require '../includes/conexao_BdAvaliacoes.php'; // Conexão com o banco de dados de avaliações
-// Consulta para calcular a média de avaliações
+// --- CONSULTA: AVALIAÇÕES ---
+require '../includes/conexao_BdAvaliacoes.php';
+
 $stmt = $conn->prepare("SELECT AVG(nota) AS media FROM avaliacoes");
 $stmt->execute();
 $media_avaliacoes = number_format($stmt->fetch(PDO::FETCH_ASSOC)['media'] ?? 0.0, 1);
 
-// Consulta para contar o total de avaliações
 $stmt = $conn->prepare("SELECT COUNT(*) AS total FROM avaliacoes");
 $stmt->execute();
 $total_avaliacoes = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
 
-$conn = null; // Fecha a conexão com o banco de dados de avaliações
+$conn = null; // Fecha conexão avaliações
 ?>
+
 <!DOCTYPE html>
 <html lang="pt-br">
 
