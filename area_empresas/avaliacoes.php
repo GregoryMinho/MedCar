@@ -1,6 +1,6 @@
 <?php
 // avaliacoes.php
-require '../includes/conexao_BdAgendamento.php'; 
+require '../includes/conexao_BdAvaliacoes.php'; 
 
 // Cria a conexão com o banco de dados
 $conn = new mysqli($host, $user, $pass, $dbname);
@@ -32,66 +32,143 @@ $result = $conn->query($sql);
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
-            --medq-primary: #2C3E50;
-            --medq-secondary: #18BC9C;
-            --medq-light: #ECF0F1;
+            --medq-primary: #1a365d;
+            --medq-secondary: #2a4f7e;
+            --medq-accent: #38b2ac;
+            --medq-light: #f8f9fa;
         }
+
         body {
             background-color: var(--medq-light);
             font-family: 'Segoe UI', system-ui, sans-serif;
         }
+
         .medq-navbar {
             background-color: var(--medq-primary) !important;
-            padding: 15px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
+
         .evaluation-card {
             border: none;
             border-radius: 15px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            background: white;
         }
+
+        .evaluation-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+        }
+
         .rating-stars {
-            color: var(--medq-secondary);
-            font-size: 1.2rem;
+            color: #ffd700;
+            font-size: 1.1rem;
         }
+
         .driver-avatar {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
+            width: 70px;
+            height: 70px;
+            border-radius: 12px;
             object-fit: cover;
+            border: 2px solid var(--medq-accent);
         }
+
         .badge-status {
-            padding: 8px 15px;
-            border-radius: 20px;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+        }
+
+        .comment-bubble {
+            background: var(--medq-light);
+            border-radius: 12px;
+            padding: 1rem;
+            position: relative;
+        }
+
+        .comment-bubble::after {
+            content: '';
+            position: absolute;
+            left: 30px;
+            top: -10px;
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-bottom: 10px solid var(--medq-light);
+        }
+
+        .scroll-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--medq-accent);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .scroll-to-top.show {
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            .driver-avatar {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .stat-card .display-4 {
+                font-size: 2rem;
+            }
         }
     </style>
 </head>
 <body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg medq-navbar">
+    <nav class="navbar navbar-expand-lg navbar-dark medq-navbar">
         <div class="container">
-            <a class="navbar-brand text-white" href="#">
-                <img src="logo-medq.png" alt="MedQ" height="30" class="d-inline-block align-top">
-                MedQ Transportes
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                <img src="logo-medq.png" alt="MedQ" height="40" class="me-2">
+                <span class="fw-bold">MedQ Transportes</span>
             </a>
-            <div class="d-flex">
-                <button class="btn btn-outline-light">Sair</button>
+            <div class="d-flex align-items-center">
+                <button class="btn btn-outline-light">
+                    <i class="fas fa-sign-out-alt me-2"></i>Sair
+                </button>
             </div>
         </div>
     </nav>
 
     <!-- Conteúdo Principal -->
-    <div class="container py-5">
-        <h2 class="mb-4">Avaliações dos Pacientes</h2>
+    <main class="container py-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold text-medq-primary">Avaliações dos Pacientes</h2>
+            <div class="d-flex gap-2">
+                <button class="btn btn-medq-accent">
+                    <i class="fas fa-filter me-2"></i>Filtrar
+                </button>
+            </div>
+        </div>
 
-        <!-- Estatísticas Simplificadas (exemplo estático) -->
-        <div class="row mb-5">
+        <!-- Estatísticas -->
+        <div class="row g-4 mb-5">
             <div class="col-md-4">
-                <div class="card bg-white">
+                <div class="card border-0 shadow-sm stat-card">
                     <div class="card-body">
-                        <h5 class="card-title">Média Geral</h5>
-                        <div class="d-flex align-items-center">
-                            <div class="display-4 me-3">4.8</div>
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <h5 class="card-title text-muted mb-2">Média Geral</h5>
+                                <div class="display-4 fw-bold text-medq-primary">4.8</div>
+                            </div>
                             <div class="rating-stars">
                                 <i class="fas fa-star"></i>
                                 <i class="fas fa-star"></i>
@@ -103,12 +180,13 @@ $result = $conn->query($sql);
                     </div>
                 </div>
             </div>
+            
             <div class="col-md-4">
-                <div class="card bg-white">
+                <div class="card border-0 shadow-sm stat-card">
                     <div class="card-body">
-                        <h5 class="card-title">Total de Avaliações</h5>
-                        <div class="display-4">
-                            <?php echo $result->num_rows; ?>
+                        <h5 class="card-title text-muted mb-2">Total de Avaliações</h5>
+                        <div class="display-4 fw-bold text-medq-primary">
+                            <?= htmlspecialchars($result->num_rows) ?>
                         </div>
                     </div>
                 </div>
@@ -116,59 +194,56 @@ $result = $conn->query($sql);
         </div>
 
         <!-- Lista de Avaliações -->
-        <div class="row">
+        <div class="row g-4">
             <?php if ($result->num_rows > 0): ?>
                 <?php while($row = $result->fetch_assoc()): ?>
-                    <div class="col-md-6">
-                        <div class="card evaluation-card">
+                    <div class="col-lg-6">
+                        <div class="evaluation-card">
                             <div class="card-body">
-                                <div class="d-flex align-items-start mb-3">
+                                <!-- Cabeçalho -->
+                                <div class="d-flex align-items-start gap-3 mb-4">
                                     <div class="position-relative">
-                                        <!-- Exibe a foto do motorista, caso não exista, usa uma imagem padrão -->
-                                        <img src="<?php echo (!empty($row['foto_perfil']) ? $row['foto_perfil'] : 'default_motorista.jpg'); ?>" class="driver-avatar me-3" alt="Motorista">
-                                        <!-- Exemplo de status: se 'lida' for true, exibe verde; caso contrário, amarelo -->
-                                        <span class="position-absolute bottom-0 start-75 translate-middle p-1 <?php echo ($row['lida'] ? 'bg-success' : 'bg-warning'); ?> border border-2 border-white rounded-circle"></span>
+                                        <img src="<?= htmlspecialchars($row['foto_perfil'] ?? 'default_motorista.jpg') ?>" 
+                                             class="driver-avatar" 
+                                             alt="<?= htmlspecialchars($row['motorista_nome']) ?>">
+                                        <span class="position-absolute bottom-0 end-0 translate-middle p-1 bg-<?= $row['lida'] ? 'success' : 'warning' ?> 
+                                            border border-2 border-white rounded-circle"></span>
                                     </div>
-                                    <div>
-                                        <h5 class="mb-1 fw-bold"><?php echo $row['motorista_nome']; ?></h5>
-                                        <div class="rating-stars mb-2">
-                                            <?php 
-                                            // Exibe as estrelas de acordo com a nota
-                                            for($i = 1; $i <= 5; $i++){
-                                                if($i <= $row['nota']){
-                                                    echo '<i class="fas fa-star"></i>';
-                                                } else {
-                                                    echo '<i class="far fa-star"></i>';
-                                                }
-                                            }
-                                            ?>
+                                    <div class="flex-grow-1">
+                                        <h5 class="mb-1 fw-bold"><?= htmlspecialchars($row['motorista_nome']) ?></h5>
+                                        <div class="d-flex align-items-center gap-2 mb-2">
+                                            <div class="rating-stars">
+                                                <?php for($i = 1; $i <= 5; $i++): ?>
+                                                    <i class="<?= $i <= $row['nota'] ? 'fas' : 'far' ?> fa-star"></i>
+                                                <?php endfor; ?>
+                                            </div>
+                                            <span class="badge bg-<?= $row['lida'] ? 'success' : 'warning' ?> badge-status">
+                                                <?= $row['lida'] ? 'Concluída' : 'Pendente' ?>
+                                            </span>
                                         </div>
-                                        <span class="badge <?php echo ($row['lida'] ? 'bg-success' : 'bg-warning'); ?> badge-status">
-                                            <?php echo ($row['lida'] ? 'Viagem concluída' : 'Pendente'); ?>
-                                        </span>
+                                        <div class="text-muted small">
+                                            <i class="fas fa-calendar-day me-2"></i>
+                                            <?= date("d/m/Y H:i", strtotime($row['data_avaliacao'])) ?>
+                                        </div>
                                     </div>
                                 </div>
-                                
-                                <div class="mb-3">
-                                    <strong class="d-block mb-1">
-                                        <i class="fas fa-user-injured me-2"></i><?php echo $row['paciente_nome']; ?>
-                                    </strong>
-                                    <span class="text-muted">
-                                        <i class="fas fa-calendar-day me-2"></i>
-                                        <?php echo date("d/m/Y", strtotime($row['data_avaliacao'])); ?>
-                                    </span>
+
+                                <!-- Detalhes da Avaliação -->
+                                <div class="comment-bubble mb-3">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="fas fa-user-injured me-2 text-medq-accent"></i>
+                                        <strong><?= htmlspecialchars($row['paciente_nome']) ?></strong>
+                                    </div>
+                                    <p class="mb-0 text-dark"><?= nl2br(htmlspecialchars($row['comentario'])) ?></p>
                                 </div>
-                                
-                                <p class="comment-text">
-                                    <?php echo $row['comentario']; ?>
-                                </p>
-                                
-                                <div class="mt-4 d-flex gap-2">
-                                    <button class="btn btn-medq btn-sm">
+
+                                <!-- Ações -->
+                                <div class="d-flex gap-2 mt-3">
+                                    <button class="btn btn-outline-medq-accent btn-sm flex-grow-1">
                                         <i class="fas fa-reply me-2"></i>Responder
                                     </button>
-                                    <button class="btn btn-outline-secondary btn-sm">
-                                        <i class="fas fa-check-circle me-2"></i>Marcar como lida
+                                    <button class="btn btn-medq-accent btn-sm">
+                                        <i class="fas fa-check me-2"></i>Marcar
                                     </button>
                                 </div>
                             </div>
@@ -176,17 +251,24 @@ $result = $conn->query($sql);
                     </div>
                 <?php endwhile; ?>
             <?php else: ?>
-                <p>Nenhuma avaliação encontrada.</p>
+                <div class="col-12">
+                    <div class="alert alert-info text-center py-4">
+                        <i class="fas fa-info-circle fa-2x mb-3"></i>
+                        <h5>Nenhuma avaliação encontrada</h5>
+                    </div>
+                </div>
             <?php endif; ?>
         </div>
-    </div>
+    </main>
 
     <!-- Footer -->
-    <footer class="medq-navbar text-white mt-5">
+    <footer class="bg-medq-primary text-white mt-5">
         <div class="container py-4">
-            <div class="row">
+            <div class="row align-items-center">
                 <div class="col-md-6">
-                    <p class="mb-0">© 2023 MedQ Transportes. Todos os direitos reservados.</p>
+                    <p class="mb-0 small">
+                        © 2023 MedQ Transportes. Todos os direitos reservados.
+                    </p>
                 </div>
             </div>
         </div>
@@ -194,45 +276,46 @@ $result = $conn->query($sql);
 
     <!-- Scroll to Top -->
     <div class="scroll-to-top">
-        <i class="fas fa-arrow-up"></i>
+        <i class="fas fa-chevron-up"></i>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // Scroll to Top
-        const scrollToTop = document.querySelector('.scroll-to-top');
         window.addEventListener('scroll', () => {
-            scrollToTop.classList.toggle('show', window.scrollY > 300);
-        });
-        
-        scrollToTop.addEventListener('click', () => {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
+            const scrollButton = document.querySelector('.scroll-to-top');
+            scrollButton.classList.toggle('show', window.scrollY > 300);
         });
 
-        // Card Animation on Scroll
-        const cards = document.querySelectorAll('.evaluation-card');
-        const observer = new IntersectionObserver(entries => {
-            entries.forEach(entry => {
-                if(entry.isIntersecting) {
-                    entry.target.style.opacity = 1;
-                    entry.target.style.transform = 'translateY(0)';
-                }
-            });
+        document.querySelector('.scroll-to-top').addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         });
 
-        cards.forEach(card => {
-            card.style.opacity = 0;
-            card.style.transform = 'translateY(20px)';
-            card.style.transition = 'all 0.6s cubic-bezier(0.4,0,0.2,1)';
-            observer.observe(card);
-        });
+        // Animações das Cards
+        const animateCards = () => {
+            const cards = document.querySelectorAll('.evaluation-card');
+            cards.forEach((card, index) => {
+                card.style.transform = 'translateY(20px)';
+                card.style.opacity = '0';
+                card.style.transition = `all 0.5s ease ${index * 0.1}s`;
+                
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.style.transform = 'translateY(0)';
+                            entry.target.style.opacity = '1';
+                        }
+                    });
+                });
+
+                observer.observe(card);
+            });
+        }
+
+        animateCards();
     </script>
 </body>
 </html>
 <?php
-// Fecha a conexão com o banco
 $conn->close();
 ?>

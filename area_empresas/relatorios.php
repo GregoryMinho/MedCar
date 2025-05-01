@@ -1,15 +1,15 @@
 <?php
 require '../includes/conexao_BdAgendamento.php';
-require '../includes/classe_usuario.php'; // inclui o arquivo de validação de login
-use usuario\Usuario; // usa o namespace usuario\Usuario
+require '../includes/classe_usuario.php'; // Inclui o arquivo de validação de login
+use usuario\Usuario; // Usa o namespace usuario\Usuario
 
-Usuario::verificarPermissao('empresa'); // verifica se o usuário logado é uma empresa
+Usuario::verificarPermissao('empresa'); // Verifica se o usuário logado é uma empresa
 
 // Recupera o mês selecionado via GET
 $selectedMonth = isset($_GET['month']) ? $_GET['month'] : '2024-03';
 
 // Query com filtro por mês usando consulta preparada
-$sql = "SELECT * FROM agendamentos WHERE DATE_FORMAT(data_consulta, '%Y-%m') = :selectedMonth ORDER BY data_consulta DESC, horario DESC";
+$sql = "SELECT id, cliente_id, empresa_id, data_consulta, horario, situacao FROM agendamentos WHERE DATE_FORMAT(data_consulta, '%Y-%m') = :selectedMonth ORDER BY data_consulta DESC, horario DESC";
 $stmt = $conn->prepare($sql);
 $stmt->bindParam(':selectedMonth', $selectedMonth, PDO::PARAM_STR);
 $stmt->execute();
@@ -19,16 +19,20 @@ $totalPatients = count($patients);
 
 $completedCount = 0;
 foreach ($patients as $patient) {
-    if ($patient['status'] == 'Concluído') {
+    if ($patient['situacao'] == 'Concluído') {
         $completedCount++;
     }
 }
+
 $completionRate = ($totalPatients > 0) ? round(($completedCount / $totalPatients) * 100) : 0;
 
-$dailyAverage = ($totalPatients / 30);
+$dailyAverage = ($totalPatients / 30); // Considerando um mês de 30 dias
 $dailyAverage = number_format($dailyAverage, 1);
 
+// Exibição do relatório
 ?>
+
+<!-- HTML para a página de relatórios -->
 <!DOCTYPE html>
 <html lang="pt-br">
 
@@ -39,7 +43,7 @@ $dailyAverage = number_format($dailyAverage, 1);
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root {
+          :root {
             --primary-color: #1a365d;
             --secondary-color: #2a4f7e;
             --accent-color: #38b2ac;
@@ -131,7 +135,7 @@ $dailyAverage = number_format($dailyAverage, 1);
         </div>
     </nav>
 
-    <!-- Reports Page -->
+    <!-- Página de Relatórios -->
     <div class="reports-page">
         <div class="row">
             <!-- Sidebar -->
@@ -167,10 +171,10 @@ $dailyAverage = number_format($dailyAverage, 1);
                 </form>
             </div>
 
-            <!-- Main Content -->
+            <!-- Conteúdo Principal -->
             <div class="col-md-9 pt-5">
                 <div class="container">
-                    <!-- Header -->
+                    <!-- Cabeçalho -->
                     <div class="month-selector">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
@@ -190,31 +194,31 @@ $dailyAverage = number_format($dailyAverage, 1);
                         </div>
                     </div>
 
-                    <!-- Patient List -->
+                    <!-- Lista de Pacientes -->
                     <div class="row" id="patientList">
                         <?php foreach ($patients as $patient) :
                             $dataFormatada = date("d/m/Y", strtotime($patient['data_consulta']));
                             $horarioFormatado = date("H:i", strtotime($patient['horario']));
-                            if ($patient['status'] == 'Agendado') {
+                            if ($patient['situacao'] == 'Agendado') { // Usando 'situacao' aqui
                                 $statusClass = 'status-agendado';
-                            } elseif ($patient['status'] == 'Concluído') {
+                            } elseif ($patient['situacao'] == 'Concluído') {
                                 $statusClass = 'status-concluido';
-                            } elseif ($patient['status'] == 'Cancelado') {
+                            } elseif ($patient['situacao'] == 'Cancelado') {
                                 $statusClass = 'status-cancelado';
                             } else {
                                 $statusClass = '';
                             }
                         ?>
                             <div class="col-md-6">
-                                <!-- Patient Card -->
+                                <!-- Cartão de Paciente -->
                                 <div class="patient-card p-3">
                                     <div class="d-flex justify-content-between align-items-start">
                                         <div>
-                                            <h5><?= htmlspecialchars($patient['nome']) ?></h5>
+                                            <h5><?= htmlspecialchars($patient['cliente_id']) ?></h5> <!-- Ajuste conforme o que deseja exibir -->
                                             <p class="mb-1"><i class="fas fa-calendar-day me-2"></i><?= "$dataFormatada - $horarioFormatado" ?></p>
-                                            <p class="mb-1"><i class="fas fa-map-marker-alt me-2"></i><?= htmlspecialchars($patient['destino']) ?></p>
+                                            <p class="mb-1"><i class="fas fa-map-marker-alt me-2"></i><?= htmlspecialchars($patient['empresa_id']) ?></p> <!-- Ajuste conforme o destino -->
                                         </div>
-                                        <span class="status-badge <?= $statusClass ?>"><?= $patient['status'] ?></span>
+                                        <span class="status-badge <?= $statusClass ?>"><?= $patient['situacao'] ?></span>
                                     </div>
                                     <hr>
                                     <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#detailsModal-<?= $patient['id'] ?>">
@@ -222,7 +226,7 @@ $dailyAverage = number_format($dailyAverage, 1);
                                     </button>
                                 </div>
 
-                                <!-- Modal - Agora posicionado fora do card mas na mesma coluna -->
+                                <!-- Modal de Detalhes -->
                                 <div class="modal fade" id="detailsModal-<?= $patient['id'] ?>" tabindex="-1" aria-labelledby="detailsModalLabel-<?= $patient['id'] ?>" aria-hidden="true">
                                     <div class="modal-dialog modal-dialog-centered">
                                         <div class="modal-content">
