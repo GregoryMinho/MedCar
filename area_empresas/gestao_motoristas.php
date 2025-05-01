@@ -1,22 +1,47 @@
-<?php 
-require '../includes/classe_usuario.php'; // inclui o arquivo de validação de login
-use usuario\Usuario; // usa o namespace usuario\Usuario
+<?php
+require '../includes/classe_usuario.php'; // Validação de login
+use usuario\Usuario;
 
-Usuario::verificarPermissao('empresa'); // verifica se o usuário logado é uma empresa
-require '../includes/conexao_BdAgendamento.php'; 
+Usuario::verificarPermissao('empresa'); // Verifica se o usuário logado é do tipo 'empresa'
+
+// Conexão com banco de dados
+require '../includes/conexao_BdMotoristas.php'; 
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $user, $pass);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch(PDOException $e) {
-    die("Não foi possível conectar ao banco de dados: " . $e->getMessage());
+} catch (PDOException $e) {
+    die("Erro ao conectar ao banco de dados: " . $e->getMessage());
 }
-$sql = "SELECT m.*, v.placa, v.modelo 
-        FROM Motoristas m
-        LEFT JOIN Veiculos v ON m.id = v.motorista_id";
+
+// Consulta: Motoristas + veículo (se houver)
+$sql = "
+    SELECT 
+        m.id AS motorista_id,
+        m.nome,
+        m.cnh,
+        m.status AS status_motorista,
+        m.cidade,
+        m.estado,
+        m.foto_url,
+        v.id AS veiculo_id,
+        v.placa,
+        v.modelo,
+        v.tipo,
+        v.status AS status_veiculo,
+        v.ultima_manutencao,
+        v.proxima_manutencao
+    FROM 
+        Motoristas m
+    LEFT JOIN 
+        Veiculos v ON m.id = v.motorista_id
+";
+
 $stmt = $pdo->prepare($sql);
 $stmt->execute();
-$motoristas = $stmt->fetchAll(PDO::FETCH_ASSOC); ?>
+$motoristas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+?>
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -139,9 +164,10 @@ $motoristas = $stmt->fetchAll(PDO::FETCH_ASSOC); ?>
                     <i class="fas fa-sync me-2"></i>Aplicar Filtros
                 </button>
 
-                <button class="btn btn-driver w-100">
-                    <i class="fas fa-plus me-2"></i>Adicionar Motorista
-                </button>
+                <a href="adicionar_motorista.php" class="btn btn-driver w-100">
+    <i class="fas fa-plus me-2"></i>Adicionar Motorista
+</a>
+
             </div>
 
             <!-- Main Content -->
@@ -181,16 +207,18 @@ $motoristas = $stmt->fetchAll(PDO::FETCH_ASSOC); ?>
                                             <?= htmlspecialchars($motorista['placa']) ?>
                                         </p>
                                     </div>
-                                    <span class="status-badge status-<?= strtolower(str_replace(' ', '-', $motorista['status'])) ?>">
-                                        <?= $motorista['status'] ?>
-                                    </span>
+                                    <span class="status-badge status-<?= strtolower(str_replace(' ', '-', $motorista['status_motorista'] ?? '')) ?>">
+    <?= htmlspecialchars($motorista['status_motorista'] ?? 'Desconhecido') ?>
+</span>
                                 </div>
                                 <div class="d-flex gap-2">
-                                    <a href="crud_motoristas/editar_motorista.php?id=<?= $motorista['id'] ?>" class="btn btn-driver btn-sm w-100">
+                                <a href="crud_motoristas/editar_motorista.php?id=<?= $motorista['motorista_id'] ?>" class="btn btn-driver btn-sm w-100"> Editar
+
                                         <i class="fas fa-edit me-2"></i>Editar
                                     </a>
                                     <button class="btn btn-danger btn-sm w-100" 
-                                            onclick="confirmarExclusao(<?= $motorista['id'] ?>)">
+                                    onclick="confirmarExclusao(<?= $motorista['motorista_id'] ?>)"
+
                                         <i class="fas fa-trash me-2"></i>Remover
                                     </button>
                                 </div>
