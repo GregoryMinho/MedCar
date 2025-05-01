@@ -189,7 +189,7 @@ unset($_SESSION['sucesso'], $_SESSION['erro']);
                     <i data-lucide="home" class="h-5 w-5"></i>
                     <span>Dashboard</span>
                 </a>
-                <a href="#" class="flex items-center space-x-2 px-4 py-3 rounded-lg text-white hover:bg-blue-800 transition">
+                <a href="/MedQ-2/paginas/abas_menu_principal/aba_empresas.php" class="flex items-center space-x-2 px-4 py-3 rounded-lg text-white hover:bg-blue-800 transition">
                     <i data-lucide="calendar" class="h-5 w-5"></i>
                     <span>Agendar</span>
                 </a>
