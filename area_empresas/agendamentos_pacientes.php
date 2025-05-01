@@ -1,7 +1,21 @@
 <?php
-require '../includes/conexao_BdAgendamento.php'; // inclui o arquivo de conexão com o banco de dados
-require '../includes/classe_usuario.php'; // inclui o arquivo de validação de login
-use usuario\Usuario; // usa o namespace usuario\Usuario
+session_start(); // <--- ADICIONAR NO TOPO
+
+require '../includes/conexao_BdAgendamento.php';
+require '../includes/classe_usuario.php';
+
+use usuario\Usuario;
+
+// --- VERIFICA SE O USUÁRIO ESTÁ LOGADO ---
+if (empty($_SESSION['usuario']) || !isset($_SESSION['usuario']['id'])) {
+    header('Location: ../paginas/login_empresas.php');
+    exit();
+}
+
+
+$empresa_id = $_SESSION['usuario']['id'];
+
+
 
 //Usuario::verificarPermissao('empresa'); // verifica se o usuário logado é uma empresa
 
@@ -88,7 +102,7 @@ $sql = "SELECT
 $params = [
     ':inicio_mes' => $inicio_mes,
     ':fim_mes' => $fim_mes,
-    ':empresa_id' => $_SESSION['usuario']['id'] // ID da empresa logada 
+    ':empresa_id' => $_SESSION['usuario']['id'] ?? null 
 ];
 
 if ($filtros['status'] != 'all') {

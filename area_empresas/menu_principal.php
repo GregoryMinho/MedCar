@@ -3,10 +3,14 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-require '../includes/classe_usuario.php';
-use usuario\Usuario;
+// --- VERIFICA SE O USUÁRIO ESTÁ LOGADO E SE O ID EXISTE ---
+if (!isset($_SESSION['usuario']['id'])) {
+    header('Location: ../paginas/login_empresas.php');
+    exit();
+}
 
-//Usuario::verificarPermissao('empresa');
+// --- DEFINE A VARIÁVEL GLOBALMENTE ---
+$empresa_id = $_SESSION['usuario']['id']; // Agora está acessível em todo o script
 
 // --- CONEXÃO AGENDAMENTOS ---
 require '../includes/conexao_BdAgendamento.php';
@@ -29,7 +33,7 @@ try {
         ORDER BY a.horario ASC
         LIMIT 1
     ");
-    $stmt->bindValue(':empresa_id', $_SESSION['usuario']['id'], PDO::PARAM_INT);
+    $stmt->bindValue(':empresa_id', $empresa_id, PDO::PARAM_INT); // Usa a variável definida
     $stmt->execute();
     $proximo_agendamento = $stmt->fetch(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
@@ -54,43 +58,36 @@ try {
     error_log("Erro ao contar agendamentos pendentes: " . $e->getMessage());
 }
 
-$conn = null; // Fecha conexão agendamentos
-
-// =============================================
-// CONSULTA 3: FATURAMENTO MENSAL (ÚLTIMO REGISTRO)
-// =============================================
-require '../includes/conexao_BdFinanceiro.php';
-
-$faturamento_mes = 0;
-$mes_formatado = 'Mês desconhecido';
+$totalAgendadosHoje = 0; // Inicializa a variável para evitar "Undefined variable"
 try {
     $stmt = $conn->prepare("
-        SELECT faturamento, mes, ano 
-        FROM faturamento_mensal 
-        WHERE empresa_id = :empresa_id
-        ORDER BY ano DESC, mes DESC 
-        LIMIT 1
+        SELECT COUNT(*) AS total 
+        FROM agendamentos 
+        WHERE data_consulta = CURDATE() 
+            AND situacao = 'Agendado' 
+            AND empresa_id = :empresa_id
     ");
-    $stmt->bindValue(':empresa_id', $_SESSION['usuario']['id'], PDO::PARAM_INT);
+    $stmt->bindValue(':empresa_id', $empresa_id, PDO::PARAM_INT);
     $stmt->execute();
-    $faturamento_mensal = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    // Formatação do mês
-    $meses = [
-        1 => 'Janeiro', 2 => 'Fevereiro', 3 => 'Março', 4 => 'Abril',
-        5 => 'Maio', 6 => 'Junho', 7 => 'Julho', 8 => 'Agosto',
-        9 => 'Setembro', 10 => 'Outubro', 11 => 'Novembro', 12 => 'Dezembro'
-    ];
-    
-    if ($faturamento_mensal) {
-        $faturamento_mes = $faturamento_mensal['faturamento'];
-        $mes_formatado = $meses[$faturamento_mensal['mes']] ?? 'Mês desconhecido';
-    }
+    $totalAgendadosHoje = $stmt->fetchColumn() ?? 0; // Se não houver resultados, usa 0
 } catch (PDOException $e) {
-    error_log("Erro ao buscar faturamento: " . $e->getMessage());
+    error_log("Erro ao contar agendamentos de hoje: " . $e->getMessage());
+    $totalAgendadosHoje = 0; // Garante que a variável tenha um valor
 }
 
-$conn = null; // Fecha conexão financeiro
+
+
+
+
+
+
+
+
+
+
+
+$conn = null; // Fecha conexão agendamentos
+
 
 // =============================================
 // CONSULTA 4: AVALIAÇÕES (MÉDIA E TOTAL)
@@ -272,7 +269,7 @@ $conn = null; // Fecha conexão avaliações
                 <div class="container mx-auto px-4">
                     <h1 class="text-3xl md:text-4xl font-bold mb-6">Relatório</h1>
 
-                    <!-- Stats Cards -->
+                    <!-- DIV SERVIÇÕS HOJE-->
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
                         <!-- Serviços Hoje -->
                         <div class="dashboard-card relative overflow-hidden bg-white text-blue-900 rounded-xl shadow-lg p-4 text-center">
@@ -288,8 +285,8 @@ $conn = null; // Fecha conexão avaliações
                             <div class="mb-2">
                                 <i data-lucide="dollar-sign" class="h-8 w-8 mx-auto text-teal-500"></i>
                             </div>
-                            <h5 class="text-sm font-semibold mb-1">Faturamento (<?php echo $mes_formatado . ' ' . $ano; ?>)</h5>
-                            <p class="text-xl font-bold">R$ <?php echo number_format($faturamento_mes, 2, ',', '.'); ?></p>
+                            <h5 class="text-sm font-semibold mb-1">Faturamento </h5>
+                            <p class="text-xl font-bold">R$ </p>
                         </div>
 
                         <!-- Avaliação -->

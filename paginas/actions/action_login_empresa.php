@@ -15,7 +15,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     if ($empresa) {
         // Verifica a senha
-        if (password_verify($senha, $empresa['senha'])) {
+      //  if (password_verify($senha, $empresa['senha'])) {
+        if ($senha === $empresa['senha']) { 
             // Inicia a sessão e armazena as informações da empresa
             $_SESSION['usuario'] = [
                 'id' => $empresa['id'],

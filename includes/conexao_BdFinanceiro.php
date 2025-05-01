@@ -1,8 +1,8 @@
 <?php
 // conexao_BdFinanceiro.php (MySQLi)
-$servername = "localhost";
-$username = "usuario";
-$password = "senha";
+$servername = "localhost:3306";
+$username = "root";
+$password = "";
 $dbname = "medcar_financeiro";
 
 $conn = new mysqli($servername, $username, $password, $dbname);
