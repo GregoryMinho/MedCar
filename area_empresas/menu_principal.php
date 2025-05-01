@@ -99,29 +99,21 @@ $media_avaliacoes = 0.0;
 $total_avaliacoes = 0;
 try {
     // Média das avaliações
-    $stmt = $conn->prepare("
-        SELECT AVG(nota) AS media 
-        FROM avaliacoes 
-        WHERE empresa_id = :empresa_id
-    ");
-    $stmt->bindValue(':empresa_id', $_SESSION['usuario']['id'], PDO::PARAM_INT);
+    $stmt = $conn->prepare("SELECT AVG(nota) AS media FROM avaliacoes WHERE empresa_id = ?");
+    
+    // O tipo de dado 'i' significa inteiro, já que o id da empresa provavelmente é inteiro
+    $stmt->bind_param("i", $_SESSION['usuario']['id']);
+    
     $stmt->execute();
-    $media = $stmt->fetchColumn();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+    $media = $row['media'];
+    
     $media_avaliacoes = number_format($media ?? 0.0, 1);
-
-    // Total de avaliações
-    $stmt = $conn->prepare("
-        SELECT COUNT(*) AS total 
-        FROM avaliacoes 
-        WHERE empresa_id = :empresa_id
-    ");
-    $stmt->bindValue(':empresa_id', $_SESSION['usuario']['id'], PDO::PARAM_INT);
-    $stmt->execute();
-    $total_avaliacoes = $stmt->fetchColumn();
-} catch (PDOException $e) {
-    error_log("Erro ao buscar avaliações: " . $e->getMessage());
+    
+} catch (mysqli_sql_exception $e) {
+    echo "Erro: " . $e->getMessage();
 }
-
 $conn = null; // Fecha conexão avaliações
 ?>
 
