@@ -21,26 +21,51 @@
     </style>
 </head>
 <body class="min-h-screen bg-white">
-    <!-- Navbar -->
+        <!-- Navbar -->
     <nav class="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-blue-900 to-blue-800 text-white shadow-md">
         <div class="container mx-auto px-4">
             <div class="flex items-center justify-between h-16">
-                <a href="#" class="flex items-center space-x-2 text-xl font-bold">
+                <div class="flex items-center space-x-4">
+                    <a onclick="window.history.back();" class="flex items-center space-x-2 text-white hover:text-teal-300 transition">
+                        <i data-lucide="arrow-left" class="h-6 w-6"></i>
+                        <span>Voltar</span>
+                    </a>
+                </div>
+                <a href="menu_principal.php" class="flex items-center space-x-2 text-xl font-bold">
                     <i data-lucide="ambulance" class="h-6 w-6"></i>
                     <span>MedCar</span>
                 </a>
-                
-                <div class="hidden md:flex space-x-6">
-                    <a href="/MedQ-2/area_cliente/menu_principal.php" class="font-medium hover:text-teal-300 transition">Home</a>
-                    <a href="aba_entrar.php" class="font-medium hover:text-teal-300 transition">Entrar</a>
-                    <a href="../abas_menu_principal/aba_empresas.php" class="font-medium hover:text-teal-300 transition">Empresas</a>
+
+                <div class="flex items-center space-x-6">
+                    <div class="relative group">
+                        <button class="flex items-center space-x-1 font-medium hover:text-teal-300 transition">
+                            <i data-lucide="user" class="h-5 w-5"></i>
+                            <span>Perfil</span>
+                            <i data-lucide="chevron-down" class="h-4 w-4"></i>
+                        </button>
+                        <div class="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50 invisible group-hover:visible transition-all duration-300 opacity-0 group-hover:opacity-100 transform group-hover:translate-y-0 translate-y-2">
+                            <div class="py-1">
+                                <a href="/MedQ-2/area_cliente/menu_principal.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-900">
+                                    <i data-lucide="panels-top-left" class="h-4 w-4 inline mr-2"></i>Menu Principal
+                                </a>
+                                <a href="/MedQ-2/area_cliente/perfil_cliente.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-900">
+                                    <i data-lucide="user" class="h-4 w-4 inline mr-2"></i>Minha Conta
+                                </a>
+                                <a href="/MedQ-2/paginas/abas_menu_principal/aba_empresas.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-900">
+                                    <i data-lucide="calendar" class="h-4 w-4 inline mr-2"></i>Agendamentos
+                                </a>
+                                <a href="/MedQ-2/area_cliente/historico.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-900">
+                                    <i data-lucide="clock" class="h-4 w-4 inline mr-2"></i>Histórico
+                                </a>
+                                <div class="border-t border-gray-300"></div>
+                                <a href="../includes/logout.php" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
+                                    <i data-lucide="log-out" class="h-4 w-4 inline mr-2"></i>Sair
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                
-                <button id="mobile-menu-button" class="md:hidden text-white">
-                    <i data-lucide="menu" class="h-6 w-6"></i>
-                </button>
             </div>
-        </div>
     </nav>
 
     <!-- Mobile Menu -->
