@@ -219,10 +219,10 @@ $conn = null; // Fecha conexão avaliações
                     <i class="bi bi-calendar-event fs-6"></i>
                     <span>Agendamentos</span>
                 </a>
-                <a href="aprovar_agendamentos.php" class="flex items-center gap-3 ps-4 py-3 rounded-lg hover:bg-blue-800 transition">
-                    <i class="bi bi-calendar-check fs-6"></i>
-                    <span>Aprovar Agendamentos</span>
-                </a>
+                <a href="aprovar_agendamentos.php" class="flex items-center gap-3 ps-4 py-3 rounded-lg hover:bg-blue-800 transition group">
+    <i class="bi bi-check-circle fs-6 text-white group-hover:text-green-400"></i>
+    <span class="text-white group-hover:text-green-400">Aprovar Agendamentos</span>
+</a>
                 <a href="gestao_motoristas.php" class="flex items-center gap-3 ps-4 py-3 rounded-lg hover:bg-blue-800 transition">
                     <i class="bi bi-people fs-6"></i>
                     <span>Motoristas</span>
@@ -234,6 +234,10 @@ $conn = null; // Fecha conexão avaliações
                 <a href="relatorios.php" class="flex items-center gap-3 ps-4 py-3 rounded-lg hover:bg-blue-800 transition">
                     <i class="bi bi-file-text fs-6"></i>
                     <span>Relatórios</span>
+                </a>
+                <a href="avaliacoes.php" class="flex items-center gap-3 ps-4 py-3 rounded-lg hover:bg-blue-800 transition">
+                    <i class="bi bi-star fs-6"></i>
+                    <span>Avaliações</span>
                 </a>
                 <div class="relative">
                     <button id="dropdown-button" class="flex items-center space-x-2 px-4 py-3 rounded-lg text-white hover:bg-blue-800 transition focus:outline-none">
@@ -247,10 +251,7 @@ $conn = null; // Fecha conexão avaliações
                         <a href="preferencias.php" class="block px-4 py-2 hover:bg-gray-100">Preferências</a>
                     </div>
                 </div>
-                <a href="avaliacoes.php" class="flex items-center gap-3 ps-4 py-3 rounded-lg hover:bg-blue-800 transition">
-                    <i class="bi bi-star fs-6"></i>
-                    <span>Avaliações</span>
-                </a>
+              
             </nav>
         </div>
 

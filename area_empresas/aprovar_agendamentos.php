@@ -1,33 +1,49 @@
+// Arquivo: agendamentos_pacientes.php
 <?php
 session_start();
 
-require '../includes/conexao_BdAgendamento.php';
-
-// Gera token CSRF
-if (empty($_SESSION['csrf_token'])) {
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+// Verificação de sessão
+if (empty($_SESSION['usuario']) || !isset($_SESSION['usuario']['id'])) {
+    header('Location: ../paginas/login_empresas.php');
+    exit();
 }
 
+$empresa_id = $_SESSION['usuario']['id'];
+
+require '../includes/conexao_BdAgendamento.php';
+
 try {
-    // Lista explícita de colunas para segurança e performance
+    // Query Corrigida (Sem comentários HTML)
     $sql = "SELECT 
-                a.id, a.data_consulta, a.horario, a.rua_origem, a.numero_origem,
-                a.complemento_origem, a.cidade_origem, a.cep_origem, a.rua_destino,
-                a.numero_destino, a.complemento_destino, a.cidade_destino, a.cep_destino,
-                a.condicao_medica, c.nome AS cliente_nome 
-            FROM agendamentos AS a 
+                a.id, 
+                a.data_consulta, 
+                a.horario, 
+                a.rua_origem, 
+                a.numero_origem,
+                a.complemento_origem, 
+                a.cidade_origem, 
+                a.cep_origem, 
+                a.rua_destino,
+                a.numero_destino, 
+                a.complemento_destino, 
+                a.cidade_destino, 
+                a.cep_destino,
+                a.condicao_medica, 
+                c.nome AS cliente_nome 
+            FROM medcar_agendamentos.agendamentos AS a 
             INNER JOIN medcar_cadastro_login.clientes AS c 
                 ON c.id = a.cliente_id 
-            WHERE a.situacao = 'Pendente'
-            ORDER BY a.data_consulta, a.horario";
+            WHERE a.empresa_id = :empresa_id 
+            AND a.situacao = 'Pendente'
+            ORDER BY a.data_consulta, a.horario"; // <-- Formatado corretamente
 
     $stmt = $conn->prepare($sql);
+    $stmt->bindParam(':empresa_id', $empresa_id, PDO::PARAM_INT);
     $stmt->execute();
     $agendamentos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 } catch (PDOException $e) {
-    error_log("Erro na consulta: " . $e->getMessage());
-    die("Erro ao carregar agendamentos. Por favor, tente novamente mais tarde.");
+    die("Erro detalhado: " . $e->getMessage());
 }
 ?>
 <!DOCTYPE html>

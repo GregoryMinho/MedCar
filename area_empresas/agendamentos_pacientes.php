@@ -1,5 +1,5 @@
 <?php
-session_start(); // <--- ADICIONAR NO TOPO
+session_start(); // SESSÃO INICIADA NO TOPO
 
 require '../includes/conexao_BdAgendamento.php';
 require '../includes/classe_usuario.php';
@@ -12,24 +12,12 @@ if (empty($_SESSION['usuario']) || !isset($_SESSION['usuario']['id'])) {
     exit();
 }
 
-
+// CAPTURA EMPRESA ID DA SESSÃO (ALTERAÇÃO CHAVE)
 $empresa_id = $_SESSION['usuario']['id'];
-
-
-
-//Usuario::verificarPermissao('empresa'); // verifica se o usuário logado é uma empresa
-
- //  as consultas sql precisam inluir o id da empresa na sessão, use pdo
- /*$_SESSION['usuario'] = [
-    'id' => 1,
-    'tipo' => 'cliente',
-    'nome' => 'Transportadora João Silva',
-];*/
-
 
 // Função para gerar o calendário
 function gerarCalendario($mes, $ano, $agendamentos) {
-    $mes = str_pad($mes, 2, '0', STR_PAD_LEFT); // Garante 2 dígitos
+    $mes = str_pad($mes, 2, '0', STR_PAD_LEFT);
     $dias_mes = cal_days_in_month(CAL_GREGORIAN, $mes, $ano);
     $primeiro_dia = date('w', strtotime("$ano-$mes-01"));
     
@@ -55,7 +43,6 @@ function gerarCalendario($mes, $ano, $agendamentos) {
         $dataCalendario = "$ano-$mes-" . str_pad($dia, 2, '0', STR_PAD_LEFT);
         
         $eventos = array_filter($agendamentos, function($a) use ($dataCalendario) {
-            // Cria um objeto DateTime com o fuso horário de São Paulo
             $dataAgendamento = new DateTime($a['data_convertida'], new DateTimeZone('America/Sao_Paulo'));
             return $dataAgendamento->format('Y-m-d') === $dataCalendario;
         });
@@ -67,7 +54,6 @@ function gerarCalendario($mes, $ano, $agendamentos) {
                         </div>';
     }
 
-    
     // Completa grid
     $total_cells = $primeiro_dia + $dias_mes;
     $remaining = (7 - ($total_cells % 7)) % 7;
@@ -78,33 +64,36 @@ function gerarCalendario($mes, $ano, $agendamentos) {
     $calendario .= '</div></div>';
     return $calendario;
 }
+
+// Filtros
 $filtros = [
     'status' => $_GET['status'] ?? 'all',
     'mes' => $_GET['mes'] ?? date('Y-m'),
     'tipo' => $_GET['tipo'] ?? 'all'
 ];
 
-// Define o intervalo do mês (início e fim)
-$inicio_mes = $filtros['mes'] . '-01'; // Primeiro dia do mês
-$fim_mes = date('Y-m-t', strtotime($inicio_mes)); // Último dia do mês
+// Intervalo do mês
+$inicio_mes = $filtros['mes'] . '-01';
+$fim_mes = date('Y-m-t', strtotime($inicio_mes));
 
-// Buscar agendamentos
-// Buscar agendamentos (ATUALIZE ESTE TRECHO)
+// QUERY ATUALIZADA COM FILTRO DE EMPRESA
 $sql = "SELECT 
             a.*, 
             CONVERT_TZ(a.data_consulta, '+00:00', '+03:00') AS data_convertida, 
             c.nome 
         FROM medcar_agendamentos.agendamentos a
         JOIN medcar_cadastro_login.clientes c ON a.cliente_id = c.id
-        WHERE a.empresa_id = :empresa_id 
+        WHERE a.empresa_id = :empresa_id
         AND DATE(CONVERT_TZ(a.data_consulta, '+00:00', '+03:00')) BETWEEN :inicio_mes AND :fim_mes";
 
+// Parâmetros atualizados
 $params = [
     ':inicio_mes' => $inicio_mes,
     ':fim_mes' => $fim_mes,
-    ':empresa_id' => $_SESSION['usuario']['id'] ?? null 
+    ':empresa_id' => $empresa_id // USANDO ID DA SESSÃO
 ];
 
+// Filtros adicionais
 if ($filtros['status'] != 'all') {
     $sql .= " AND situacao = :status";
     $params[':status'] = $filtros['status'];
@@ -115,16 +104,19 @@ if ($filtros['tipo'] != 'all') {
     $params[':tipo'] = $filtros['tipo'];
 }
 
+// Executa a query
 $stmt = $conn->prepare($sql);
-$stmt->execute($params); // Linha 84
+$stmt->execute($params);
 $agendamentos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Processar datas para o calendário
+// Gera calendário
 $dataFiltro = explode('-', $filtros['mes']);
 $ano = $dataFiltro[0];
 $mes = $dataFiltro[1];
 $calendario = gerarCalendario($mes, $ano, $agendamentos);
 ?>
+
+<!-- Restante do HTML mantido -->
 
 <!DOCTYPE html>
 <html lang="pt-br">
