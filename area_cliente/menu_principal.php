@@ -15,14 +15,14 @@ Usuario::verificarPermissao('cliente'); // verifica se o usuário logado é um c
 
 
 // Busca o próximo agendamento agendado mais próximo para o usuário logado 
-$usuarioId = $_SESSION['usuario']['id'];
+    
 $query = "SELECT data_consulta, horario, rua_destino, cidade_destino, situacao 
           FROM agendamentos 
           WHERE cliente_id = :cliente_id AND data_consulta >= CURDATE() AND situacao = 'Agendado'
           ORDER BY data_consulta ASC, horario ASC 
           LIMIT 1";
 $stmt = $conn->prepare($query);
-$stmt->bindParam(':cliente_id', $usuarioId, PDO::PARAM_INT);
+$stmt->bindParam(':cliente_id', $_SESSION['usuario']['id'], PDO::PARAM_INT);
 $stmt->execute();
 $proximoTransporte = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -32,7 +32,7 @@ $queryConcluidos = "SELECT COUNT(*) AS total_concluidos
                     FROM agendamentos 
                     WHERE cliente_id = :cliente_id AND situacao = 'Concluído'";
 $stmtConcluidos = $conn->prepare($queryConcluidos);
-$stmtConcluidos->bindParam(':cliente_id', $usuarioId, PDO::PARAM_INT);
+$stmtConcluidos->bindParam(':cliente_id', $_SESSION['usuario']['id'], PDO::PARAM_INT);
 $stmtConcluidos->execute();
 $totalConcluidos = $stmtConcluidos->fetch(PDO::FETCH_ASSOC)['total_concluidos'];
 
@@ -43,7 +43,7 @@ $queryConfirmadosMes = "SELECT COUNT(*) AS total_confirmados_mes
                         WHERE cliente_id = :cliente_id AND situacao = 'Agendado' 
                         AND DATE_FORMAT(data_consulta, '%Y-%m') = DATE_FORMAT(CURDATE(), '%Y-%m')";
 $stmtConfirmadosMes = $conn->prepare($queryConfirmadosMes);
-$stmtConfirmadosMes->bindParam(':cliente_id', $usuarioId, PDO::PARAM_INT);
+$stmtConfirmadosMes->bindParam(':cliente_id', $_SESSION['usuario']['id'], PDO::PARAM_INT);
 $stmtConfirmadosMes->execute();
 $totalConfirmadosMes = $stmtConfirmadosMes->fetch(PDO::FETCH_ASSOC)['total_confirmados_mes'];
 
@@ -55,7 +55,7 @@ $queryMensagens = "SELECT data_consulta, horario, observacoes, rua_destino, cida
                    ORDER BY id DESC 
                    LIMIT 2";
 $stmtMensagens = $conn->prepare($queryMensagens);
-$stmtMensagens->bindParam(':cliente_id', $usuarioId, PDO::PARAM_INT);
+$stmtMensagens->bindParam(':cliente_id', $_SESSION['usuario']['id'], PDO::PARAM_INT);
 $stmtMensagens->execute();
 $ultimasMensagens = $stmtMensagens->fetchAll(PDO::FETCH_ASSOC);
 

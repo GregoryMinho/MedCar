@@ -7,45 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        .mobile-menu {
-            transition: transform 0.3s ease-in-out;
-            transform: translateX(100%);
-        }
-        .mobile-menu.open {
-            transform: translateX(0);
-        }
-        .feature-card {
-            transition: all 0.3s ease;
-        }
-        .feature-card:hover {
-            transform: translateY(-10px);
-        }
-        .feature-card::before {
-            content: "";
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(56, 178, 172, 0.1));
-            transform: rotate(45deg);
-            transition: all 0.5s;
-        }
-        .feature-card:hover::before {
-            animation: shine 1.5s;
-        }
-        @keyframes shine {
-            0% { transform: rotate(45deg) translate(-50%, -50%); }
-            100% { transform: rotate(45deg) translate(100%, 100%); }
-        }
-        .testimonial-card {
-            transition: all 0.3s ease;
-        }
-        .testimonial-card:hover {
-            transform: translateY(-5px);
-        }
-    </style>
+    <link rel="stylesheet" href="style/style_pagina_inicial.css">
 </head>
 <body class="min-h-screen bg-white">
     <!-- Navbar -->
@@ -169,11 +131,11 @@
 
                 <div class="feature-card relative overflow-hidden bg-white rounded-xl shadow-lg p-8 text-center">
                     <div class="mb-4">
-                        <i data-lucide="map" class="h-12 w-12 mx-auto text-teal-500"></i>
+                        <i data-lucide="book-open-check" class="h-12 w-12 mx-auto text-teal-500"></i>
                     </div>
-                    <h3 class="text-xl font-bold text-blue-900 mb-3">Rastreamento em Tempo Real</h3>
+                    <h3 class="text-xl font-bold text-blue-900 mb-3">Histórico completo</h3>
                     <p class="text-gray-600">
-                        Acompanhe o trajeto do veículo em tempo real, com estimativa precisa de chegada.
+                        Histórico completo de vigens e transações, com detalhes sobre cada transporte realizado.
                     </p>
                 </div>
 
@@ -213,7 +175,7 @@
                     </div>
                     <h3 class="text-xl font-bold text-blue-900 mb-3">Notificações Automáticas</h3>
                     <p class="text-gray-600">
-                        Receba lembretes de agendamentos e notificações sobre a chegada do veículo por e-mail ou SMS.
+                        Receba lembretes de agendamentos e notificações sobre a chegada do veículo por e-mail ou Whatsapp.
                     </p>
                 </div>
             </div>

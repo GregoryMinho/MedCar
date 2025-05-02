@@ -1,14 +1,14 @@
 <?php
-$host = "localhost";
-$user = "root";
-$pass = "";
-$dbname = "medcar_avaliacoes";
+$servidor = "localhost:3307";
+$usuario = "root";
+$senha = ""; // cimatec
+$banco = "medcar_avaliacoes";
 
-// Cria a conexão com o banco de dados
-$conn = new mysqli($host, $user, $pass, $dbname);
+try {
+    $conn = new PDO("mysql:host=$servidor;dbname=$banco", $usuario, $senha);
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-// Verifica se ocorreu algum erro na conexão
-if ($conn->connect_error) {
-    die("Conexão falhou: " . $conn->connect_error);
+} catch (PDOException $e) {
+    die("Erro de conexão: " . $e->getMessage());
 }
 ?>

@@ -5,14 +5,8 @@ require '../includes/conexao_BdAgendamento.php';
 require '../includes/classe_usuario.php';
 
 use usuario\Usuario;
+//Usuario::verificarPermissao('empresa'); // verifica se o usuário logado é uma empresa
 
-// --- VERIFICA SE O USUÁRIO ESTÁ LOGADO ---
-if (empty($_SESSION['usuario']) || !isset($_SESSION['usuario']['id'])) {
-    header('Location: ../paginas/login_empresas.php');
-    exit();
-}
-
-// CAPTURA EMPRESA ID DA SESSÃO (ALTERAÇÃO CHAVE)
 $empresa_id = $_SESSION['usuario']['id'];
 
 // Função para gerar o calendário
@@ -137,7 +131,7 @@ $calendario = gerarCalendario($mes, $ano, $agendamentos);
                 MedCar Transportes
             </a>
             <div class="d-flex align-items-center">
-                <div class="text-white me-3">Transportadora Saúde Total</div>
+                <div class="text-white me-3"><?= $_SESSION['usuario']['nome']?></div>
                 <img src="https://source.unsplash.com/random/40x40/?icon" class="rounded-circle" alt="Perfil">
             </div>
         </div>

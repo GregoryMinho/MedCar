@@ -1,42 +1,36 @@
 <?php
+require '../includes/classe_usuario.php';
+
+use usuario\Usuario;
+// Usuario::verificarPermissao('empresa'); // Verifica se o usuário tem permissão de empresa
 
 if (session_status() === PHP_SESSION_NONE) {
-   session_start();
+    session_start();
 }
 
-// --- VERIFICA SE O USUÁRIO ESTÁ LOGADO E SE O ID EXISTE ---
-if (!isset($_SESSION['usuario']['id'])) {
-    header('Location: ../paginas/login_empresas.php');
-    exit();
-}
-
-// --- DEFINE A VARIÁVEL GLOBALMENTE ---
-$empresa_id = $_SESSION['usuario']['id']; // Agora está acessível em todo o script
-
+$_SESSION['usuario']['id'] = 1;
 // --- CONEXÃO AGENDAMENTOS ---
 require '../includes/conexao_BdAgendamento.php';
 
 // =============================================
 // CONSULTA 1: PRÓXIMO AGENDAMENTO (HOJE)
 // =============================================
-$proximo_agendamento = null;
+
 try {
-    $stmt = $conn->prepare("
-        SELECT 
-            c.nome AS paciente,
-            CONCAT(a.cidade_origem, ' - ', a.rua_origem, ', ', a.numero_origem) AS local_origem,
-            a.horario
-        FROM agendamentos a
-        INNER JOIN medcar_cadastro_login.clientes c ON a.cliente_id = c.id
-        WHERE a.data_consulta = CURDATE()
-            AND a.situacao = 'Agendado'
-            AND a.empresa_id = :empresa_id
-        ORDER BY a.horario ASC
-        LIMIT 1
-    ");
-    $stmt->bindValue(':empresa_id', $empresa_id, PDO::PARAM_INT); // Usa a variável definida
+    $query_proximo = "SELECT 
+    c.nome AS paciente,
+    CONCAT(a.cidade_origem, ' - ', a.rua_origem, ', ', a.numero_origem) AS local_origem,
+    a.horario
+  FROM agendamentos a
+ INNER JOIN medcar_cadastro_login.clientes c ON a.cliente_id = c.id
+  WHERE a.data_consulta = CURDATE() 
+    AND a.situacao = 'Agendado' 
+    AND a.empresa_id = :empresa_id
+  ORDER BY a.horario ASC";
+    $stmt = $conn->prepare($query_proximo);
+    $stmt->bindParam(':empresa_id', $_SESSION['usuario']['id'], PDO::PARAM_INT);
     $stmt->execute();
-    $proximo_agendamento = $stmt->fetch(PDO::FETCH_ASSOC);
+    $proximo_agendamento = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     error_log("Erro ao buscar próximo agendamento: " . $e->getMessage());
 }
@@ -44,51 +38,33 @@ try {
 // =============================================
 // CONSULTA 2: AGENDAMENTOS PENDENTES
 // =============================================
-$totalPendentes = 0;
 try {
-    $stmt = $conn->prepare("
-        SELECT COUNT(*) AS total 
+    $stmt = $conn->prepare(" SELECT COUNT(*) AS total 
         FROM agendamentos 
         WHERE situacao = 'Pendente' 
         AND empresa_id = :empresa_id
     ");
-    $stmt->bindValue(':empresa_id', $_SESSION['usuario']['id'], PDO::PARAM_INT);
+    $stmt->bindParam(':empresa_id', $_SESSION['usuario']['id'], PDO::PARAM_INT);
     $stmt->execute();
     $totalPendentes = $stmt->fetchColumn();
 } catch (PDOException $e) {
     error_log("Erro ao contar agendamentos pendentes: " . $e->getMessage());
 }
 
-$totalAgendadosHoje = 0; // Inicializa a variável para evitar "Undefined variable"
 try {
-    $stmt = $conn->prepare("
-        SELECT COUNT(*) AS total 
+    $stmt = $conn->prepare("SELECT COUNT(*) AS total 
         FROM agendamentos 
         WHERE data_consulta = CURDATE() 
             AND situacao = 'Agendado' 
             AND empresa_id = :empresa_id
     ");
-    $stmt->bindValue(':empresa_id', $empresa_id, PDO::PARAM_INT);
+    $stmt->bindValue(':empresa_id', $_SESSION['usuario']['id'], PDO::PARAM_INT);
     $stmt->execute();
     $totalAgendadosHoje = $stmt->fetchColumn() ?? 0; // Se não houver resultados, usa 0
 } catch (PDOException $e) {
     error_log("Erro ao contar agendamentos de hoje: " . $e->getMessage());
     $totalAgendadosHoje = 0; // Garante que a variável tenha um valor
 }
-
-
-
-
-
-
-
-
-
-
-
-
-$conn = null; // Fecha conexão agendamentos
-
 
 // =============================================
 // CONSULTA 4: AVALIAÇÕES (MÉDIA E TOTAL)
@@ -99,20 +75,25 @@ $media_avaliacoes = 0.0;
 $total_avaliacoes = 0;
 try {
     // Média das avaliações
-    $stmt = $conn->prepare("SELECT AVG(nota) AS media FROM avaliacoes WHERE empresa_id = ?");
-    
-    // O tipo de dado 'i' significa inteiro, já que o id da empresa provavelmente é inteiro
-    $stmt->bind_param("i", $_SESSION['usuario']['id']);
-    
+    $stmt = $conn->prepare("SELECT AVG(nota) AS media 
+        FROM avaliacoes 
+        WHERE empresa_id = :empresa_id
+    ");
+    $stmt->bindValue(':empresa_id', $_SESSION['usuario']['id'], PDO::PARAM_INT);
     $stmt->execute();
-    $result = $stmt->get_result();
-    $row = $result->fetch_assoc();
-    $media = $row['media'];
-    
+    $media = $stmt->fetchColumn();
     $media_avaliacoes = number_format($media ?? 0.0, 1);
-    
-} catch (mysqli_sql_exception $e) {
-    echo "Erro: " . $e->getMessage();
+
+    // Total de avaliações
+    $stmt = $conn->prepare("SELECT COUNT(*) AS total 
+        FROM avaliacoes 
+        WHERE empresa_id = :empresa_id
+    ");
+    $stmt->bindValue(':empresa_id', $_SESSION['usuario']['id'], PDO::PARAM_INT);
+    $stmt->execute();
+    $total_avaliacoes = $stmt->fetchColumn();
+} catch (PDOException $e) {
+    error_log("Erro ao buscar avaliações: " . $e->getMessage());
 }
 $conn = null; // Fecha conexão avaliações
 ?>
@@ -141,16 +122,48 @@ $conn = null; // Fecha conexão avaliações
                     <span>MedCar</span>
                 </a>
 
-                <div class="flex items-center space-x-4">
-                    <div class="text-white mr-3">Bem-vindo, </div>
-                    <img src="https://source.unsplash.com/random/40x40/?logo" class="rounded-full h-8 w-8" alt="Logo">
-                    <a href="../includes/logout.php" class="logout-menu  btn btn-outline-light ms-3">Logout</a>
+                <div class="flex items-center space-x-6">
+                    <div class="relative group">
+                        <button class="flex items-center space-x-1 font-medium hover:text-teal-300 transition">
+                            <i data-lucide="user" class="h-5 w-5"></i>
+                            <span>Perfil</span>
+                            <i data-lucide="chevron-down" class="h-4 w-4"></i>
+                        </button>
+                        <div class="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50 invisible group-hover:visible transition-all duration-300 opacity-0 group-hover:opacity-100 transform group-hover:translate-y-0 translate-y-2">
+                            <div class="py-1">
+                                <a href="perfil_empresa.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-900">
+                                    <i data-lucide="user" class="h-4 w-4 inline mr-2"></i>Minha Conta
+                                </a>
+                                <a href="dashboard.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-900">
+                                    <i data-lucide="chart-pie" class="h-4 w-4 inline mr-2"></i>Estatísticas
+                                </a>
+                                <a href="agendamentos_pacientes.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-900">
+                                    <i data-lucide="clock" class="h-4 w-4 inline mr-2"></i>Ver Agendamentos
+                                </a>
+                                <a href="aprovar_agendamentos.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-900">
+                                    <i data-lucide="clipboard-check" class="h-4 w-4 inline mr-2"></i>Aprovar Agendamentos
+                                </a>
+                                <a href="gestao_motorista.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-900">
+                                    <i data-lucide="car" class="h-4 w-4 inline mr-2"></i>Motoristas
+                                </a>
+                                <a href="relatorios_financeiros.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-900">
+                                    <i data-lucide="chart-no-axes-combined" class="h-4 w-4 inline mr-2"></i>Financeiro
+                                </a>
+                                <a href="relatorios.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-900">
+                                    <i data-lucide="clipboard-list" class="h-4 w-4 inline mr-2"></i>Relatórios
+                                </a>
+                                <div class="border-t border-gray-300"></div>
+                                <a href="../includes/logout.php" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
+                                    <i data-lucide="log-out" class="h-4 w-4 inline mr-2"></i>Sair
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                     <button id="mobile-menu-button" class="md:hidden text-white ml-2">
                         <i data-lucide="menu" class="h-6 w-6"></i>
                     </button>
                 </div>
             </div>
-        </div>
     </nav>
 
     <!-- Mobile Menu -->
@@ -164,7 +177,7 @@ $conn = null; // Fecha conexão avaliações
         <div class="flex flex-col items-start space-y-6 flex-grow text-xl ps-4">
             <a href="dashboard.php" class="w-full hover:text-teal-300 transition d-flex align-items-center gap-3">
                 <i class="bi bi-grid fs-5"></i>
-                Dashboard
+                Estatísticas
             </a>
             <a href="agendamentos_pacientes.php" class="w-full hover:text-teal-300 transition d-flex align-items-center gap-3">
                 <i class="bi bi-calendar-event fs-5"></i>
@@ -213,7 +226,7 @@ $conn = null; // Fecha conexão avaliações
             <nav class="flex flex-col space-y-2 px-4">
                 <a href="dashboard.php" class="flex items-center gap-3 ps-4 py-3 rounded-lg hover:bg-blue-800 transition">
                     <i class="bi bi-grid fs-6"></i>
-                    <span>Dashboard</span>
+                    <span>Estatísticas</span>
                 </a>
                 <a href="agendamentos_pacientes.php" class="flex items-center gap-3 ps-4 py-3 rounded-lg hover:bg-blue-800 transition">
                     <i class="bi bi-calendar-event fs-6"></i>
@@ -448,10 +461,12 @@ $conn = null; // Fecha conexão avaliações
 
         mobileMenuButton.addEventListener('click', () => {
             mobileMenu.classList.add('open');
+            document.body.style.overflow = 'hidden'; // Impede o rolagem do plano de fundo
         });
 
         closeMenuButton.addEventListener('click', () => {
             mobileMenu.classList.remove('open');
+            document.body.style.overflow = ''; // Volta a permitir o rolagem do plano de fundo
         });
     </script>
     <script>

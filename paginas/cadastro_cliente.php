@@ -1,8 +1,10 @@
 <?php
-session_start(); // Inicia a sessão
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 
 <head>
     <meta charset="UTF-8">
@@ -29,18 +31,19 @@ session_start(); // Inicia a sessão
             <div class="container mx-auto px-4">
                 <div class="flex items-center justify-between h-16">
                     <div class="flex items-center space-x-4">
-                        <a href="../area_cliente/menu_principal.php" class="flex items-center space-x-2 text-white hover:text-teal-300 transition">
+                        <button onclick="window.history.back();" class="flex items-center space-x-2 text-white hover:text-teal-300 transition">
                             <i data-lucide="arrow-left" class="h-6 w-6"></i>
                             <span>Voltar</span>
-                        </a>
+                        </button>
                     </div>
-                    <a href="#" class="flex items-center space-x-2 text-xl font-bold">
+                    <a href="pagina_inicial.php" class="flex items-center space-x-2 text-xl font-bold">
                         <i data-lucide="ambulance" class="h-6 w-6"></i>
                         <span>MedCar</span>
                     </a>
                     <div class="hidden md:flex space-x-6">
-                        <a href="/MedQ-2/paginas/pagina_inicial.php" class="font-medium hover:text-teal-300 transition">Home</a>
-                        <a href="#" class="font-medium hover:text-teal-300 transition">Contato</a>
+                        <a href="pagina_inicial.php" class="font-medium hover:text-teal-300 transition">Home</a>
+                        <a href="abas_menu_principal/aba_empresas.php" class="font-medium hover:text-teal-300 transition">Empresas</a>
+                        <a href="pagina_inicial.php#contato" class="font-medium hover:text-teal-300 transition">Contato</a>
                     </div>
                     <button id="mobile-menu-button" aria-expanded="false" aria-controls="mobile-menu" class="md:hidden text-white">
                         <i data-lucide="menu" class="h-6 w-6"></i>
@@ -59,9 +62,9 @@ session_start(); // Inicia a sessão
         </div>
 
         <div class="flex flex-col items-center justify-center space-y-8 flex-grow text-xl">
-            <a href="#" class="font-medium hover:text-teal-300 transition">Home</a>
-            <a href="#" class="font-medium hover:text-teal-300 transition">Empresas</a>
-            <a href="#" class="font-medium hover:text-teal-300 transition">Contato</a>
+            <a href="pagina_inicial.php" class="font-medium hover:text-teal-300 transition">Home</a>
+            <a href="abas_menu_principal/aba_empresas.php" class="font-medium hover:text-teal-300 transition">Empresas</a>
+            <a href="pagina_inicial.php#contato" class="font-medium hover:text-teal-300 transition">Contato</a>
 
         </div>
     </div>
@@ -88,15 +91,14 @@ session_start(); // Inicia a sessão
                             </p>
                             <div>
                                 <label for="nome" class="block text-sm font-medium text-gray-700">Nome Completo</label>
-                                <input type="text" id="nome" name="nome" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" placeholder="Seu nome completo" required>
+                                <input type="text" id="nome" name="nome" maxlength="60" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" placeholder="Seu nome completo" required>
                             </div>
                             <div>
-
                                 <label for="email" class="block text-sm font-medium text-gray-700">E-mail</label>
                                 <?php
                                 $email = isset($_GET['email']) ? base64_decode($_GET['email']) : '';
                                 ?>
-                                <input type="email" id="email" name="email" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" placeholder="seunome@exemplo.com" value="<?php echo htmlspecialchars($email, ENT_QUOTES, 'UTF-8'); ?>" required>
+                                <input type="email" id="email" name="email" maxlength="50" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" placeholder="seunome@exemplo.com" value="<?php echo htmlspecialchars($email, ENT_QUOTES, 'UTF-8'); ?>" required>
                             </div>
                             <div>
                                 <label for="cpf" class="block text-sm font-medium text-gray-700">CPF</label>
@@ -107,12 +109,48 @@ session_start(); // Inicia a sessão
                                 <input type="text" id="telefone" name="telefone" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" placeholder="(00) 00000-0000" required>
                             </div>
                             <div>
+                                <label for="data_nascimento" class="block text-sm font-medium text-gray-700">Data de Nascimento</label>
+                                <input type="date" id="data_nascimento" name="data_nascimento" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" required>
+                            </div>
+                            <div>
+                                <label for="contato_emergencia" class="block text-sm font-medium text-gray-700">Contato de Emergência</label>
+                                <input type="text" id="contato_emergencia" name="contato_emergencia" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" placeholder="(00) 00000-0000" required>
+                            </div>
+                            <div>
+                                <label for="rua" class="block text-sm font-medium text-gray-700">Rua/Avenida</label>
+                                <input type="text" id="rua" name="rua" maxlength="30" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" placeholder="Ex: Av. Paulista" required>
+                            </div>
+                            <div>
+                                <label for="numero" class="block text-sm font-medium text-gray-700">Número</label>
+                                <input type="text" id="numero" name="numero" maxlength="10" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" placeholder="Ex: 123" required>
+                            </div>
+                            <div>
+                                <label for="complemento" class="block text-sm font-medium text-gray-700">Complemento</label>
+                                <input type="text" id="complemento" name="complemento" maxlength="30" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" placeholder="Ex: Apto 101">
+                            </div>
+                            <div>
+                                <label for="bairro" class="block text-sm font-medium text-gray-700">Bairro</label>
+                                <input type="text" id="bairro" name="bairro" maxlength="30" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" placeholder="Ex: Bela Vista" required>
+                            </div>
+                            <div>
+                                <label for="cidade" class="block text-sm font-medium text-gray-700">Cidade</label>
+                                <input type="text" id="cidade" name="cidade" maxlength="30" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" placeholder="Ex: São Paulo" required>
+                            </div>
+                            <div>
+                                <label for="estado" class="block text-sm font-medium text-gray-700">Estado</label>
+                                <input type="text" id="estado" name="estado" maxlength="20" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" placeholder="Ex: SP" required>
+                            </div>
+                            <div>
+                                <label for="cep" class="block text-sm font-medium text-gray-700">CEP</label>
+                                <input type="text" id="cep" name="cep" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" placeholder="Ex: 01310-100" required>
+                            </div>
+                            <div>
                                 <label for="senha" class="block text-sm font-medium text-gray-700">Senha</label>
-                                <input type="password" id="senha" name="senha" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" placeholder="••••••••" minlength="8" required>
+                                <input type="password" id="senha" name="senha" maxlength="20" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" placeholder="••••••••" minlength="8" required>
                             </div>
                             <div>
                                 <label for="confirmar_senha" class="block text-sm font-medium text-gray-700">Confirmar Senha</label>
-                                <input type="password" id="confirmar_senha" name="confirmar_senha" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" placeholder="••••••••" minlength="8" required>
+                                <input type="password" id="confirmar_senha" name="confirmar_senha" maxlength="20" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" placeholder="••••••••" minlength="8" required>
                             </div>
                             <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-teal-500 hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500">
                                 Cadastrar
@@ -131,23 +169,10 @@ session_start(); // Inicia a sessão
                         <ul class="space-y-2 mb-8 border-l-4 border-teal-500 pl-4">
                             <li>Agendamento rápido e seguro</li>
                             <li>Histórico de transportes</li>
-                            <li>Acompanhamento em tempo real</li>
                             <li>Cupons de desconto para clientes frequentes</li>
                             <li>Suporte 24 horas</li>
                         </ul>
-                        <div class="mt-8">
-                            <p class="text-sm text-gray-600 mb-4">Entrar com redes sociais</p>
-                            <div class="grid grid-cols-2 gap-4">
-                                <a href="https://accounts.google.com/" class="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                                    <i data-lucide="google" class="h-5 w-5 mr-2"></i>
-                                    Google
-                                </a>
-                                <a href="https://m.facebook.com/" class="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                                    <i data-lucide="facebook" class="h-5 w-5 mr-2"></i>
-                                    Facebook
-                                </a>
-                            </div>
-                        </div>
+                       
                     </div>
                 </div>
             </div>
@@ -184,6 +209,15 @@ session_start(); // Inicia a sessão
             }
             this.submit();
         });
+
+        // Restrição de data de nascimento
+        const dataNascimentoInput = document.getElementById('data_nascimento');
+        const hoje = new Date();
+        const maxDate = new Date(hoje.getFullYear() - 120, hoje.getMonth(), hoje.getDate()); // ano máximo 120 anos atrás
+        // Definindo a data mínima como a data de hoje
+        const minDate = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
+        dataNascimentoInput.max = minDate.toISOString().split('T')[0];
+        dataNascimentoInput.min = maxDate.toISOString().split('T')[0];
     </script>
 
     <script src="https://code.jquery.com/jquery-3.7.1.slim.min.js" integrity="sha256-kmHvs0B+OpCW5GVHUNjv9rOmY0IvSIRcf7zGUDTDQM8=" crossorigin="anonymous"></script>
@@ -193,6 +227,8 @@ session_start(); // Inicia a sessão
     <script>
         $('#cpf').mask('000.000.000-00');
         $('#telefone').mask('(00) 00000-0000');
+        $('#contato_emergencia').mask('(00) 00000-0000');
+        $('#cep').mask('00000-000');              
     </script>
 
 </body>

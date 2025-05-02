@@ -1,11 +1,11 @@
 // Arquivo: agendamentos_pacientes.php
 <?php
-session_start();
+require '../includes/classe_usuario.php';
+use usuario\Usuario;
+// Usuario::verificarPermissao('empresa'); // Verifica se o usuário tem permissão de empresa
 
-// Verificação de sessão
-if (empty($_SESSION['usuario']) || !isset($_SESSION['usuario']['id'])) {
-    header('Location: ../paginas/login_empresas.php');
-    exit();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
 }
 
 $empresa_id = $_SESSION['usuario']['id'];

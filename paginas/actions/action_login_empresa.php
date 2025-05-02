@@ -29,19 +29,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 header("Location: /MedQ-2/area_empresas/menu_principal.php");
                 exit();
             } else {
-                $_SESSION['login_erro'] = "Credenciais inválidas";
+                // Senha incorreta
+            $_SESSION['login_erro'] = "Senha ou E-mail incorreto.";
             }
         } else {
-            $_SESSION['login_erro'] = "Empresa não encontrada";
+             // Senha ou email incorreta
+             $_SESSION['login_erro'] = "Senha ou E-mail incorreto.";
         }
     } catch (PDOException $e) {
-        error_log("Erro de login: " . $e->getMessage());
-        $_SESSION['login_erro'] = "Erro no sistema";
+       error_log("Erro de login: " . $e->getMessage());
     }
     
     header("Location: /MedQ-2/paginas/login_empresas.php");
     exit();
 } else {
+    error_log("Método de requisição inválido.");
     header("Location: /MedQ-2/paginas/login_empresas.php");
     exit();
 }

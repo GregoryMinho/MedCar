@@ -10,7 +10,9 @@ CREATE TABLE clientes (
     telefone VARCHAR(20),
     foto varchar(255) DEFAULT null , -- atualizado a cada login com o google
     tipo VARCHAR(20) DEFAULT 'cliente', 
-    data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP --  ^ a mesma coisa pq não sei se isso vai ser viável 
+    data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP, --  ^ a mesma coisa pq não sei se isso vai ser viável 
+    data_nascimento DATE,
+    contato_emergencia VARCHAR(255) DEFAULT ('não informado'),
 );
 
  CREATE TABLE empresas (

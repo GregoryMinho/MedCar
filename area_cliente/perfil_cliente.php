@@ -357,7 +357,7 @@ if (!isset($_SESSION)) {
                 </button>
             </div>
 
-            <form id="edit-profile-form">
+            <form action="actions/action_editar_perfil.php" id="edit-profile-form">
                 <div class="space-y-6">
                     <div>
                         <h4 class="text-lg font-semibold text-blue-900 mb-3">Informações Pessoais</h4>

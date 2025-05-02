@@ -1,0 +1,37 @@
+.mobile-menu {
+    transition: transform 0.3s ease-in-out;
+    transform: translateX(100%);
+}
+.mobile-menu.open {
+    transform: translateX(0);
+}
+.feature-card {
+    transition: all 0.3s ease;
+}
+.feature-card:hover {
+    transform: translateY(-10px);
+}
+.feature-card::before {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(56, 178, 172, 0.1));
+    transform: rotate(45deg);
+    transition: all 0.5s;
+}
+.feature-card:hover::before {
+    animation: shine 1.5s;
+}
+@keyframes shine {
+    0% { transform: rotate(45deg) translate(-50%, -50%); }
+    100% { transform: rotate(45deg) translate(100%, 100%); }
+}
+.testimonial-card {
+    transition: all 0.3s ease;
+}
+.testimonial-card:hover {
+    transform: translateY(-5px);
+}

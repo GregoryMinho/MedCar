@@ -4,35 +4,29 @@ use usuario\Usuario; // usa o namespace usuario\Usuario
 
 Usuario::verificarPermissao('empresa'); // verifica se o usuário logado é uma empresa
 
-
 require '../includes/conexao_BdFinanceiro.php'; 
-$conn = new mysqli($servername, $username, $password, $dbname);
 
-if ($conn->connect_error) {
-    die("Falha na conexão: " . $conn->connect_error);
-}
 
 // Funções para buscar dados
 function buscarMetricas($conn) {
     $metricas = [];
     $sql = "SELECT tipo, valor FROM metricas";
-    $result = $conn->query($sql);
+    $stmt = $conn->query($sql);
     
-    if ($result->num_rows > 0) {
-        while($row = $result->fetch_assoc()) {
-            // Padroniza as chaves removendo acentos e espaços
-            $key = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $row['tipo']));
-            $metricas[$key] = $row['valor'];
-        }
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        // Padroniza as chaves removendo acentos e espaços
+        $key = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $row['tipo']));
+        $metricas[$key] = $row['valor'];
     }
     return $metricas;
 }
+
 function buscarTransacoes($conn) {
     $transacoes = [];
     $sql = "SELECT DATE_FORMAT(data, '%d/%m') as data, descricao, valor, status FROM transacoes ORDER BY data DESC";
-    $result = $conn->query($sql);
+    $stmt = $conn->query($sql);
     
-    while($row = $result->fetch_assoc()) {
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
         $transacoes[] = $row;
     }
     return $transacoes;
@@ -41,9 +35,9 @@ function buscarTransacoes($conn) {
 function buscarFaturamentoMensal($conn) {
     $faturamento = [];
     $sql = "SELECT mes, ano, faturamento FROM faturamento_mensal ORDER BY ano, mes";
-    $result = $conn->query($sql);
+    $stmt = $conn->query($sql);
     
-    while($row = $result->fetch_assoc()) {
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
         $faturamento[] = $row;
     }
     return $faturamento;
@@ -55,7 +49,7 @@ $transacoes = buscarTransacoes($conn);
 $faturamentoMensal = buscarFaturamentoMensal($conn);
 
 // Fechar conexão
-$conn->close();
+$conn = null;
 
 // Preparar dados para o gráfico
 $meses = ['', 'Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dec'];
@@ -80,84 +74,13 @@ $mesAnterior = prev($faturamentoMensal);
     <title>MedCar - Dashboard Financeiro</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        :root {
-            --primary-color: #1a365d;
-            --secondary-color: #2a4f7e;
-            --accent-color: #38b2ac;
-            --profit-color: #28a745;
-            --loss-color: #dc3545;
-        }
-
-        .finance-dashboard {
-            background: #f8f9fa;
-            min-height: 100vh;
-        }
-
-        .financial-card {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            transition: all 0.3s;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-
-        .financial-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-        }
-
-        .revenue-chart {
-            height: 400px;
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
-        }
-
-        .transaction-table {
-            background: white;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-
-        .profit {
-            color: var(--profit-color);
-            font-weight: bold;
-        }
-
-        .loss {
-            color: var(--loss-color);
-            font-weight: bold;
-        }
-
-        .navbar {
-            background: var(--primary-color) !important;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        .sidebar {
-            background: var(--secondary-color);
-            color: white;
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .metric-badge {
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 0.9em;
-            background: var(--accent-color);
-            color: white;
-        }
-    </style>
+    <link rel="stylesheet" href="style/style_relatorios_financeiros.css">
 </head>
 <body>
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
-            <a class="navbar-brand" href="#">
+            <a class="navbar-brand" href="menu_principal.php">
                 <i class="fas fa-chart-line me-2"></i>
                 MedCar Financeiro
             </a>

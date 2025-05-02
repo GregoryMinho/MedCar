@@ -1,12 +1,14 @@
 <?php
-// conexao_BdFinanceiro.php (MySQLi)
-$servername = "localhost:3306";
+// conexao_BdFinanceiro.php (PDO)
+$servername = "localhost:3307";
 $username = "root";
 $password = "";
 $dbname = "medcar_financeiro";
 
-$conn = new mysqli($servername, $username, $password, $dbname);
-if ($conn->connect_error) {
-    die("Falha na conexão: " . $conn->connect_error);
+try {
+    $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    die("Falha na conexão: " . $e->getMessage());
 }
 ?>

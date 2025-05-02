@@ -1,15 +1,9 @@
 <?php
-require '../includes/valida_login.php'; // inclui o arquivo de validação de login
+require '../includes/classe_usuario.php'; 
+use usuario\Usuario;
+// Usuario::verificarPermissao('empresa'); // Verifica se o usuário logado é do tipo 'empresa'
 
-require '../includes/conexao_BdAgendamento.php'; 
-
-// Criar conexão
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-// Verificar conexão
-if ($conn->connect_error) {
-    die("Conexão falhou: " . $conn->connect_error);
-}
+require '../includes/conexao_BdAgendamento.php';
 
 // Consultas para os dados do dashboard
 $queries = [
@@ -32,28 +26,26 @@ $queries = [
 // Executar consultas e armazenar resultados
 $results = [];
 foreach ($queries as $key => $sql) {
-    $result = $conn->query($sql);
-    if ($result) {
-        if ($key === 'status_motoristas') {
-            while ($row = $result->fetch_assoc()) {
-                $results[$key][$row['status']] = $row['total'];
-            }
-        } elseif ($key === 'desempenho_mensal' || $key === 'atividades_recentes') {
-            $results[$key] = [];
-            while ($row = $result->fetch_assoc()) {
-                $results[$key][] = $row;
-            }
-        } else {
-            $results[$key] = $result->fetch_assoc();
+    $stmt = $conn->prepare($sql);
+    $stmt->execute();
+    if ($key === 'status_motoristas') {
+        $results[$key] = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $results[$key][$row['status']] = $row['total'];
         }
+    } elseif ($key === 'desempenho_mensal' || $key === 'atividades_recentes') {
+        $results[$key] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } else {
+        $results[$key] = $stmt->fetch(PDO::FETCH_ASSOC);
     }
 }
 
-$conn->close();
+$conn = null;
 ?>
 
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -61,84 +53,9 @@ $conn->close();
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        /* Mantido o mesmo estilo CSS original */
-        :root {
-            --primary-color: #1a365d;
-            --secondary-color: #2a4f7e;
-            --accent-color: #38b2ac;
-        }
-
-        .dashboard-container {
-            background: #f8f9fa;
-            min-height: 100vh;
-        }
-
-        .sidebar {
-            background: var(--primary-color);
-            color: white;
-            min-height: 100vh;
-            padding: 20px;
-            width: 280px;
-            position: fixed;
-        }
-
-        .main-content {
-            margin-left: 280px;
-            padding: 30px;
-        }
-
-        .stat-card {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 25px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            transition: transform 0.3s;
-            border-left: 4px solid var(--accent-color);
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .nav-link {
-            color: rgba(255,255,255,0.8);
-            padding: 15px;
-            border-radius: 10px;
-            margin: 8px 0;
-        }
-
-        .nav-link:hover {
-            background: var(--secondary-color);
-            color: white;
-        }
-
-        .chart-container {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            margin-top: 30px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-
-        .recent-activity {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            margin-top: 30px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-
-        .driver-status {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            margin-top: 30px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-    </style>
+    <link rel="stylesheet" href="style/style_dashboard.css">
 </head>
+
 <body>
     <div class="dashboard-container">
         <!-- Sidebar -->
@@ -290,17 +207,17 @@ $conn->close();
                 <h4 class="mb-4"><i class="fas fa-history me-2"></i> Atividades Recentes</h4>
                 <div class="list-group">
                     <?php foreach ($results['atividades_recentes'] as $atividade): ?>
-                    <a href="#" class="list-group-item list-group-item-action">
-                        <div class="d-flex justify-content-between">
-                            <div>
-                                <i class="fas fa-ambulance me-2 text-primary"></i>
-                                <?= htmlspecialchars($atividade['nome_paciente']) ?> - <?= htmlspecialchars($atividade['hospital']) ?>
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <i class="fas fa-ambulance me-2 text-primary"></i>
+                                    <?= htmlspecialchars($atividade['nome_paciente']) ?> - <?= htmlspecialchars($atividade['hospital']) ?>
+                                </div>
+                                <small class="text-muted">
+                                    <?= date('d/m H:i', strtotime($atividade['data_hora_agendamento'])) ?>
+                                </small>
                             </div>
-                            <small class="text-muted">
-                                <?= date('d/m H:i', strtotime($atividade['data_hora_agendamento'])) ?>
-                            </small>
-                        </div>
-                    </a>
+                        </a>
                     <?php endforeach; ?>
                 </div>
             </div>
@@ -310,7 +227,7 @@ $conn->close();
     <script>
         // Gráfico de Desempenho com dados do banco
         const ctx = document.getElementById('performanceChart').getContext('2d');
-        
+
         // Preparar dados do gráfico
         const meses = <?= json_encode(array_column($results['desempenho_mensal'] ?? [], 'mes')) ?>;
         const transportes = <?= json_encode(array_column($results['desempenho_mensal'] ?? [], 'total')) ?>;
@@ -356,4 +273,5 @@ $conn->close();
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>
