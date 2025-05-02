@@ -123,18 +123,22 @@ session_start();
                                 </div>
                                 <input type="text" id="cep" name="cep" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" placeholder="00000-000" required>
                             </div>
-
+<!-- Endereço -->
+<div>
+    <div class="flex items-center mb-1 mt-4">
+    <i data-lucide="home" class="h-4 w-4 mr-2 text-teal-500"></i>
+        <label for="endereco" class="block text-sm font-medium text-gray-700">Endereço</label>
+    </div>
+    <input type="text" id="endereco" name="endereco" required class="mt-1 block w-full border border-gray-300 rounded-md p-2"placeholder="Digite o endereço">
+</div>
                             <!-- Localização -->
                             <div class="relative">
-                                <div class="flex items-center mb-1">
-                                    <i data-lucide="map" class="h-4 w-4 mr-2 text-teal-500"></i>
-                                    <label for="localizacao" class="block text-sm font-medium text-gray-700">Localização (Cidade - UF)</label>
-                                </div>
-                                <input type="text" id="localizacao" name="localizacao" 
-                                       class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" 
-                                       placeholder="Digite a cidade" required autocomplete="off">
-                                <div id="sugestoes-cidades" class="hidden absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto"></div>
-                            </div>
+                            <i data-lucide="map" class="h-4 w-4 mr-2 text-teal-500"></i>
+    <label for="localizacao" class="block text-sm font-medium text-gray-700">Cidade</label>
+    <input type="text" id="localizacao" name="cidade" autocomplete="off" required
+           class="mt-1 block w-full border border-gray-300 rounded-md p-2"placeholder="Digite a cidade">
+    <div id="sugestoes-cidades" class="border border-gray-300 rounded-md bg-white mt-1 hidden absolute z-10 w-full"></div>
+</div>
 
                             <!-- Especialidades -->
                             <div>
@@ -314,16 +318,20 @@ session_start();
         
         // buscar endereço via api quando cep for preenchido
         $('#cep').blur(function() {
-            var cep = $(this).val().replace(/\D/g, '');
-            if (cep.length === 8) {
-                $.getJSON(`https://viacep.com.br/ws/${cep}/json/`, function(data) {
-                    if (!data.erro) {
-                        // preenche automaticamente campos de endereco se necessario
-                        console.log(data); // ver os dados retornados
-                    }
-                });
+    var cep = $(this).val().replace(/\D/g, '');
+
+    if (cep.length === 8) {
+        $.getJSON(`https://viacep.com.br/ws/${cep}/json/`, function(data) {
+            if (!data.erro) {
+                // Preenche os campos com os dados do endereço
+                $('#endereco').val(data.logradouro);  // Rua
+            } else {
+                alert("CEP não encontrado.");
             }
         });
+    }
+});
+
 
         // funcao para buscar cidades via api ibge
         async function buscarCidades(termo) {

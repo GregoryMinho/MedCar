@@ -13,7 +13,7 @@ CREATE TABLE clientes (
     data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP --  ^ a mesma coisa pq não sei se isso vai ser viável 
 );
 
-CREATE TABLE empresas (
+ CREATE TABLE empresas (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(255) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
@@ -24,6 +24,22 @@ CREATE TABLE empresas (
     cidade VARCHAR(100) NOT NULL,
     tipo VARCHAR(20) DEFAULT 'empresa',
     data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- nova Tabela de empresa_especialidades
+CREATE TABLE empresa_especialidades (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    empresa_id INT NOT NULL,
+    especialidade VARCHAR(100) NOT NULL,
+    FOREIGN KEY (empresa_id) REFERENCES empresas(id) ON DELETE CASCADE
+);
+
+-- nova Tabela de empresa_veiculos
+CREATE TABLE empresa_veiculos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    empresa_id INT NOT NULL,
+    tipo_veiculo VARCHAR(100) NOT NULL,
+    FOREIGN KEY (empresa_id) REFERENCES empresas(id) ON DELETE CASCADE
 );
 
 CREATE TABLE detalhe_medico (
