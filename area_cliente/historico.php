@@ -6,10 +6,6 @@ use usuario\Usuario;
 
 Usuario::verificarPermissao('cliente'); // verifica se o usuário logado é um cliente
 
-
-//Usuario::verificarPermissao('cliente'); // verifica se o usuario logado é um cliente
-
-$_SESSION['usuario']['id'] = 1;  // ID do cliente logado
 // Query para buscar os agendamentos do cliente logado
 try {
     $sql = "SELECT * FROM agendamentos WHERE cliente_id = :cliente_id ORDER BY data_consulta DESC, horario DESC";
@@ -97,6 +93,57 @@ $anos = array_keys($agendamentosPorAno);
     <div class="container mx-auto py-8">
         <div class="bg-white shadow-md rounded-lg p-6">
             <h2 class="text-2xl font-bold mb-4">Histórico de Agendamentos</h2>
+
+            <!-- Filtros -->
+            <div class="mb-9 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label for="filter-year" class="block text-lg font-medium text-gray-700">Ano</label>
+                    <select id="filter-year" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        <option value="">Todos</option>
+                        <?php foreach ($anos as $ano): ?>
+                            <option value="<?= $ano ?>"><?= $ano ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div>
+                    <label for="filter-month" class="block text-lg font-medium text-gray-700">Mês</label>
+                    <select id="filter-month" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        <option value="">Todos</option>
+                        <?php
+                        $meses = [
+                            1 => 'Janeiro',
+                            'Fevereiro',
+                            'Março',
+                            'Abril',
+                            'Maio',
+                            'Junho',
+                            'Julho',
+                            'Agosto',
+                            'Setembro',
+                            'Outubro',
+                            'Novembro',
+                            'Dezembro'
+                        ];
+                        foreach ($meses as $num => $nome): ?>
+                            <option value="<?= $num ?>"><?= $nome ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div>
+                    <label for="filter-status" class="block text-lg font-medium text-gray-700">Situação</label>
+                    <select id="filter-status" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        <option value="">Todas</option>
+                        <option value="Agendado">Agendado</option>
+                        <option value="Pendente">Pendente</option>
+                        <option value="Concluido">Concluído</option>
+                        <option value="Cancelado">Cancelado</option>
+                    </select>
+                </div>
+            </div>
+            <div class="flex justify-end mb-4">
+                <button id="clear-filters" class="bg-red-500 text-white font-semibold px-4 py-2 rounded hover:bg-red-700">Limpar Filtros</button>
+            </div>
+            <div class="border-t border-gray-300 mb-4"></div>
             <?php if (count($agendamentos) > 0): ?>
                 <!-- Navegação por Ano -->
                 <div class="mb-4 flex justify-between items-center">
@@ -112,6 +159,7 @@ $anos = array_keys($agendamentosPorAno);
                             <?php foreach ($agendamentos as $agendamento):
                                 $dataFormatada = date("d/m/Y", strtotime($agendamento['data_consulta']));
                                 $horarioFormatado = date("H:i", strtotime($agendamento['horario']));
+                                $mes = date("n", strtotime($agendamento['data_consulta']));
                                 if ($agendamento['situacao'] == 'Agendado') {
                                     $statusClass = 'bg-yellow-500 text-black';
                                 } elseif ($agendamento['situacao'] == 'Concluido') {
@@ -122,7 +170,7 @@ $anos = array_keys($agendamentosPorAno);
                                     $statusClass = 'bg-gray-500 text-white';
                                 }
                             ?>
-                                <div class="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+                                <div class="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 filter-item" data-year="<?= $ano ?>" data-month="<?= $mes ?>" data-status="<?= $agendamento['situacao'] ?>">
                                     <div class="flex justify-between items-start">
                                         <div>
                                             <h5 class="text-lg font-bold"><?= htmlspecialchars($agendamento['rua_destino']) ?></h5>
@@ -193,6 +241,7 @@ $anos = array_keys($agendamentosPorAno);
                                 </div>
                             <?php endforeach; ?>
                         </div>
+                        <p class="no-results-message text-gray-600 text-center hidden">Nenhum agendamento encontrado para este ano.</p>
                     </div>
                 <?php endforeach; ?>
             <?php else: ?>
@@ -238,6 +287,83 @@ $anos = array_keys($agendamentosPorAno);
             });
             document.getElementById('year-' + year).classList.remove('hidden');
         }
+
+        // Filtro de pesquisa
+        const filterYear = document.getElementById('filter-year');
+        const filterMonth = document.getElementById('filter-month');
+        const filterStatus = document.getElementById('filter-status');
+        const filterItems = document.querySelectorAll('.filter-item');
+
+        function applyFilters() {
+            const year = filterYear.value;
+            const month = filterMonth.value;
+            const status = filterStatus.value;
+
+            document.querySelectorAll('.year-section').forEach(section => {
+                const yearItems = section.querySelectorAll('.filter-item');
+                let hasVisibleItems = false;
+
+                yearItems.forEach(item => {
+                    const itemMonth = item.getAttribute('data-month');
+                    const itemStatus = item.getAttribute('data-status');
+
+                    const matchesMonth = !month || itemMonth === month;
+                    const matchesStatus = !status || itemStatus === status;
+
+                    if (matchesMonth && matchesStatus) {
+                        item.classList.remove('hidden');
+                        hasVisibleItems = true;
+                    } else {
+                        item.classList.add('hidden');
+                    }
+                });
+
+                // Display "No appointments found" message if no items are visible in the year section
+                const noResultsMessage = section.querySelector('.no-results-message');
+                if (hasVisibleItems) {
+                    noResultsMessage.classList.add('hidden');
+                } else {
+                    noResultsMessage.classList.remove('hidden');
+                }
+            });
+        }
+
+        filterYear.addEventListener('change', () => {
+            const selectedYear = filterYear.value;
+            if (selectedYear) {
+                document.getElementById('current-year').textContent = selectedYear;
+                document.querySelectorAll('.year-section').forEach(section => {
+                    section.classList.add('hidden');
+                });
+                document.getElementById('year-' + selectedYear).classList.remove('hidden');
+            } else {
+                navigateYear(0); // Voltar ao ano inicial
+            }
+            applyFilters(); // Aplicar filtros adicionais
+        });
+
+        filterMonth.addEventListener('change', applyFilters);
+        filterStatus.addEventListener('change', applyFilters);
+
+        // Botão para limpar filtros
+        document.getElementById('clear-filters').addEventListener('click', () => {
+            filterYear.value = '';
+            filterMonth.value = '';
+            filterStatus.value = '';
+            // Resetar o ano atual para o primeiro ano disponível
+            document.getElementById('current-year').textContent = anos[0];            
+            document.querySelectorAll('.no-results-message').forEach(message => {
+                message.classList.add('hidden');
+            });
+            // Mostrar todos os anos e itens
+            document.querySelectorAll('.year-section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            document.getElementById('year-' + anos[0]).classList.remove('hidden');
+            filterItems.forEach(item => {
+                item.classList.remove('hidden');
+            });
+        });
     </script>
 </body>
 

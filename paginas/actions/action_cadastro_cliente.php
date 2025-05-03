@@ -50,6 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             'id' => $cliente_id,
             'nome' => $nome,
             'email' => $email,
+            'telefone' => $telefone,
             'tipo' => 'cliente' // Define o tipo de usuário como cliente
         ];
         $conn = null; // Fecha a conexão com o banco de dados

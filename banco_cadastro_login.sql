@@ -12,8 +12,9 @@ CREATE TABLE clientes (
     tipo VARCHAR(20) DEFAULT 'cliente', 
     data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP, --  ^ a mesma coisa pq não sei se isso vai ser viável 
     data_nascimento DATE,
-    contato_emergencia VARCHAR(255) DEFAULT ('não informado'),
+    contato_emergencia VARCHAR(20) DEFAULT 'não informado'
 );
+
 
  CREATE TABLE empresas (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -47,23 +48,22 @@ CREATE TABLE empresa_veiculos (
 
 CREATE TABLE detalhe_medico (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    id_cliente INT NOT NULL,
-    tipo_sanguineo ENUM('A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'NÃO IDENTIFICADO') NOT NULL,
-    alergias TEXT DEFAULT('NÃO IDENTIFICADO/POSSUO'),
-    doencas_cronicas TEXT DEFAULT('NÃO IDENTIFICADO/POSSUO'),
-    remedio_recorrente TEXT DEFAULT('NÃO USO'),
+    id_cliente INT UNIQUE NOT NULL,
+    alergias VARCHAR(100) DEFAULT('NÃO IDENTIFICADO/POSSUO'),
+    doencas_cronicas VARCHAR(100) DEFAULT('NÃO IDENTIFICADO/POSSUO'),
+    remedio_recorrente VARCHAR(100) DEFAULT('NÃO USO'),
     FOREIGN KEY (id_cliente) REFERENCES clientes(id) ON DELETE CASCADE
 );
 
 CREATE TABLE enderecos_clientes (
     id INT AUTO_INCREMENT PRIMARY KEY,
     id_cliente INT NOT NULL,
-    rua VARCHAR(255) NOT NULL,
-    numero VARCHAR(20) NOT NULL,
-    complemento VARCHAR(255),
-    bairro VARCHAR(100),
-    cidade VARCHAR(100) NOT NULL,
-    estado VARCHAR(2) NOT NULL,
+    rua VARCHAR(30) NOT NULL,
+    numero VARCHAR(10) NOT NULL,
+    complemento VARCHAR(30),
+    bairro VARCHAR(30),
+    cidade VARCHAR(30) NOT NULL,
+    estado VARCHAR(20) NOT NULL,
     cep VARCHAR(20) NOT NULL,
     FOREIGN KEY (id_cliente) REFERENCES clientes(id) ON DELETE CASCADE
 );

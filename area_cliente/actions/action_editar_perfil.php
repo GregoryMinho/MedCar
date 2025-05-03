@@ -2,19 +2,18 @@
 require '../../includes/conexao_BdCadastroLogin.php'; 
 session_start(); // Inicia a sessão se ainda não estiver iniciada
 
-
-$id = $_POST['id'];
-$nome = $_POST['nome'];
-$telefone = $_POST['telefone'];
-$rua = $_POST['rua'];
-$numero = $_POST['numero'];
-$complemento = $_POST['complemento'];
-$bairro = $_POST['bairro'];
-$cidade = $_POST['cidade'];
-$estado = $_POST['estado'];
-$cep = $_POST['cep'];
-$data_nascimento = $_POST['data_nascimento'];
-$contato_emergencia = $_POST['contato_emergencia'];
+$id = $_SESSION['usuario']['id']; // Obtém o ID do usuário logado
+$nome = $_POST['name'];
+$telefone = $_POST['phone'];
+$rua = $_POST['street'];
+$numero = $_POST['number'];
+$complemento = $_POST['complement'];
+$bairro = $_POST['neighborhood'];
+$cidade = $_POST['city'];
+$estado = $_POST['state'];
+$cep = $_POST['zipcode'];
+$data_nascimento = $_POST['birth_date'];
+$contato_emergencia = $_POST['emergency_contact'];
 
 // Atualiza os campos, exceto a senha
 $sql = $conn->prepare("UPDATE clientes SET nome = :nome, telefone = :telefone, data_nascimento = :data_nascimento, contato_emergencia = :contato_emergencia WHERE id = :id");
@@ -39,12 +38,12 @@ $sqlEndereco->execute();
 $conn = null; // Fecha a conexão com o banco de dados
 
 // Verifica se a atualização foi bem-sucedida
-if ($sql->rowCount() > 0 && $sqlEndereco->rowCount() > 0) {
+if ($sql->rowCount() > 0 || $sqlEndereco->rowCount() > 0) {
     $_SESSION['sucesso'] = "Dados atualizados com sucesso!";
 } else {
     $_SESSION['erro'] = "Erro ao atualizar os dados. :(";
 }
 
-// Redireciona para a página de menu principal
-header("Location:../menu_principal.php");
+// Redireciona para a página de perfil do cliente
+header("Location:../perfil_cliente.php");
 ?>

@@ -390,6 +390,7 @@ unset($_SESSION['sucesso'], $_SESSION['erro']);
                             <ul class="divide-y">
                                 <li class="py-3 text-gray-700">Tipo Sanguíneo: <span class="font-medium">O+</span></li>
                                 <li class="py-3 text-gray-700">Alergias: <span class="font-medium">Nenhuma</span></li>
+                                <li class="py-3 text-gray-700">Doença cronica:<span class="font-medium">Não</span></li>
                                 <li class="py-3 text-gray-700">Medicação Regular: <span class="font-medium">Não</span></li>
                             </ul>
                         </div>
@@ -471,6 +472,7 @@ unset($_SESSION['sucesso'], $_SESSION['erro']);
         // Inicializa os ícones do Lucide
         lucide.createIcons();
 
+        
         // Fecha o modal de avisos ao clicar no botão "Fechar"
         const closeModalButton = document.getElementById('close-modal');
         const modal = document.getElementById('modal');

@@ -1,5 +1,6 @@
 <?php // essa pagina é acessada apos o usuario selecionar a empresa para agendar
 require '../includes/classe_usuario.php'; // inclui o arquivo de validação de login
+require '../includes/conexao_BdCadastroLogin.php'; // inclui o arquivo de conexão com o banco de dados
 
 use usuario\Usuario;
 
@@ -9,6 +10,13 @@ Usuario::verificarPermissao('cliente'); // verifica se o usuário logado é um c
 // $empresa_id = $_SESSION['empresa_id'];
 
 $empresa_id = 1;    //////// temporario////////////////////////
+$user_id = $_SESSION['usuario']['id']; // pega o id do cliente logado
+
+
+$stmt = $conn->prepare("SELECT e.*, c.contato_emergencia FROM enderecos_clientes e JOIN clientes c WHERE e.id_cliente = :id AND e.id_cliente = c.id");
+$stmt->bindParam(':id', $user_id);
+$stmt->execute();
+$endereco_cliente = $stmt->fetch(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
@@ -215,7 +223,11 @@ $empresa_id = 1;    //////// temporario////////////////////////
                                     <i data-lucide="map-pin" class="h-5 w-5 mr-2 text-teal-500"></i>
                                     Endereços
                                 </h2>
-
+                                <div class="flex justify-end">
+                                    <button type="button" id="toggle-address" class="bg-orange-500 hover:bg-orange-700 font-semibold text-white font-medium py-2 px-4 rounded-lg transition-all hover:scale-105 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-opacity-50">
+                                        Usar endereço salvo
+                                    </button>
+                                </div>
                                 <!-- Pickup Address -->
                                 <div class="mb-6">
                                     <h3 class="text-lg font-semibold text-blue-900 mb-3">Endereço de Origem</h3>
@@ -248,124 +260,125 @@ $empresa_id = 1;    //////// temporario////////////////////////
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+                            <div class="border-t border-gray-300 m-7"></div>
+                            <!-- Destination Address -->
+                            <div>
+                                <h3 class="text-lg font-semibold text-blue-900 mb-3">Endereço de Destino</h3>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label for="dest_street" class="block text-gray-700 font-medium mb-1">Rua/Avenida</label>
+                                        <input type="text" id="dest_street" name="dest_street" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Ex: Rua Vergueiro">
+                                    </div>
 
-                                <!-- Destination Address -->
-                                <div>
-                                    <h3 class="text-lg font-semibold text-blue-900 mb-3">Endereço de Destino</h3>
-                                    <div class="space-y-4">
+                                    <div class="grid grid-cols-2 gap-4">
                                         <div>
-                                            <label for="dest_street" class="block text-gray-700 font-medium mb-1">Rua/Avenida</label>
-                                            <input type="text" id="dest_street" name="dest_street" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Ex: Rua Vergueiro">
+                                            <label for="dest_number" class="block text-gray-700 font-medium mb-1">Número</label>
+                                            <input type="text" id="dest_number" name="dest_number" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Ex: 2000">
                                         </div>
-
-                                        <div class="grid grid-cols-2 gap-4">
-                                            <div>
-                                                <label for="dest_number" class="block text-gray-700 font-medium mb-1">Número</label>
-                                                <input type="text" id="dest_number" name="dest_number" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Ex: 2000">
-                                            </div>
-                                            <div>
-                                                <label for="dest_complement" class="block text-gray-700 font-medium mb-1">Complemento</label>
-                                                <input type="text" id="dest_complement" name="dest_complement" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Ex: Hospital, Sala 202">
-                                            </div>
+                                        <div>
+                                            <label for="dest_complement" class="block text-gray-700 font-medium mb-1">Complemento</label>
+                                            <input type="text" id="dest_complement" name="dest_complement" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Ex: Hospital, Sala 202">
                                         </div>
+                                    </div>
 
-                                        <div class="grid grid-cols-2 gap-4">
-                                            <div>
-                                                <label for="dest_city" class="block text-gray-700 font-medium mb-1">Cidade</label>
-                                                <input type="text" id="dest_city" name="dest_city" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Ex: São Paulo">
-                                            </div>
-                                            <div>
-                                                <label for="dest_zipcode" class="block text-gray-700 font-medium mb-1">CEP</label>
-                                                <input type="text" id="dest_zipcode" name="dest_zipcode" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Ex: 04101-300">
-                                            </div>
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label for="dest_city" class="block text-gray-700 font-medium mb-1">Cidade</label>
+                                            <input type="text" id="dest_city" name="dest_city" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Ex: São Paulo">
+                                        </div>
+                                        <div>
+                                            <label for="dest_zipcode" class="block text-gray-700 font-medium mb-1">CEP</label>
+                                            <input type="text" id="dest_zipcode" name="dest_zipcode" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Ex: 04101-300">
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-
-                            <!-- Medical Conditions -->
-                            <div class="form-card bg-white rounded-xl shadow-md p-6 mb-6">
-                                <h2 class="text-xl font-bold text-blue-900 mb-4 flex items-center">
-                                    <i data-lucide="activity" class="h-5 w-5 mr-2 text-teal-500"></i>
-                                    Condições Médicas
-                                </h2>
-
-                                <div class="space-y-4">
-                                    <div>
-                                        <label for="medical_condition" class="block text-gray-700 font-medium mb-1">Descreva sua condição médica</label>
-                                        <textarea id="medical_condition" name="medical_condition" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Descreva sua condição médica e necessidades específicas durante o transporte..."></textarea>
-                                    </div>
-
-                                    <div>
-                                        <label class="block text-gray-700 font-medium mb-2">Necessidades Especiais</label>
-                                        <div class="space-y-2">
-                                            <div class="flex items-center">
-                                                <input type="checkbox" id="need_oxygen" name="need_oxygen" class="h-4 w-4 text-teal-500 focus:ring-teal-500 mr-2">
-                                                <label for="need_oxygen" class="text-gray-700">Necessita de oxigênio</label>
-                                            </div>
-                                            <div class="flex items-center">
-                                                <input type="checkbox" id="need_assistance" name="need_assistance" class="h-4 w-4 text-teal-500 focus:ring-teal-500 mr-2">
-                                                <label for="need_assistance" class="text-gray-700">Necessita de assistência para locomoção</label>
-                                            </div>
-                                            <div class="flex items-center">
-                                                <input type="checkbox" id="need_monitor" name="need_monitor" class="h-4 w-4 text-teal-500 focus:ring-teal-500 mr-2">
-                                                <label for="need_monitor" class="text-gray-700">Necessita de monitoramento de sinais vitais</label>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <label for="medications" class="block text-gray-700 font-medium mb-1">Medicamentos em uso</label>
-                                        <input type="text" id="medications" name="medications" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Liste os medicamentos que você utiliza regularmente">
-                                    </div>
-
-                                    <div>
-                                        <label for="allergies" class="block text-gray-700 font-medium mb-1">Alergias</label>
-                                        <input type="text" id="allergies" name="allergies" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Liste suas alergias, se houver">
-                                    </div>
-
-                                    <div>
-                                        <label for="emergency_contact" class="block text-gray-700 font-medium mb-1">Contato de Emergência</label>
-                                        <input type="text" id="emergency_contact" name="emergency_contact" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Nome e telefone de um contato de emergência">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Additional Information -->
-                            <div class="form-card bg-white rounded-xl shadow-md p-6 mb-6">
-                                <h2 class="text-xl font-bold text-blue-900 mb-4 flex items-center">
-                                    <i data-lucide="info" class="h-5 w-5 mr-2 text-teal-500"></i>
-                                    Informações Adicionais
-                                </h2>
-
-                                <div class="space-y-4">
-                                    <div>
-                                        <label for="additional_info" class="block text-gray-700 font-medium mb-1">Observações</label>
-                                        <textarea id="additional_info" name="additional_info" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Informações adicionais que possam ser relevantes para o transporte. Motivo da viagem."></textarea>
-                                    </div>
-
-                                    <div>
-                                        <label for="companion" class="block text-gray-700 font-medium mb-1">Acompanhante</label>
-                                        <select id="companion" name="companion" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
-                                            <option value="" disabled>Selecione uma opção</option>
-                                            <option value="0">Não preciso de acompanhante</option>
-                                            <option value="1" selected>1 acompanhante</option>
-                                            <option value="2">2 acompanhantes</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Submit Button -->
-                            <div class="flex justify-end">
-                                <button type="submit" class="bg-teal-500 hover:bg-teal-600 text-white font-medium py-3 px-8 rounded-lg transition-all hover:scale-105 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50">
-                                    Confirmar Agendamento
-                                </button>
                             </div>
                         </div>
-                    </form>
+
+                        <!-- Medical Conditions -->
+                        <div class="form-card bg-white rounded-xl shadow-md p-6 mb-6">
+                            <h2 class="text-xl font-bold text-blue-900 mb-4 flex items-center">
+                                <i data-lucide="activity" class="h-5 w-5 mr-2 text-teal-500"></i>
+                                Condições Médicas
+                            </h2>
+
+                            <div class="space-y-4">
+                                <div>
+                                    <label for="medical_condition" class="block text-gray-700 font-medium mb-1">Descreva sua condição médica</label>
+                                    <textarea id="medical_condition" name="medical_condition" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Descreva sua condição médica e necessidades específicas durante o transporte..."></textarea>
+                                </div>
+
+                                <div>
+                                    <label class="block text-gray-700 font-medium mb-2">Necessidades Especiais</label>
+                                    <div class="space-y-2">
+                                        <div class="flex items-center">
+                                            <input type="checkbox" id="need_oxygen" name="need_oxygen" class="h-4 w-4 text-teal-500 focus:ring-teal-500 mr-2">
+                                            <label for="need_oxygen" class="text-gray-700">Necessita de oxigênio</label>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <input type="checkbox" id="need_assistance" name="need_assistance" class="h-4 w-4 text-teal-500 focus:ring-teal-500 mr-2">
+                                            <label for="need_assistance" class="text-gray-700">Necessita de assistência para locomoção</label>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <input type="checkbox" id="need_monitor" name="need_monitor" class="h-4 w-4 text-teal-500 focus:ring-teal-500 mr-2">
+                                            <label for="need_monitor" class="text-gray-700">Necessita de monitoramento de sinais vitais</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label for="medications" class="block text-gray-700 font-medium mb-1">Medicamentos em uso</label>
+                                    <input type="text" id="medications" name="medications" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Liste os medicamentos que você utiliza regularmente">
+                                </div>
+
+                                <div>
+                                    <label for="allergies" class="block text-gray-700 font-medium mb-1">Alergias</label>
+                                    <input type="text" id="allergies" name="allergies" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Liste suas alergias, se houver">
+                                </div>
+
+                                <div>
+                                    <label for="emergency_contact" class="block text-gray-700 font-medium mb-1">Contato de Emergência</label>
+                                    <input type="text" id="emergency_contact" value="<?= $endereco_cliente['contato_emergencia'] ?? '' ?>" name="emergency_contact" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Telefone de um contato de emergência">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Additional Information -->
+                        <div class="form-card bg-white rounded-xl shadow-md p-6 mb-6">
+                            <h2 class="text-xl font-bold text-blue-900 mb-4 flex items-center">
+                                <i data-lucide="info" class="h-5 w-5 mr-2 text-teal-500"></i>
+                                Informações Adicionais
+                            </h2>
+
+                            <div class="space-y-4">
+                                <div>
+                                    <label for="additional_info" class="block text-gray-700 font-medium mb-1">Observações</label>
+                                    <textarea id="additional_info" name="additional_info" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Informações adicionais que possam ser relevantes para o transporte. Motivo da viagem."></textarea>
+                                </div>
+
+                                <div>
+                                    <label for="companion" class="block text-gray-700 font-medium mb-1">Acompanhante</label>
+                                    <select id="companion" name="companion" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
+                                        <option value="" disabled>Selecione uma opção</option>
+                                        <option value="0">Não preciso de acompanhante</option>
+                                        <option value="1" selected>1 acompanhante</option>
+                                        <option value="2">2 acompanhantes</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="flex justify-end">
+                            <button type="submit" class="bg-teal-500 hover:bg-teal-600 text-white font-medium py-3 px-8 rounded-lg transition-all hover:scale-105 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50">
+                                Confirmar Agendamento
+                            </button>
+                        </div>
                 </div>
+                </form>
             </div>
+        </div>
         </div>
     </section>
     <!-- Footer -->
@@ -580,6 +593,38 @@ $empresa_id = 1;    //////// temporario////////////////////////
             <?php $_SESSION['cadastrado'] = null ?>;
 
         });
+    </script>
+    <script>
+        // Função para mostar ou ocultar o endereço salvo
+        let isUsingAddress = false; // Variável para controlar o estado do endereço
+        const rua = "<?= $endereco_cliente['rua'] ?? '' ?>";
+        const numero = "<?= $endereco_cliente['numero'] ?? '' ?>";
+        const complemento = "<?= $endereco_cliente['complemento'] ?? '' ?>";
+        const cidade = "<?= $endereco_cliente['cidade'] ?? '' ?>";
+        const cep = "<?= $endereco_cliente['cep'] ?? '' ?>";
+
+        document.getElementById('toggle-address').addEventListener('click', function() {
+            if (!isUsingAddress) {
+                document.getElementById('pickup_street').value = rua;
+                document.getElementById('pickup_number').value = numero;
+                document.getElementById('pickup_complement').value = complemento;
+                document.getElementById('pickup_city').value = cidade;
+                document.getElementById('pickup_zipcode').value = cep;
+                isUsingAddress = true; // Atualiza o estado para "usando endereço"
+            } else {
+                document.getElementById('pickup_street').value = '';
+                document.getElementById('pickup_number').value = '';
+                document.getElementById('pickup_complement').value = '';
+                document.getElementById('pickup_city').value = '';
+                document.getElementById('pickup_zipcode').value = '';
+                isUsingAddress = false; // Atualiza o estado para "não usando endereço"
+            }
+        });
+    </script>
+    <script src="https://code.jquery.com/jquery-3.7.1.slim.min.js" integrity="sha256-kmHvs0B+OpCW5GVHUNjv9rOmY0IvSIRcf7zGUDTDQM8=" crossorigin="anonymous"></script>
+    <script src="../jquery.mask.min.js"></script>
+    <script>
+        $('#emergency_contact').mask('(00) 00000-0000');
     </script>
 </body>
 

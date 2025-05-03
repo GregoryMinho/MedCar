@@ -2,14 +2,37 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+
+require '../vendor/autoload.php'; // Inclua o Composer autoloader
+
+
+
+use Google\Client as GoogleClient;
+
+// Carrega o arquivo client_secret.json
+$clientSecretPath = '../client_secret.json';
+$clientSecretData = json_decode(file_get_contents($clientSecretPath), true);
+
+// Configurações do Google OAuth 2.0 usando os dados do client_secret.json
+$client = new GoogleClient([
+    'client_id' => $clientSecretData['web']['client_id'],
+    'client_secret' => $clientSecretData['web']['client_secret'],
+    'redirect_uri' => $clientSecretData['web']['redirect_uris'][0],
+    'access_type' => 'offline',
+    'scope' => ['email', 'profile'],
+    'prompt' => 'consent'
+]);
+
+$authUrl = $client->createAuthUrl(['openid', 'email', 'profile']); // Escopos que você precisa
 ?>
+
 <!DOCTYPE html>
 <html lang="pt-br">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Medical Transport - Login Cliente</title>
+    <title>MedCar - Login Cliente</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -26,7 +49,6 @@ if (session_status() === PHP_SESSION_NONE) {
 </head>
 
 <body class="min-h-screen bg-gradient-to-r from-blue-900 to-blue-800">
-    <!-- Navbar -->
     <nav class="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-blue-900 to-blue-800 text-white shadow-md">
         <div class="container mx-auto px-4">
             <div class="flex items-center justify-between h-16">
@@ -48,7 +70,6 @@ if (session_status() === PHP_SESSION_NONE) {
         </div>
     </nav>
 
-    <!-- Mobile Menu -->
     <div id="mobile-menu" class="fixed inset-0 z-50 bg-blue-900 bg-opacity-95 flex flex-col text-white p-6 mobile-menu">
         <div class="flex justify-end">
             <button id="close-menu-button" class="text-white">
@@ -62,7 +83,6 @@ if (session_status() === PHP_SESSION_NONE) {
         </div>
     </div>
 
-    <!-- Login Section -->
     <section class="pt-32 pb-16">
         <div class="container mx-auto px-4">
             <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
@@ -71,12 +91,11 @@ if (session_status() === PHP_SESSION_NONE) {
                     <p class="text-xl">Acesse sua conta para agendar seus transportes</p>
                 </div>
                 <div class="flex flex-col md:flex-row">
-                    <!-- Login Form -->
                     <div class="w-full md:w-1/2 p-8">
                         <form action="actions/action_login_cliente.php" method="post" id="login-form" class="space-y-6">
                             <div>
                                 <label for="email" class="block text-sm font-medium text-gray-700">E-mail</label>
-                                <input type="email" id="email" name="email" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" placeholder="seuemail@exemplo.com" required>
+                                <input type="email" id="email" maxlength="50" name="email" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" placeholder="seuemail@exemplo.com" required>
                             </div>
                             <div>
                                 <label for="password" class="block text-sm font-medium text-gray-700">Senha</label>
@@ -103,36 +122,22 @@ if (session_status() === PHP_SESSION_NONE) {
                             </p>
                         </div>
                     </div>
-                    <!-- Benefits -->
                     <div class="w-full md:w-1/2 bg-gray-50 p-8">
                         <h4 class="text-xl font-bold mb-4 text-gray-800">Benefícios de ser Cliente</h4>
                         <ul class="space-y-2 mb-8 border-l-4 border-teal-500 pl-4">
                             <li>Agendamento rápido e seguro</li>
                             <li>Histórico de transportes</li>
-                            <li>Acompanhamento em tempo real</li>
                             <li>Cupons de desconto para clientes frequentes</li>
                             <li>Suporte 24 horas</li>
                         </ul>
 
-                        <!-- Add os links das paginas do face e google que não tinha -->
-                         
                         <div class="mt-8">
-                            <p class="text-sm text-gray-600 mb-4">Entrar com redes sociais</p>
+                            <p class="text-sm text-gray-600 mb-4">Entrar com o Google</p>
                             <div class="grid grid-cols-1">
-                                <script src="https://accounts.google.com/gsi/client" async></script>
-                                <div id="g_id_onload"
-                                    data-client_id="162031456903-j67l39klr0m4p0js3cf4pjsl7kleqmp2.apps.googleusercontent.com"
-                                    data-login_uri="https://localhost/MedQ-2/includes/login_google.php"
-                                    data-auto_prompt="false">
-                                </div>
-                                <div class="g_id_signin"
-                                    data-type="standard"
-                                    data-size="large"
-                                    data-theme="outline"
-                                    data-text="sign_in_with"
-                                    data-shape="rectangular"
-                                    data-logo_alignment="left">
-                                </div>                               
+                                <a href="<?php echo $authUrl; ?>" class="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                                    <img src="https://img.icons8.com/color/16/000000/google-logo.png" alt="Google Logo" class="mr-2">
+                                    Entrar com o Google
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -158,6 +163,7 @@ if (session_status() === PHP_SESSION_NONE) {
             mobileMenu.classList.remove('open');
         });
     </script>
+    
 </body>
 
 </html>

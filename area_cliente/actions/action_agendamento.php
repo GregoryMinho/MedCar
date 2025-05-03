@@ -1,9 +1,12 @@
 <?php
-include '../../includes/classe_usuario.php.php'; // inclui o arquivo de validação de login
+include '../../includes/classe_usuario.php'; // inclui o arquivo de validação de login
 require '../../includes/conexao_BdAgendamento.php'; // inclui o arquivo de conexão com o banco de dados
 
-$logged = new usuario\Usuario(); // instancia a classe de usuario, usando o namespace usuario\Usuario
-$logged->isLogged() ? null : header('Location: ../paginas/pagina_inicial.php');
+if (!isset($_SESSION['usuario'])) {
+    // Se a sessão não estiver iniciada, redireciona para a página de login
+    header("Location: medq-2/paginas/login_clientes.php");
+    exit();
+}
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Obtém os dados do formulário

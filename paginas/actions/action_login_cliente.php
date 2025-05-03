@@ -7,13 +7,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $senha = $_POST['password'];
 
     // Consulta o banco de dados para verificar as credenciais
-    $query = "SELECT * FROM clientes WHERE email = :email";
+    $query = "SELECT id, nome, email, senha, tipo FROM clientes WHERE email = :email";
     $stmt = $conn->prepare($query);
     $stmt->bindParam(':email', $email);
     $stmt->execute();
     $cliente = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($cliente) {
+        if (empty($cliente['senha'])) {
+            // Redireciona para definir senha se a senha estiver em branco
+            $_SESSION['usuario_incompleto'] = $cliente['id'];
+            header("Location: ../definir_senha.php");
+            exit();
+        }
+
         // Verifica a senha
         if (password_verify($senha, $cliente['senha'])) {
             // Inicia a sessão e armazena as informações do cliente
