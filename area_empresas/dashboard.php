@@ -7,21 +7,23 @@ require '../includes/conexao_BdAgendamento.php';
 
 // Consultas para os dados do dashboard
 $queries = [
-    'total_transportes' => "SELECT COUNT(*) AS total FROM agendamentos WHERE status = 'Concluído'",
+    'total_transportes' => "SELECT COUNT(*) AS total FROM agendamentos WHERE situacao = 'Concluido'",
     'taxa_conclusao' => "SELECT 
-                        (SUM(CASE WHEN status = 'Concluído' THEN 1 ELSE 0 END) / COUNT(*)) * 100 AS taxa
+                        (SUM(CASE WHEN situacao = 'Concluido' THEN 1 ELSE 0 END) / COUNT(*)) * 100 AS taxa
                         FROM agendamentos",
-    'pendencias' => "SELECT COUNT(*) AS total FROM agendamentos WHERE status = 'Em transporte'",
-    'veiculos_ativos' => "SELECT COUNT(*) AS total FROM veiculos WHERE status IN ('disponivel', 'em_uso')",
-    'status_motoristas' => "SELECT status, COUNT(*) AS total FROM motoristas GROUP BY status",
-    'atividades_recentes' => "SELECT * FROM agendamentos ORDER BY data_hora_agendamento DESC LIMIT 5",
-    'desempenho_mensal' => "SELECT 
-                            MONTHNAME(data_resumo) AS mes,
-                            SUM(quantidade_servicos) AS total
-                            FROM resumo_diario
-                            GROUP BY MONTH(data_resumo)
-                            ORDER BY MONTH(data_resumo) DESC LIMIT 6"
-];
+    'pendencias' => "SELECT COUNT(*) AS total FROM agendamentos WHERE situacao = 'Pendente'", // Corrigido para valor válido
+    'veiculos_ativos' => "SELECT COUNT(*) AS total FROM Motoristas_MedCar.Veiculos WHERE status IN ('disponivel', 'em_uso')", // Banco especificado
+    'status_motoristas' => "SELECT status, COUNT(*) AS total FROM Motoristas_MedCar.Motoristas GROUP BY status", // Banco especificado
+    'atividades_recentes' => "SELECT * FROM agendamentos ORDER BY agendado_em DESC LIMIT 5",
+
+        'desempenho_mensal' => "SELECT 
+                                MONTHNAME(data_resumo) AS mes,
+                                SUM(quantidade_servicos) AS total
+                                FROM dashboard_medcar.resumo_diario  
+                                GROUP BY MONTH(data_resumo)
+                                ORDER BY MONTH(data_resumo) DESC LIMIT 6"
+    ];
+
 
 // Executar consultas e armazenar resultados
 $results = [];

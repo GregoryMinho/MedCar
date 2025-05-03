@@ -1,6 +1,6 @@
 <?php
 // conexao_BdFinanceiro.php (PDO)
-$servername = "localhost:3307";
+$servername = "localhost:3306";
 $username = "root";
 $password = "";
 $dbname = "medcar_financeiro";

@@ -9,7 +9,24 @@ Usuario::verificarPermissao('empresa'); // Verifica se o usuário logado é uma 
 $selectedMonth = isset($_GET['month']) ? $_GET['month'] : '2024-03';
 
 // Query com filtro por mês usando consulta preparada
-$sql = "SELECT id, cliente_id, empresa_id, data_consulta, horario, situacao FROM agendamentos WHERE DATE_FORMAT(data_consulta, '%Y-%m') = :selectedMonth ORDER BY data_consulta DESC, horario DESC";
+// Query ajustada com JOIN
+$sql = "SELECT 
+            a.id, 
+            a.cliente_id, 
+            c.nome AS cliente_nome, 
+            a.rua_origem, 
+            a.data_consulta, 
+            a.horario, 
+            a.situacao 
+        FROM agendamentos a
+        LEFT JOIN medcar_cadastro_login.clientes c ON a.cliente_id = c.id
+        WHERE DATE_FORMAT(data_consulta, '%Y-%m') = :selectedMonth 
+        ORDER BY data_consulta DESC, horario DESC";
+
+
+
+
+
 $stmt = $conn->prepare($sql);
 $stmt->bindParam(':selectedMonth', $selectedMonth, PDO::PARAM_STR);
 $stmt->execute();
@@ -214,9 +231,9 @@ $dailyAverage = number_format($dailyAverage, 1);
                                 <div class="patient-card p-3">
                                     <div class="d-flex justify-content-between align-items-start">
                                         <div>
-                                            <h5><?= htmlspecialchars($patient['cliente_id']) ?></h5> <!-- Ajuste conforme o que deseja exibir -->
+                                        <h5><?= htmlspecialchars($patient['cliente_nome']) ?></h5> <!-- Ajuste conforme o que deseja exibir -->
                                             <p class="mb-1"><i class="fas fa-calendar-day me-2"></i><?= "$dataFormatada - $horarioFormatado" ?></p>
-                                            <p class="mb-1"><i class="fas fa-map-marker-alt me-2"></i><?= htmlspecialchars($patient['empresa_id']) ?></p> <!-- Ajuste conforme o destino -->
+                                            <p class="mb-1"><i class="fas fa-map-marker-alt me-2"></i><?= htmlspecialchars($patient['rua_origem']) ?></p> <!-- Ajuste conforme o destino -->
                                         </div>
                                         <span class="status-badge <?= $statusClass ?>"><?= $patient['situacao'] ?></span>
                                     </div>

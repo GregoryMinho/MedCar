@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
              if (password_verify($senha, $empresa['senha'])) {
             
             // Versão insegura com texto plano (apenas para teste)
-            // if ($senha === $empresa['senha']) { 
+           //  if ($senha === $empresa['senha']) { 
                 $_SESSION['usuario'] = [
                     'id' => $empresa['id'], // ID correto da empresa
                     'nome' => $empresa['nome'],
