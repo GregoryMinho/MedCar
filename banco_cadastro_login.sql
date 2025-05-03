@@ -22,6 +22,7 @@ CREATE TABLE clientes (
     senha VARCHAR(255) NOT NULL, -- A senha será armazenada criptografada
     telefone VARCHAR(20),
     cnpj VARCHAR(20) UNIQUE NOT NULL,
+    cep VARCHAR(9) NOT NULL, -- Adicionado o campo cep
     endereco VARCHAR(255) NOT NULL,
     cidade VARCHAR(100) NOT NULL,
     tipo VARCHAR(20) DEFAULT 'empresa',

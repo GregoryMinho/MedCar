@@ -9,6 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $telefone = $_POST['telefone'];
     $cidade = $_POST['cidade']; // Inclusão de endereco, cidade (localização)
     $endereco = $_POST['endereco'];
+    $cep = $_POST['cep']; // Captura o CEP
     $senha = password_hash($_POST['senha'], PASSWORD_BCRYPT); // Criptografa a senha
 
     // Recebe arrays de especialidades e veículos
@@ -19,9 +20,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Início da transação
         $conn->beginTransaction();
 
-        // Inserção da empresa
-        $sql = "INSERT INTO empresas (nome, email, cnpj, telefone, senha, cidade, endereco)
-                VALUES (:nome, :email, :cnpj, :telefone, :senha, :cidade, :endereco)";
+        //  Adiciona o campo cep no INSERT
+        $sql = "INSERT INTO empresas (nome, email, cnpj, telefone, senha, cidade, endereco, cep)
+                VALUES (:nome, :email, :cnpj, :telefone, :senha, :cidade, :endereco, :cep)";
         $stmt = $conn->prepare($sql);
         $stmt->bindParam(':nome', $nome);
         $stmt->bindParam(':email', $email);
@@ -30,9 +31,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->bindParam(':senha', $senha);
         $stmt->bindParam(':cidade', $cidade);
         $stmt->bindParam(':endereco', $endereco);
+        $stmt->bindParam(':cep', $cep);
         $stmt->execute();
 
-         // Obtém o ID da empresa recém-inserida
+        // Obtém o ID da empresa recém-inserida
         $empresa_id = $conn->lastInsertId();
 
         // Inserção das especialidades
@@ -44,7 +46,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':especialidade' => $esp
             ]);
         }
-
         // Inserção dos tipos de veículos
         $sqlVeiculo = "INSERT INTO empresa_veiculos (empresa_id, tipo_veiculo) VALUES (:empresa_id, :tipo_veiculo)";
         $stmtVeic = $conn->prepare($sqlVeiculo);
@@ -54,10 +55,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':tipo_veiculo' => $veic
             ]);
         }
-
         // Commit
         $conn->commit();
-
+        
         // Cria a sessão
         $_SESSION['usuario'] = [
             'id' => $empresa_id,
