@@ -191,6 +191,10 @@ $conn = null; // Fecha conexão avaliações
                 <i class="bi bi-people fs-5"></i>
                 Motoristas
             </a>
+            <a href="gestao_veiculos.php" class="w-full hover:text-teal-300 transition d-flex align-items-center gap-3">
+    <i class="bi bi-truck fs-5"></i> <!-- Ícone de veículo -->
+    Frota
+</a>
             <a href="relatorios_financeiros.php" class="w-full hover:text-teal-300 transition d-flex align-items-center gap-3">
                 <i class="bi bi-graph-up fs-5"></i>
                 Financeiro
@@ -240,6 +244,10 @@ $conn = null; // Fecha conexão avaliações
                     <i class="bi bi-people fs-6"></i>
                     <span>Motoristas</span>
                 </a>
+                <a href="gestao_veiculos.php" class="w-full hover:text-teal-300 transition d-flex align-items-center gap-3">
+    <i class="bi bi-truck fs-5"></i> <!-- Ícone de veículo -->
+    Frota
+</a>
                 <a href="relatorios_financeiros.php" class="flex items-center gap-3 ps-4 py-3 rounded-lg hover:bg-blue-800 transition">
                     <i class="bi bi-graph-up fs-6"></i>
                     <span>Financeiro</span>
