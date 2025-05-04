@@ -121,7 +121,7 @@ unset($_SESSION['sucesso'], $_SESSION['erro']);
                                 <a href="perfil_cliente.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-900">
                                     <i data-lucide="user" class="h-4 w-4 inline mr-2"></i>Minha Conta
                                 </a>
-                                <a href="../paginas/abas_menu_principal/aba_empresas.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-900">
+                                <a href="../paginas/pesquisar_empresa.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-900">
                                     <i data-lucide="calendar" class="h-4 w-4 inline mr-2"></i>Agendar
                                 </a>
                                 <a href="historico.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-900">
@@ -154,7 +154,7 @@ unset($_SESSION['sucesso'], $_SESSION['erro']);
             <i data-lucide="home" class="h-5 w-5"></i>
             <span>Dashboard</span>
         </a>
-        <a href="../paginas/abas_menu_principal/aba_empresas.php" class="flex items-center space-x-2 px-4 py-3 rounded-lg text-white hover:bg-blue-800 transition">
+        <a href="../paginas/pesquisar_empresa.php" class="flex items-center space-x-2 px-4 py-3 rounded-lg text-white hover:bg-blue-800 transition">
             <i data-lucide="calendar" class="h-5 w-5"></i>
             <span>Agendar</span>
         </a>
@@ -189,7 +189,7 @@ unset($_SESSION['sucesso'], $_SESSION['erro']);
                     <i data-lucide="home" class="h-5 w-5"></i>
                     <span>Dashboard</span>
                 </a>
-                <a href="/MedQ-2/paginas/abas_menu_principal/aba_empresas.php" class="flex items-center space-x-2 px-4 py-3 rounded-lg text-white hover:bg-blue-800 transition">
+                <a href="../paginas/pesquisar_empresa.php" class="flex items-center space-x-2 px-4 py-3 rounded-lg text-white hover:bg-blue-800 transition">
                     <i data-lucide="calendar" class="h-5 w-5"></i>
                     <span>Agendar</span>
                 </a>
@@ -286,7 +286,7 @@ unset($_SESSION['sucesso'], $_SESSION['erro']);
                 <div class="container mx-auto px-4">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div class="dashboard-card relative overflow-hidden bg-white rounded-xl shadow-lg p-6 text-center">
-                            <a href="../paginas/abas_menu_principal/aba_empresas.php">
+                            <a href="../paginas/pesquisar_empresa.php">
                                 <i data-lucide="ambulance" class="h-10 w-10 mx-auto text-teal-500 mb-3"></i>
                                 <h5 class="text-lg font-semibold text-blue-900 mb-2">Agendar Transporte</h5>
                                 <p class="text-sm text-gray-600 mb-4">Agende seu transporte médico com antecedência</p>
