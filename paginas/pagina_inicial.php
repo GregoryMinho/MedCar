@@ -77,9 +77,14 @@
                         </a>
                     </div>
                 </div>
-                <div class="md:w-1/2 flex justify-center">
+
+               <!-- Revisar essa parte pois não aparece a imagem  ta dando erro -->  
+
+               <!-- <div class="md:w-1/2 flex justify-center">
                     <img src="https://source.unsplash.com/random/600x400/?ambulance,medical" alt="Transporte Médico" class="rounded-lg shadow-2xl max-w-full h-auto" />
-                </div>
+                  </div> -->
+               <!---------------------------------------------------------------------------------------------------->  
+
             </div>
         </div>
     </section>
@@ -333,7 +338,7 @@
                         "A MedCar facilitou muito minha vida. Agora consigo agendar transportes para minhas consultas médicas com facilidade e segurança. O motorista sempre chega no horário e o veículo é muito confortável."
                     </p>
                     <div class="flex items-center">
-                        <img src="https://source.unsplash.com/random/100x100/?portrait,woman" alt="Cliente" class="w-12 h-12 rounded-full mr-4" />
+                        <img src="https://images.unsplash.com/photo-1607746882042-944635dfe10e?crop=faces&fit=crop&w=100&h=100" alt="Cliente" class="w-12 h-12 rounded-full mr-4" />
                         <div>
                             <h4 class="font-bold text-blue-900">Maria Silva</h4>
                             <p class="text-gray-500 text-sm">Paciente</p>
@@ -356,7 +361,9 @@
                         "Desde que cadastramos nossa empresa na MedCar, nosso número de clientes aumentou significativamente. O sistema de gestão é muito intuitivo e nos ajuda a organizar melhor nossa frota e agendamentos."
                     </p>
                     <div class="flex items-center">
-                        <img src="https://source.unsplash.com/random/100x100/?portrait,man" alt="Empresa" class="w-12 h-12 rounded-full mr-4" />
+                    <img src="https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=100&h=100&crop=faces&fit=crop" 
+     alt="Diretor de Empresa" 
+     class="w-12 h-12 rounded-full mr-4 object-cover">
                         <div>
                             <h4 class="font-bold text-blue-900">Carlos Oliveira</h4>
                             <p class="text-gray-500 text-sm">Diretor de Empresa</p>
@@ -376,12 +383,14 @@
                         </div>
                     </div>
                     <p class="text-gray-600 mb-6 italic">
-                        "Como médico, recomendo a MedCar para meus pacientes que precisam de transporte. O serviço é confiável e os pacientes chegam às consultas no horário, sem estresse. Isso melhora muito a experiência de atendimento."
+                        "Como médica, recomendo a MedCar para meus pacientes que precisam de transporte. O serviço é confiável e os pacientes chegam às consultas no horário, sem estresse. Isso melhora muito a experiência de atendimento."
                     </p>
                     <div class="flex items-center">
-                        <img src="https://source.unsplash.com/random/100x100/?doctor" alt="Médico" class="w-12 h-12 rounded-full mr-4" />
+                    <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop" 
+     alt="Avatar" 
+     class="w-8 h-8 md:w-12 md:h-12 rounded-full mr-2 md:mr-4">
                         <div>
-                            <h4 class="font-bold text-blue-900">Dr. Paulo Santos</h4>
+                            <h4 class="font-bold text-blue-900">Dr. Paula Santos</h4>
                             <p class="text-gray-500 text-sm">Cardiologista</p>
                         </div>
                     </div>
@@ -398,7 +407,7 @@
                 Junte-se a milhares de pacientes e empresas que já utilizam a MedCar para facilitar o transporte médico não emergencial.
             </p>
             <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-                <a href="aba_entrar.php" class="bg-teal-500 hover:bg-teal-600 text-white font-medium py-3 px-8 rounded-lg transition-all hover:scale-105">
+                <a href="/MedQ-2/paginas/abas_menu_principal/aba_entrar.php" class="bg-teal-500 hover:bg-teal-600 text-white font-medium py-3 px-8 rounded-lg transition-all hover:scale-105">
                     Cadastre-se Gratuitamente
                 </a>
                 <a href="#contato" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white font-medium py-3 px-8 rounded-lg transition-all hover:scale-105">
@@ -504,13 +513,13 @@
                         Conectando pacientes e empresas de transporte médico não emergencial desde 2020.
                     </p>
                     <div class="flex space-x-4">
-                        <a href="#" class="text-white hover:text-teal-300 transition">
+                        <a href="https://web.facebook.com" class="text-white hover:text-teal-300 transition">
                             <i data-lucide="facebook" class="h-5 w-5"></i>
                         </a>
-                        <a href="#" class="text-white hover:text-teal-300 transition">
+                        <a href="https://www.instagram.com" class="text-white hover:text-teal-300 transition">
                             <i data-lucide="instagram" class="h-5 w-5"></i>
                         </a>
-                        <a href="#" class="text-white hover:text-teal-300 transition">
+                        <a href="https://x.com" class="text-white hover:text-teal-300 transition">
                             <i data-lucide="twitter" class="h-5 w-5"></i>
                         </a>
                         <a href="#" class="text-white hover:text-teal-300 transition">

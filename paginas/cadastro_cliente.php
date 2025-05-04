@@ -42,7 +42,6 @@ if (session_status() === PHP_SESSION_NONE) {
                     </a>
                     <div class="hidden md:flex space-x-6">
                         <a href="pagina_inicial.php" class="font-medium hover:text-teal-300 transition">Home</a>
-                        <a href="abas_menu_principal/aba_empresas.php" class="font-medium hover:text-teal-300 transition">Empresas</a>
                         <a href="pagina_inicial.php#contato" class="font-medium hover:text-teal-300 transition">Contato</a>
                     </div>
                     <button id="mobile-menu-button" aria-expanded="false" aria-controls="mobile-menu" class="md:hidden text-white">
