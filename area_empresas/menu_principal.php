@@ -1,14 +1,20 @@
 <?php
 require '../includes/classe_usuario.php';
-
 use usuario\Usuario;
-// Usuario::verificarPermissao('empresa'); // Verifica se o usuário tem permissão de empresa
 
+// Inicia a sessão se não estiver iniciada
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-$_SESSION['usuario']['id'] = 1;
+// Verificação de permissão (descomente quando implementar)
+// Usuario::verificarPermissao('empresa');
+
+// Mensagens de sessão
+$mensagem_sucesso = $_SESSION['sucesso'] ?? null;
+$mensagem_erro = $_SESSION['erro'] ?? null;
+unset($_SESSION['sucesso'], $_SESSION['erro']);
+
 // --- CONEXÃO AGENDAMENTOS ---
 require '../includes/conexao_BdAgendamento.php';
 
@@ -110,9 +116,58 @@ $conn = null; // Fecha conexão avaliações
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="style/style_menu_principal.css">
     <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateY(20px); }
+            10% { opacity: 1; transform: translateY(0); }
+            90% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-20px); }
+        }
+        .animate-fade-in-out {
+            animation: fadeInOut 5s ease-in-out forwards;
+        }
+        .mobile-menu {
+            transition: transform 0.3s ease-in-out;
+            transform: translateX(100%);
+        }
+        .mobile-menu.open {
+            transform: translateX(0);
+        }
+        .vehicle-status {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        .status-available {
+            background-color: #10B981;
+        }
+        .status-in-use {
+            background-color: #F59E0B;
+        }
+        .status-maintenance {
+            background-color: #EF4444;
+        }
+    </style>
 </head>
 
 <body class="min-h-screen bg-gray-50">
+    <!-- Mensagens de feedback -->
+    <?php if ($mensagem_sucesso): ?>
+        <div class="fixed top-4 right-4 z-50 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center animate-fade-in-out">
+            <i data-lucide="check-circle" class="w-5 h-5 mr-2"></i>
+            <?= htmlspecialchars($mensagem_sucesso) ?>
+        </div>
+    <?php endif; ?>
+
+    <?php if ($mensagem_erro): ?>
+        <div class="fixed top-4 right-4 z-50 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center animate-fade-in-out">
+            <i data-lucide="alert-circle" class="w-5 h-5 mr-2"></i>
+            <?= htmlspecialchars($mensagem_erro) ?>
+        </div>
+    <?php endif; ?>
+
     <!-- Navbar -->
     <nav class="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-blue-900 to-blue-800 text-white shadow-md">
         <div class="container mx-auto px-4">
@@ -233,9 +288,9 @@ $conn = null; // Fecha conexão avaliações
                     <span>Agendamentos</span>
                 </a>
                 <a href="aprovar_agendamentos.php" class="flex items-center gap-3 ps-4 py-3 rounded-lg hover:bg-blue-800 transition group">
-    <i class="bi bi-check-circle fs-6 text-white group-hover:text-green-400"></i>
-    <span class="text-white group-hover:text-green-400">Aprovar Agendamentos</span>
-</a>
+                    <i class="bi bi-check-circle fs-6 text-white group-hover:text-green-400"></i>
+                    <span class="text-white group-hover:text-green-400">Aprovar Agendamentos</span>
+                </a>
                 <a href="gestao_motoristas.php" class="flex items-center gap-3 ps-4 py-3 rounded-lg hover:bg-blue-800 transition">
                     <i class="bi bi-people fs-6"></i>
                     <span>Motoristas</span>
@@ -259,15 +314,13 @@ $conn = null; // Fecha conexão avaliações
                         <i data-lucide="chevron-down" class="h-5 w-5"></i>
                     </button>
                     <div id="dropdown-menu" class="absolute hidden bg-white text-blue-900 rounded-lg shadow-lg mt-2 w-48">
-                        <a href="editar_empresa.php" class="block px-4 py-2 hover:bg-gray-100">Editar Cadastro</a>
+                        <a href="editar_cadastro_empresa.php" class="block px-4 py-2 hover:bg-gray-100">Editar Cadastro</a>
                         <a href="seguranca.php" class="block px-4 py-2 hover:bg-gray-100">Segurança</a>
                         <a href="preferencias.php" class="block px-4 py-2 hover:bg-gray-100">Preferências</a>
                     </div>
                 </div>
-              
             </nav>
         </div>
-
 
         <!-- Main Content Area -->
         <div class="flex-1">
@@ -312,7 +365,6 @@ $conn = null; // Fecha conexão avaliações
                         </div>
 
                         <!-- Pendências -->
-                        <!-- Card de Pendências -->
                         <div class="dashboard-card relative overflow-hidden bg-amber-50 text-blue-900 rounded-xl shadow-lg p-4 text-center">
                             <div class="mb-2">
                                 <i data-lucide="alert-triangle" class="h-8 w-8 mx-auto text-amber-500"></i>
@@ -320,10 +372,10 @@ $conn = null; // Fecha conexão avaliações
                             <h5 class="text-sm font-semibold mb-1">Pendências</h5>
                             <p class="text-xl font-bold"><?php echo $totalPendentes; ?></p>
                         </div>
-
                     </div>
                 </div>
             </section>
+            
             <!-- Main Sections -->
             <div class="container mx-auto px-4 py-8">
                 <!-- Agendamentos -->
@@ -333,7 +385,7 @@ $conn = null; // Fecha conexão avaliações
                         Agenda de Hoje
                     </h4>
                     <?php if ($proximo_agendamento): ?>
-                        <div class=" mt-3 h-56 overflow-y-auto">
+                        <div class="mt-3 h-56 overflow-y-auto">
                             <?php foreach ($proximo_agendamento as $chave): ?>
                                 <a href="agendamentos_pacientes.php">
                                     <div class="schedule-timeline mb-4 bg-teal-50 hover:bg-gray-100 transition duration-200 ease-in-out rounded-lg p-4">
@@ -356,8 +408,7 @@ $conn = null; // Fecha conexão avaliações
                             <?php endforeach; ?>
                         </div>
                     <?php else: ?>
-                        <div class=" mt-3">
-
+                        <div class="mt-3">
                             <div class="mb-4">
                                 <div class="flex flex-col md:flex-row md:justify-between md:items-center">
                                     <div>
@@ -369,6 +420,7 @@ $conn = null; // Fecha conexão avaliações
                         </div>
                     <?php endif; ?>
                 </div>
+                
                 <!-- Gestão de Frota e Motoristas -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <!-- Gestão de Frota -->
@@ -399,18 +451,17 @@ $conn = null; // Fecha conexão avaliações
                                         </td>
                                         <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
                                             <div class="vehicle-status status-available"></div>
+                                            Disponível
                                         </td>
                                         <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
                                             15/08/2024
                                         </td>
                                     </tr>
-                                    <!-- Mais veículos... -->
                                 </tbody>
                             </table>
                         </div>
                     </div>
-
-                    <!-- Motoristas -->
+                 <!-- Motoristas -->
                     <div class="bg-white rounded-xl shadow-lg p-6 h-full">
                         <h4 class="text-xl font-bold text-blue-900 mb-4 flex items-center">
                             <i data-lucide="users" class="h-5 w-5 mr-2 text-teal-500"></i>
@@ -428,7 +479,6 @@ $conn = null; // Fecha conexão avaliações
                                     </button>
                                 </div>
                             </div>
-                            <!-- Mais motoristas... -->
                         </div>
                     </div>
                 </div>
@@ -451,8 +501,16 @@ $conn = null; // Fecha conexão avaliações
     </div>
 
     <script>
-        // Initialize Lucide icons
+        // Inicializa os ícones do Lucide
         lucide.createIcons();
+
+        // Fecha automaticamente as mensagens após 5 segundos
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                const messages = document.querySelectorAll('.animate-fade-in-out');
+                messages.forEach(msg => msg.remove());
+            }, 5000);
+        });
 
         // Mobile menu functionality
         const mobileMenuButton = document.getElementById('mobile-menu-button');
@@ -468,40 +526,34 @@ $conn = null; // Fecha conexão avaliações
             mobileMenu.classList.remove('open');
             document.body.style.overflow = ''; // Volta a permitir o rolagem do plano de fundo
         });
-    </script>
-    <script>
+
+        // Dropdown menus
+        const dropdownButton = document.getElementById('dropdown-button');
+        const dropdownMenu = document.getElementById('dropdown-menu');
         const dropdownButtonMobile = document.getElementById('dropdown-button-mobile');
         const dropdownMenuMobile = document.getElementById('dropdown-menu-mobile');
 
-        // Toggle dropdown visibility on button click
-        dropdownButtonMobile.addEventListener('click', () => {
-            dropdownMenuMobile.classList.toggle('hidden');
-        });
+        if (dropdownButton && dropdownMenu) {
+            dropdownButton.addEventListener('click', () => {
+                dropdownMenu.classList.toggle('hidden');
+            });
+        }
 
-        // Close dropdown if clicked outside
+        if (dropdownButtonMobile && dropdownMenuMobile) {
+            dropdownButtonMobile.addEventListener('click', () => {
+                dropdownMenuMobile.classList.toggle('hidden');
+            });
+        }
+
+        // Close dropdowns when clicking outside
         document.addEventListener('click', (event) => {
-            if (!dropdownButtonMobile.contains(event.target) && !dropdownMenu.contains(event.target)) {
+            if (dropdownButton && !dropdownButton.contains(event.target)) {
+                dropdownMenu.classList.add('hidden');
+            }
+            if (dropdownButtonMobile && !dropdownButtonMobile.contains(event.target)) {
                 dropdownMenuMobile.classList.add('hidden');
             }
         });
     </script>
 </body>
-<script>
-    const dropdownButton = document.getElementById('dropdown-button');
-    const dropdownMenu = document.getElementById('dropdown-menu');
-
-    // Toggle dropdown visibility on button click
-    dropdownButton.addEventListener('click', () => {
-        dropdownMenu.classList.toggle('hidden');
-    });
-
-    // Close dropdown if clicked outside
-    document.addEventListener('click', (event) => {
-        if (!dropdownButton.contains(event.target) && !dropdownMenu.contains(event.target)) {
-            dropdownMenu.classList.add('hidden');
-        }
-    });
-</script>
-</body>
-
 </html>
