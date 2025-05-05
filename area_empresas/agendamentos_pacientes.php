@@ -59,12 +59,26 @@ function gerarCalendario($mes, $ano, $agendamentos) {
     return $calendario;
 }
 
-// Filtros
+
+$mesAno = $_GET['mes'] ?? date('Y-m');
+
+// Verifica se o valor está no formato "YYYY-MM"
+if (preg_match('/^\d{4}-\d{2}$/', $mesAno)) {
+    $dataFiltro = explode('-', $mesAno);
+} else {
+    $mesAno = date('Y-m');
+    $dataFiltro = explode('-', $mesAno);
+}
+
 $filtros = [
     'status' => $_GET['status'] ?? 'all',
-    'mes' => $_GET['mes'] ?? date('Y-m'),
+    'mes' => $mesAno,
     'tipo' => $_GET['tipo'] ?? 'all'
 ];
+
+// Extrai ano e mês como inteiros
+$ano = (int)$dataFiltro[0];
+$mes = (int)$dataFiltro[1];
 
 // Intervalo do mês
 $inicio_mes = $filtros['mes'] . '-01';
@@ -232,21 +246,28 @@ $calendario = gerarCalendario($mes, $ano, $agendamentos);
             });
     }
 
-    function showAppointmentDetails(id) {
-        isShowingDetails = true; // Marcamos que estamos visualizando detalhes
-        
-        fetch(`get_detalhes_agendamento.php?id=${id}`)
-            .then(response => response.text())
-            .then(html => {
-                document.getElementById('modalAgendamentosList').innerHTML = `
-                    <button onclick="backToList()" class="btn btn-secondary mb-3">
-                        <i class="fas fa-arrow-left me-2"></i>Voltar para Lista
-                    </button>
-                    ${html}
-                `;
-            });
-    }
-
+    // Substituir a função showAppointmentDetails por:
+function showAppointmentDetails(id) {
+    isShowingDetails = true;
+    
+    fetch(`get_detalhes_agendamento.php?id=${id}`)
+        .then(response => {
+            if (!response.ok) throw new Error('Erro na rede');
+            return response.text();
+        })
+        .then(html => {
+            document.getElementById('modalAgendamentosList').innerHTML = `
+                <button onclick="backToList()" class="btn btn-secondary mb-3">
+                    <i class="fas fa-arrow-left me-2"></i>Voltar
+                </button>
+                ${html}`;
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            document.getElementById('modalAgendamentosList').innerHTML = `
+                <div class="alert alert-danger">Erro ao carregar detalhes: ${error.message}</div>`;
+        });
+}
     function backToList() {
         if(currentDate && !isShowingDetails) {
             showScheduleDetails(currentDate);
@@ -271,5 +292,6 @@ $calendario = gerarCalendario($mes, $ano, $agendamentos);
     return `${d}/${m}/${data.getFullYear()}`;
 }
     </script>
+    
 </body>
 </html>

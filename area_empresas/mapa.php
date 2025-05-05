@@ -177,7 +177,25 @@
                     }
                 });
         }
+        function getParametroURL(nome) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(nome);
+    }
 
+    window.onload = () => {
+        const origemParam = getParametroURL('rua_origem');
+        const destinoParam = getParametroURL('rua_destino');
+
+        if (origemParam && destinoParam) {
+            document.getElementById('origem').value = origemParam;
+            document.getElementById('destino').value = destinoParam;
+
+            // Espera o mapa carregar antes de calcular
+            setTimeout(() => {
+                calcularRota();
+            }, 500);
+        }
+    };
         function calcularRota() {
             const origem = document.getElementById('origem').value;
             const destino = document.getElementById('destino').value;

@@ -315,6 +315,11 @@ $conn = null; // Fecha conexão avaliações
                     <i class="bi bi-star fs-6"></i>
                     <span>Avaliações</span>
                 </a>
+                <a href="batepapo_clientes.php" class="flex items-center gap-3 ps-4 py-3 rounded-lg hover:bg-blue-800 transition">
+    <i class="bi bi-chat-dots fs-6"></i>
+    <span>Bate-Papo com Clientes</span>
+</a>
+
                 <div class="relative">
                     <button id="dropdown-button" class="flex items-center space-x-2 px-4 py-3 rounded-lg text-white hover:bg-blue-800 transition focus:outline-none">
                         <i data-lucide="settings" class="h-5 w-5"></i>

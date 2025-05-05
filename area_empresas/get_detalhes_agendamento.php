@@ -28,7 +28,12 @@ if ($dados) {
     echo '</div>';
     
     echo '<div class="col-md-6">';
-    echo '<p><strong>Endereço:</strong> '.htmlspecialchars($dados['rua_destino']).'</p>';
+    echo '<p><strong>Endereço:</strong> ' . htmlspecialchars($dados['rua_destino']) . '
+    <a href="mapa.php?rua_origem=' . urlencode($dados['rua_origem']) . '&rua_destino=' . urlencode($dados['rua_destino']) . '" 
+       class="btn btn-sm btn-outline-primary ms-2" target="_blank">
+       <i class="fas fa-map-marker-alt"></i> Ver rota
+    </a></p>';
+
     echo '<p><strong>Tipo de Transporte:</strong> '.htmlspecialchars($dados['tipo_transporte']).'</p>';
     echo '<p><strong>Status:</strong> <span class="badge '.getStatusClass($dados['situacao']).'">'.htmlspecialchars($dados['situacao']).'</span></p>';
     echo '</div>';
