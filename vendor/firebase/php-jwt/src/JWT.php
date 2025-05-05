@@ -38,7 +38,7 @@ class JWT
      *
      * @var int
      */
-    public static $leeway = 0;
+    public static $leeway = 60; // Adiciona 60 segundos de margem
 
     /**
      * Allow the current timestamp to be specified.

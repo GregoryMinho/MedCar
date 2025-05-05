@@ -66,7 +66,7 @@ $_SESSION['tipo_login_google'] = 'empresa'; // Define o tipo de login como empre
     <section class="pt-32 pb-16">
         <div class="container mx-auto px-4">
             <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
-                <div class="bg-teal-500 text-gray-800 p-8 text-center">
+                <div class="bg-teal-500 text-white p-8 text-center">
                     <h2 class="text-3xl font-bold mb-2">Acesso da Empresa</h2>
                     <p class="text-xl">Entre com sua conta corporativa</p>
                 </div>

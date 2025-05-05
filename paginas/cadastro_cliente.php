@@ -42,7 +42,6 @@ if (session_status() === PHP_SESSION_NONE) {
                     </a>
                     <div class="hidden md:flex space-x-6">
                         <a href="pagina_inicial.php" class="font-medium hover:text-teal-300 transition">Home</a>
-                        <a href="abas_menu_principal/aba_empresas.php" class="font-medium hover:text-teal-300 transition">Empresas</a>
                         <a href="pagina_inicial.php#contato" class="font-medium hover:text-teal-300 transition">Contato</a>
                     </div>
                     <button id="mobile-menu-button" aria-expanded="false" aria-controls="mobile-menu" class="md:hidden text-white">
@@ -152,7 +151,7 @@ if (session_status() === PHP_SESSION_NONE) {
                                 <label for="confirmar_senha" class="block text-sm font-medium text-gray-700">Confirmar Senha</label>
                                 <input type="password" id="confirmar_senha" name="confirmar_senha" maxlength="20" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" placeholder="••••••••" minlength="8" required>
                             </div>
-                            <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-teal-500 hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500">
+                            <button type="submit" id="submit-button" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-teal-500 hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500">
                                 Cadastrar
                             </button>
                         </form>
@@ -198,13 +197,17 @@ if (session_status() === PHP_SESSION_NONE) {
 
         // Form submission
         document.getElementById('cadastro-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            // Aqui pode adicionar validações ou enviar o formulário
+            const submitButton = document.getElementById('submit-button');
+            submitButton.disabled = true; // Disable the button
+            submitButton.textContent = 'Aguarde...'; // Change button text
             const senha = document.getElementById('senha').value;
             const confirmarSenha = document.getElementById('confirmar_senha').value;
 
             if (senha !== confirmarSenha) {
                 alert('As senhas não coincidem!');
+                submitButton.disabled = false; // Re-enable the button if validation fails
+                submitButton.textContent = 'Cadastrar'; // Reset button text
+                e.preventDefault();
                 return;
             }
             this.submit();
@@ -214,7 +217,7 @@ if (session_status() === PHP_SESSION_NONE) {
         const dataNascimentoInput = document.getElementById('data_nascimento');
         const hoje = new Date();
         const maxDate = new Date(hoje.getFullYear() - 120, hoje.getMonth(), hoje.getDate()); // ano máximo 120 anos atrás
-        // Definindo a data mínima como a data de hoje
+// Definindo a data mínima como a data de hoje
         const minDate = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
         dataNascimentoInput.max = minDate.toISOString().split('T')[0];
         dataNascimentoInput.min = maxDate.toISOString().split('T')[0];

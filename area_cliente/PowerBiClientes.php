@@ -1,0 +1,1 @@
+<iframe title="Dashbord do financeiro" width="1440" height="641" src="https://app.powerbi.com/reportEmbed?reportId=3e27b360-a255-4bae-9bb7-e02569fad333&autoAuth=true&ctid=4d6927e7-815c-486c-97a6-d227a5e13352" frameborder="0" allowFullScreen="true"></iframe>

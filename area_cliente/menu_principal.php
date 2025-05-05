@@ -59,6 +59,14 @@ $stmtMensagens->bindParam(':cliente_id', $_SESSION['usuario']['id'], PDO::PARAM_
 $stmtMensagens->execute();
 $ultimasMensagens = $stmtMensagens->fetchAll(PDO::FETCH_ASSOC);
 
+require '../includes/conexao_BdCadastroLogin.php'; // Inclui a conexão com o banco de dados
+
+$stmtmedico = $conn->prepare("SELECT alergias, doencas_cronicas, remedio_recorrente FROM detalhe_medico WHERE id_cliente = :id");
+$stmtmedico->bindParam(':id', $_SESSION['usuario']['id'], PDO::PARAM_INT);
+$stmtmedico->execute();
+$detalhesMedicos = $stmtmedico->fetch(PDO::FETCH_ASSOC);
+
+
 $conn = null;
 
 
@@ -121,7 +129,7 @@ unset($_SESSION['sucesso'], $_SESSION['erro']);
                                 <a href="perfil_cliente.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-900">
                                     <i data-lucide="user" class="h-4 w-4 inline mr-2"></i>Minha Conta
                                 </a>
-                                <a href="../paginas/abas_menu_principal/aba_empresas.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-900">
+                                <a href="../paginas/pesquisar_empresa.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-900">
                                     <i data-lucide="calendar" class="h-4 w-4 inline mr-2"></i>Agendar
                                 </a>
                                 <a href="historico.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-900">
@@ -154,7 +162,7 @@ unset($_SESSION['sucesso'], $_SESSION['erro']);
             <i data-lucide="home" class="h-5 w-5"></i>
             <span>Dashboard</span>
         </a>
-        <a href="../paginas/abas_menu_principal/aba_empresas.php" class="flex items-center space-x-2 px-4 py-3 rounded-lg text-white hover:bg-blue-800 transition">
+        <a href="../paginas/pesquisar_empresa.php" class="flex items-center space-x-2 px-4 py-3 rounded-lg text-white hover:bg-blue-800 transition">
             <i data-lucide="calendar" class="h-5 w-5"></i>
             <span>Agendar</span>
         </a>
@@ -189,9 +197,13 @@ unset($_SESSION['sucesso'], $_SESSION['erro']);
                     <i data-lucide="home" class="h-5 w-5"></i>
                     <span>Dashboard</span>
                 </a>
-                <a href="/MedQ-2/paginas/abas_menu_principal/aba_empresas.php" class="flex items-center space-x-2 px-4 py-3 rounded-lg text-white hover:bg-blue-800 transition">
+                <a href="../paginas/pesquisar_empresa.php" class="flex items-center space-x-2 px-4 py-3 rounded-lg text-white hover:bg-blue-800 transition">
                     <i data-lucide="calendar" class="h-5 w-5"></i>
                     <span>Agendar</span>
+                </a>
+                <a href="PowerBiClientes.php" class="flex items-center space-x-2 px-4 py-3 rounded-lg text-white hover:bg-blue-800 transition">
+                <i data-lucide="user" class="h-5 w-5"></i>
+                    <span>Dashboard Clientes</span>
                 </a>
                 <a href="historico.php" class="flex items-center space-x-2 px-4 py-3 rounded-lg text-white hover:bg-blue-800 transition">
                     <i data-lucide="clock" class="h-5 w-5"></i>
@@ -286,7 +298,7 @@ unset($_SESSION['sucesso'], $_SESSION['erro']);
                 <div class="container mx-auto px-4">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div class="dashboard-card relative overflow-hidden bg-white rounded-xl shadow-lg p-6 text-center">
-                            <a href="../paginas/abas_menu_principal/aba_empresas.php">
+                            <a href="../paginas/pesquisar_empresa.php">
                                 <i data-lucide="ambulance" class="h-10 w-10 mx-auto text-teal-500 mb-3"></i>
                                 <h5 class="text-lg font-semibold text-blue-900 mb-2">Agendar Transporte</h5>
                                 <p class="text-sm text-gray-600 mb-4">Agende seu transporte médico com antecedência</p>
@@ -387,11 +399,10 @@ unset($_SESSION['sucesso'], $_SESSION['erro']);
                                 <i data-lucide="file-text" class="h-5 w-5 mr-2 text-teal-500"></i>
                                 Informações Médicas
                             </h4>
-                            <ul class="divide-y">
-                                <li class="py-3 text-gray-700">Tipo Sanguíneo: <span class="font-medium">O+</span></li>
-                                <li class="py-3 text-gray-700">Alergias: <span class="font-medium">Nenhuma</span></li>
-                                <li class="py-3 text-gray-700">Doença cronica:<span class="font-medium">Não</span></li>
-                                <li class="py-3 text-gray-700">Medicação Regular: <span class="font-medium">Não</span></li>
+                            <ul class="divide-y">                    
+                                <li class="py-3 text-gray-700">Alergias: <span class="font-medium"><?= $detalhesMedicos['alergias'] ?? 'não cadastrado'?></span></li>
+                                <li class="py-3 text-gray-700">Doença cronica: <span class="font-medium"><?= $detalhesMedicos['doencas_cronicas'] ?? 'não cadastrado' ?></span></li>
+                                <li class="py-3 text-gray-700">Medicação Regular: <span class="font-medium"><?= $detalhesMedicos['remedio_recorrente'] ?? 'não cadastrado'?></span></li>
                             </ul>
                         </div>
 
