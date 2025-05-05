@@ -12,38 +12,53 @@ if (!isset($_SESSION)) {
 $idUser = $_SESSION['usuario']['id'];
 
 // busca os dados do cliente e do endereço
-$stmt = $conn->prepare("SELECT
- c.nome, c.email, c.cpf, c.telefone, c.foto,
-  c.data_nascimento, c.contato_emergencia, e.rua,
-   e.numero, e.complemento, e.bairro, e.cidade, e.estado, e.cep
-  FROM clientes c
-  INNER JOIN enderecos_clientes e ON c.id = e.id_cliente
-  WHERE c.id = :id");
-$stmt->bindParam(':id', $idUser, PDO::PARAM_INT);
-$stmt->execute();
-$result = $stmt->fetch(PDO::FETCH_ASSOC);
-if ($result) {
-    $_SESSION['usuario'] = array_merge($_SESSION['usuario'], $result);
-} else {
-    echo "Erro ao buscar informações do usuário." . $idUser;
+try {
+    $stmt = $conn->prepare("SELECT
+     c.nome, c.email, c.cpf, c.telefone, c.foto,
+      c.data_nascimento, c.contato_emergencia, e.rua,
+       e.numero, e.complemento, e.bairro, e.cidade, e.estado, e.cep
+      FROM clientes c
+      INNER JOIN enderecos_clientes e ON c.id = e.id_cliente
+      WHERE c.id = :id");
+    $stmt->bindParam(':id', $idUser, PDO::PARAM_INT);
+    $stmt->execute();
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    if ($result) {
+        $_SESSION['usuario']['data_nascimento'] = $result['data_nascimento'];
+        $_SESSION['usuario']['contato_emergencia'] = $result['contato_emergencia'];
+        $_SESSION['usuario']['nome'] = $result['nome'];
+        $_SESSION['usuario']['foto'] = $result['foto'];
+        $_SESSION['usuario']['email'] = $result['email'];
+        $_SESSION['usuario']['cpf'] = $result['cpf'];
+        $_SESSION['usuario']['telefone'] = $result['telefone'];
+        // Armazena apenas os dados de endereço em 'endereco'
+        $_SESSION['usuario']['endereco'] = [
+        'rua' => $result['rua'],
+        'numero' => $result['numero'],
+        'complemento' => $result['complemento'],
+        'bairro' => $result['bairro'],
+        'cidade' => $result['cidade'],
+        'estado' => $result['estado'],
+        'cep' => $result['cep']
+        ];
+    } 
+} catch (PDOException $e) {
+    echo "Erro ao buscar informações do usuário: " . $e->getMessage();
 }
-
-// busca os dados médicos do cliente
-$stmt = $conn->prepare("SELECT alergias, doencas_cronicas, remedio_recorrente FROM detalhe_medico WHERE id_cliente = :id_cliente");
-$stmt->bindParam(':id_cliente', $idUser, PDO::PARAM_INT);
-$stmt->execute();
-$result = $stmt->fetch(PDO::FETCH_ASSOC);
-if ($result) {
-    $_SESSION['usuario'] = $result;
-} else {
-    echo "Erro ao buscar informações médicas do usuário." . $idUser;
+try {
+    $stmt = $conn->prepare("SELECT alergias, doencas_cronicas, remedio_recorrente FROM detalhe_medico WHERE id_cliente = :id_cliente");
+    $stmt->bindParam(':id_cliente', $idUser, PDO::PARAM_INT);
+    $stmt->execute();
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    if ($result) {
+        // Armazena apenas os detalhes médicos em 'detalhes'
+        $_SESSION['usuario']['detalhes'] = $result;
+    }
+} catch (PDOException $e) {
+    echo "Erro ao buscar informações médicas do usuário: " . $e->getMessage();
 }
-
+   
 $conn = null; // Fecha a conexão com o banco de dados
-
-echo '<pre>';
-var_dump($_SESSION['usuario']);
-echo '</pre>';
 
 // Verifica se há mensagens de sucesso ou erro na sessão
 $mensagemSucesso = $_SESSION['sucesso'] ?? null;
@@ -149,8 +164,7 @@ unset($_SESSION['sucesso'], $_SESSION['erro']);
                             <div class="w-32 h-32 rounded-full overflow-hidden bg-gray-200 border-4 border-white shadow-lg">
                                 <img src="<?= $_SESSION['usuario']['foto'] ?>" alt="Foto de Perfil" class="w-full h-full object-cover">
                             </div>
-                        </div>
-
+                        </div>                      
                         <div class="flex-1 text-center md:text-left">
                             <h2 class="text-2xl font-bold text-blue-900"><?= $_SESSION['usuario']['nome'] ?></h2>
                             <p class="text-gray-600 flex items-center justify-center md:justify-start mt-1">
@@ -163,7 +177,7 @@ unset($_SESSION['sucesso'], $_SESSION['erro']);
                             </p>
                             <p class="text-gray-600 flex items-center justify-center md:justify-start mt-1">
                                 <i data-lucide="calendar" class="h-4 w-4 mr-2 text-teal-500"></i>
-                                <?= $_SESSION['usuario']['data_nascimento'] ?? ''; ?>
+                                <?= $_SESSION['usuario']['data_nascimento'] ?? 'data de nascimento'; ?>
                             </p>
                         </div>
 
@@ -262,49 +276,49 @@ unset($_SESSION['sucesso'], $_SESSION['erro']);
                             <div>
                                 <label class="block text-gray-700 font-medium mb-1">Rua/Avenida</label>
                                 <p class="text-gray-800 border border-gray-200 rounded-lg px-4 py-2 bg-gray-50">
-                                    <?= $_SESSION['usuario']['rua'] ?? ''; ?>
+                                    <?= $_SESSION['usuario']['endereco']['rua'] ?? ''; ?>
                                 </p>
                             </div>
 
                             <div>
                                 <label class="block text-gray-700 font-medium mb-1">Número</label>
                                 <p class="text-gray-800 border border-gray-200 rounded-lg px-4 py-2 bg-gray-50">
-                                    <?= $_SESSION['usuario']['numero'] ?? ''; ?>
+                                    <?= $_SESSION['usuario']['endereco']['numero'] ?? ''; ?>
                                 </p>
                             </div>
 
                             <div>
                                 <label class="block text-gray-700 font-medium mb-1">Complemento</label>
                                 <p class="text-gray-800 border border-gray-200 rounded-lg px-4 py-2 bg-gray-50">
-                                    <?= $_SESSION['usuario']['complemento'] ?? ''; ?>
+                                    <?= $_SESSION['usuario']['endereco']['complemento'] ?? ''; ?>
                                 </p>
                             </div>
 
                             <div>
                                 <label class="block text-gray-700 font-medium mb-1">Bairro</label>
                                 <p class="text-gray-800 border border-gray-200 rounded-lg px-4 py-2 bg-gray-50">
-                                    <?= $_SESSION['usuario']['bairro'] ?? ''; ?>
+                                    <?= $_SESSION['usuario']['endereco']['bairro'] ?? ''; ?>
                                 </p>
                             </div>
 
                             <div>
                                 <label class="block text-gray-700 font-medium mb-1">Cidade</label>
                                 <p class="text-gray-800 border border-gray-200 rounded-lg px-4 py-2 bg-gray-50">
-                                    <?= $_SESSION['usuario']['cidade'] ?? ''; ?>
+                                    <?= $_SESSION['usuario']['endereco']['cidade'] ?? ''; ?>
                                 </p>
                             </div>
 
                             <div>
                                 <label class="block text-gray-700 font-medium mb-1">Estado</label>
                                 <p class="text-gray-800 border border-gray-200 rounded-lg px-4 py-2 bg-gray-50">
-                                    <?= $_SESSION['usuario']['estado'] ?? ''; ?>
+                                    <?= $_SESSION['usuario']['endereco']['estado'] ?? ''; ?>
                                 </p>
                             </div>
 
                             <div>
                                 <label class="block text-gray-700 font-medium mb-1">CEP</label>
                                 <p class="text-gray-800 border border-gray-200 rounded-lg px-4 py-2 bg-gray-50">
-                                    <?= $_SESSION['usuario']['cep'] ?? ''; ?>
+                                    <?= $_SESSION['usuario']['endereco']['cep'] ?? ''; ?>
                                 </p>
                             </div>
                         </div>
@@ -321,21 +335,21 @@ unset($_SESSION['sucesso'], $_SESSION['erro']);
                             <div>
                                 <label class="block text-gray-700 font-medium mb-1">Alergias</label>
                                 <p class="text-gray-800 border border-gray-200 rounded-lg px-4 py-2 bg-gray-50">
-                                    <?= $_SESSION['usuario']['alergias'] ?? ''; ?>
+                                    <?= $_SESSION['usuario']['detalhes']['alergias'] ?? ''; ?>
                                 </p>
                             </div>
 
                             <div>
                                 <label class="block text-gray-700 font-medium mb-1">Condições Crônicas</label>
                                 <p class="text-gray-800 border border-gray-200 rounded-lg px-4 py-2 bg-gray-50">
-                                    <?= $_SESSION['usuario']['doencas_cronicas'] ?? ''; ?>
+                                    <?= $_SESSION['usuario']['detalhes']['doencas_cronicas'] ?? ''; ?>
                                 </p>
                             </div>
 
                             <div>
                                 <label class="block text-gray-700 font-medium mb-1">Medicamentos em Uso</label>
                                 <p class="text-gray-800 border border-gray-200 rounded-lg px-4 py-2 bg-gray-50">
-                                    <?= $_SESSION['usuario']['remedio_recorrente'] ?? ''; ?>
+                                    <?= $_SESSION['usuario']['detalhes']['remedio_recorrente'] ?? ''; ?>
                                 </p>
                             </div>
                         </div>
@@ -345,7 +359,6 @@ unset($_SESSION['sucesso'], $_SESSION['erro']);
             </div>
         </div>
     </section>
-
     <!-- Edit Profile Modal -->
     <div id="edit-profile-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
         <div class="bg-white rounded-xl shadow-xl p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto">
@@ -373,11 +386,7 @@ unset($_SESSION['sucesso'], $_SESSION['erro']);
                             <div>
                                 <label for="birth_date" class="block text-gray-700 font-medium mb-1">Data de Nascimento</label>
                                 <input type="date" id="birth_date" name="birth_date" value="<?= $_SESSION['usuario']['data_nascimento'] ?? '' ?>" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
-                            </div>
-                            <div>
-                                <label for="email" class="block text-gray-700 font-medium mb-1">E-mail</label>
-                                <input type="email" id="email" name="email" value="<?= $_SESSION['usuario']['email'] ?? '' ?>" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
-                            </div>
+                            </div>                         
                             <div>
                                 <label for="phone" class="block text-gray-700 font-medium mb-1">Telefone</label>
                                 <input type="tel" id="phone" name="phone" value="<?= $_SESSION['usuario']['telefone'] ?? '' ?>" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
@@ -394,31 +403,31 @@ unset($_SESSION['sucesso'], $_SESSION['erro']);
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label for="street" class="block text-gray-700 font-medium mb-1">Rua/Avenida</label>
-                                <input type="text" id="street" name="street" value="<?= $_SESSION['usuario']['rua'] ?? '' ?>" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
+                                <input type="text" id="street" name="street" value="<?= $_SESSION['usuario']['endereco']['rua'] ?? '' ?>" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
                             </div>
                             <div>
                                 <label for="number" class="block text-gray-700 font-medium mb-1">Número</label>
-                                <input type="text" id="number" name="number" value="<?= $_SESSION['usuario']['numero'] ?? '' ?>" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
+                                <input type="text" id="number" name="number" value="<?= $_SESSION['usuario']['endereco']['numero'] ?? '' ?>" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
                             </div>
                             <div>
                                 <label for="complement" class="block text-gray-700 font-medium mb-1">Complemento</label>
-                                <input type="text" id="complement" name="complement" value="<?= $_SESSION['usuario']['complemento'] ?? '' ?>" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
+                                <input type="text" id="complement" name="complement" value="<?= $_SESSION['usuario']['endereco']['complemento'] ?? '' ?>" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
                             </div>
                             <div>
                                 <label for="neighborhood" class="block text-gray-700 font-medium mb-1">Bairro</label>
-                                <input type="text" id="neighborhood" name="neighborhood" value="<?= $_SESSION['usuario']['bairro'] ?? '' ?>" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
+                                <input type="text" id="neighborhood" name="neighborhood" value="<?= $_SESSION['usuario']['endereco']['bairro'] ?? '' ?>" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
                             </div>
                             <div>
                                 <label for="city" class="block text-gray-700 font-medium mb-1">Cidade</label>
-                                <input type="text" id="city" name="city" value="<?= $_SESSION['usuario']['cidade'] ?? '' ?>" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
+                                <input type="text" id="city" name="city" value="<?= $_SESSION['usuario']['endereco']['cidade'] ?? '' ?>" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
                             </div>
                             <div>
                                 <label for="state" class="block text-gray-700 font-medium mb-1">Estado</label>
-                                <input type="text" id="state" name="state" value="<?= $_SESSION['usuario']['estado'] ?? '' ?>" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
+                                <input type="text" id="state" name="state" value="<?= $_SESSION['usuario']['endereco']['estado'] ?? '' ?>" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
                             </div>
                             <div>
                                 <label for="zipcode" class="block text-gray-700 font-medium mb-1">CEP</label>
-                                <input type="text" id="zipcode" name="zipcode" value="<?= $_SESSION['usuario']['cep'] ?? '' ?>" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
+                                <input type="text" id="zipcode" name="zipcode" value="<?= $_SESSION['usuario']['endereco']['cep'] ?? '' ?>" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
                             </div>
                         </div>
                     </div>
@@ -442,22 +451,22 @@ unset($_SESSION['sucesso'], $_SESSION['erro']);
                 </button>
             </div>
 
-            <form action="actions/action_editar_medico.php" id="edit-medical-form">
+            <form method="POST" action="actions/action_editar_medico.php" id="edit-medical-form">
                 <div class="space-y-6">
                     <div>
                         <h4 class="text-lg font-semibold text-blue-900 mb-3">Informações Médicas</h4>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label for="allergies" class="block text-gray-700 font-medium mb-1">Alergias a medicamentos</label>
-                                <input type="text" id="allergies" name="allergies" value="<?= $_SESSION['usuario']['alergias'] ?? '' ?>" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
+                                <input type="text" id="allergies" name="allergies" value="<?= $_SESSION['usuario']['detalhes']['alergias'] ?? '' ?>" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
                             </div>
                             <div>
                                 <label for="chronic_conditions" class="block text-gray-700 font-medium mb-1">Condições Crônicas</label>
-                                <input type="text" id="chronic_conditions" name="chronic_conditions" value="<?= $_SESSION['usuario']['doencas_cronicas'] ?? '' ?>" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
+                                <input type="text" id="chronic_conditions" name="chronic_conditions" value="<?= $_SESSION['usuario']['detalhes']['doencas_cronicas'] ?? '' ?>" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
                             </div>
                             <div>
                                 <label for="medications" class="block text-gray-700 font-medium mb-1">Medicamentos em Uso</label>
-                                <input type="text" id="medications" name="medications" value="<?= $_SESSION['usuario']['remedio_recorrente'] ?? '' ?>" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
+                                <input type="text" id="medications" name="medications" value="<?= $_SESSION['usuario']['detalhes']['remedio_recorrente'] ?? '' ?>" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
                             </div>
                         </div>
                     </div>
@@ -471,6 +480,10 @@ unset($_SESSION['sucesso'], $_SESSION['erro']);
         </div>
     </div>
 
+    <!-- Limpa os dados de 'endereco' e 'detalhes' da sessão após o uso -->
+    <?php
+    unset($_SESSION['usuario']['endereco'], $_SESSION['usuario']['detalhes']);
+    ?>
     <!-- Footer -->
     <footer class="bg-blue-900 text-white py-8 mt-12">
         <div class="container mx-auto px-4">
@@ -529,16 +542,6 @@ unset($_SESSION['sucesso'], $_SESSION['erro']);
             editProfileModal.classList.add('hidden');
         });
 
-        editProfileForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            // Here you would typically send the form data to your backend
-            // For now, we'll just close the modal
-            editProfileModal.classList.add('hidden');
-
-            // Show a success message
-            alert('Perfil atualizado com sucesso!');
-        });
-
         // Close modal when clicking outside
         editProfileModal.addEventListener('click', (e) => {
             if (e.target === editProfileModal) {
@@ -565,16 +568,6 @@ unset($_SESSION['sucesso'], $_SESSION['erro']);
 
         cancelMedicalEditBtn.addEventListener('click', () => {
             editMedicalModal.classList.add('hidden');
-        });
-
-        editMedicalForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            // Here you would typically send the form data to your backend
-            // For now, we'll just close the modal
-            editMedicalModal.classList.add('hidden');
-
-            // Show a success message
-            alert('Informações médicas atualizadas com sucesso!');
         });
 
         // Close modal when clicking outside

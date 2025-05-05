@@ -24,6 +24,13 @@ $client = new GoogleClient([
 ]);
 
 $authUrl = $client->createAuthUrl(['openid', 'email', 'profile']); // Escopos que você precisa
+
+// Verifica se há mensagens de sucesso ou na sessão, para exibir no modal confirme no email
+$mensagemSucesso = $_SESSION['sucesso'] ?? null;
+$mensagemErro = $_SESSION['erro'] ?? null;
+
+// Remove as mensagens da sessão
+unset($_SESSION['sucesso']);
 ?>
 
 <!DOCTYPE html>
@@ -84,6 +91,23 @@ $authUrl = $client->createAuthUrl(['openid', 'email', 'profile']); // Escopos qu
     </div>
 
     <section class="pt-32 pb-16">
+        <!-- modal mensagens -->
+        <?php if ($mensagemSucesso || $mensagemErro): ?>
+            <div id="modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                <div class="bg-white rounded-lg shadow-lg p-6 w-96">
+                    <h2 class="text-lg font-bold mb-4 'text-green-600' ">
+                        <?= $mensagemSucesso ? 'Sucesso!' : 'Erro!' ?>
+                    </h2>
+                    <p class="text-gray-700 mb-4">
+                        <?php echo $mensagemSucesso ?? $mensagemErro; ?>
+                    </p>
+                        <button id="close-modal" class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg">
+                            Fechar
+                        </button>
+                </div>
+            </div>
+        <?php endif; ?>
+
         <div class="container mx-auto px-4">
             <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
                 <div class="bg-teal-500 text-white p-8 text-center">
@@ -109,7 +133,7 @@ $authUrl = $client->createAuthUrl(['openid', 'email', 'profile']); // Escopos qu
                                 <a href="#" class="text-sm text-teal-500 hover:text-teal-600">Esqueceu a senha?</a>
                             </div>
                             <p class="text-m text-red-600">
-                                <?php echo $_SESSION['login_erro'] ?? null ?>
+                                <?php echo $_SESSION['login_erro'] ?? null; ?>
                             </p>
                             <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-m font-medium text-white bg-teal-500 hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500">
                                 Entrar
@@ -162,8 +186,18 @@ $authUrl = $client->createAuthUrl(['openid', 'email', 'profile']); // Escopos qu
         closeMenuButton.addEventListener('click', () => {
             mobileMenu.classList.remove('open');
         });
+
+         // Fecha o modal de avisos ao clicar no botão "Fechar"
+         const closeModalButton = document.getElementById('close-modal');
+        const modal = document.getElementById('modal');
+
+        if (closeModalButton) {
+            closeModalButton.addEventListener('click', () => {
+                modal.style.display = 'none';
+            });
+        }
     </script>
-    
+
 </body>
 
 </html>

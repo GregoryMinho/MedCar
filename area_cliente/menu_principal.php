@@ -59,6 +59,14 @@ $stmtMensagens->bindParam(':cliente_id', $_SESSION['usuario']['id'], PDO::PARAM_
 $stmtMensagens->execute();
 $ultimasMensagens = $stmtMensagens->fetchAll(PDO::FETCH_ASSOC);
 
+require '../includes/conexao_BdCadastroLogin.php'; // Inclui a conexão com o banco de dados
+
+$stmtmedico = $conn->prepare("SELECT alergias, doencas_cronicas, remedio_recorrente FROM detalhe_medico WHERE id_cliente = :id");
+$stmtmedico->bindParam(':id', $_SESSION['usuario']['id'], PDO::PARAM_INT);
+$stmtmedico->execute();
+$detalhesMedicos = $stmtmedico->fetch(PDO::FETCH_ASSOC);
+
+
 $conn = null;
 
 
@@ -387,11 +395,10 @@ unset($_SESSION['sucesso'], $_SESSION['erro']);
                                 <i data-lucide="file-text" class="h-5 w-5 mr-2 text-teal-500"></i>
                                 Informações Médicas
                             </h4>
-                            <ul class="divide-y">
-                                <li class="py-3 text-gray-700">Tipo Sanguíneo: <span class="font-medium">O+</span></li>
-                                <li class="py-3 text-gray-700">Alergias: <span class="font-medium">Nenhuma</span></li>
-                                <li class="py-3 text-gray-700">Doença cronica:<span class="font-medium">Não</span></li>
-                                <li class="py-3 text-gray-700">Medicação Regular: <span class="font-medium">Não</span></li>
+                            <ul class="divide-y">                    
+                                <li class="py-3 text-gray-700">Alergias: <span class="font-medium"><?= $detalhesMedicos['alergias'] ?? 'não cadastrado'?></span></li>
+                                <li class="py-3 text-gray-700">Doença cronica: <span class="font-medium"><?= $detalhesMedicos['doencas_cronicas'] ?? 'não cadastrado' ?></span></li>
+                                <li class="py-3 text-gray-700">Medicação Regular: <span class="font-medium"><?= $detalhesMedicos['remedio_recorrente'] ?? 'não cadastrado'?></span></li>
                             </ul>
                         </div>
 

@@ -1,5 +1,5 @@
 <?php
-$host = 'localhost';
+$host = 'localhost:3307';
 $dbname = 'Motoristas_MedCar';
 $user = 'root';
 $pass = '';
