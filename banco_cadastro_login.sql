@@ -12,7 +12,7 @@ CREATE TABLE clientes (
     tipo VARCHAR(20) DEFAULT 'cliente', 
     data_nascimento DATE,
     contato_emergencia VARCHAR(20) DEFAULT 'não informado',
-    data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP, --  ^ a mesma coisa pq não sei se isso vai ser viável 
+    data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP, --  ^ a mesma coisa pq não sei se isso vai ser viável p
     status ENUM('0', '1') DEFAULT '0', -- status da conta (0 = inativo, 1 = ativo), para a conta ser ativada, o cliente deve clicar no link enviado para o email
     token VARCHAR(255) DEFAULT NULL,  -- Adicionado o campo token para autenticação, em ramdom_bytes(16) para gerar um token aleatório de 16 bytes 
     token_expiracao DATETIME DEFAULT NULL -- Adicionado o campo token_expiracao para armazenar a data e hora de expiração do token

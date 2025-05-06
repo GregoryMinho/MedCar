@@ -221,7 +221,7 @@ $endereco_cliente = $stmt->fetch(PDO::FETCH_ASSOC);
                             <div class="form-card bg-white rounded-xl shadow-md p-6 mb-6">
                                 <h2 class="text-xl font-bold text-blue-900 mb-4 flex items-center">
                                     <i data-lucide="map-pin" class="h-5 w-5 mr-2 text-teal-500"></i>
-                                    Endereços
+                                    Endereço de Origem
                                 </h2>
                                 <div class="flex justify-end">
                                     <button type="button" id="toggle-address" class="bg-orange-500 hover:bg-orange-700 font-semibold text-white font-medium py-2 px-4 rounded-lg transition-all hover:scale-105 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-opacity-50">
@@ -230,7 +230,7 @@ $endereco_cliente = $stmt->fetch(PDO::FETCH_ASSOC);
                                 </div>
                                 <!-- Pickup Address -->
                                 <div class="mb-6">
-                                    <h3 class="text-lg font-semibold text-blue-900 mb-3">Endereço de Origem</h3>
+
                                     <div class="space-y-4">
                                         <div>
                                             <label for="pickup_street" class="block text-gray-700 font-medium mb-1">Rua/Avenida</label>
@@ -264,7 +264,10 @@ $endereco_cliente = $stmt->fetch(PDO::FETCH_ASSOC);
                             <div class="border-t border-gray-300 m-7"></div>
                             <!-- Destination Address -->
                             <div>
-                                <h3 class="text-lg font-semibold text-blue-900 mb-3">Endereço de Destino</h3>
+                                <h2 class="text-xl font-bold text-blue-900 mb-4 flex items-center">
+                                    <i data-lucide="map-pin" class="h-5 w-5 mr-2 text-teal-500"></i>
+                                    Endereço Destino
+                                </h2>
                                 <div class="space-y-4">
                                     <div>
                                         <label for="dest_street" class="block text-gray-700 font-medium mb-1">Rua/Avenida</label>
@@ -398,187 +401,7 @@ $endereco_cliente = $stmt->fetch(PDO::FETCH_ASSOC);
             </div>
         </div>
     </footer>
-
-    <script>
-        // Initialize Lucide icons
-        lucide.createIcons();
-
-        // Calendar functionality
-        const currentDate = new Date();
-        let currentMonth = currentDate.getMonth();
-        let currentYear = currentDate.getFullYear();
-        let selectedDate = null;
-
-        const monthSelect = document.getElementById('month-select');
-        const yearSelect = document.getElementById('year-select');
-        const prevMonthBtn = document.getElementById('prev-month');
-        const nextMonthBtn = document.getElementById('next-month');
-        const calendarDaysContainer = document.getElementById('calendar-days');
-
-        // Populate year select
-        const startYear = currentYear;
-        const endYear = currentYear + 5;
-        for (let year = startYear; year <= endYear; year++) {
-            const option = document.createElement('option');
-            option.value = year;
-            option.textContent = year;
-            yearSelect.appendChild(option);
-        }
-
-        // Set default values for month and year selects
-        monthSelect.value = currentMonth;
-        yearSelect.value = currentYear;
-
-        // Generate calendar
-        function generateCalendar(month, year) {
-            calendarDaysContainer.innerHTML = '';
-
-            const firstDay = new Date(year, month, 1);
-            const lastDay = new Date(year, month + 1, 0);
-            const daysInMonth = lastDay.getDate();
-            const startingDay = firstDay.getDay(); // 0 = Sunday, 1 = Monday, etc.
-
-            // Previous month days
-            const prevMonthLastDay = new Date(year, month, 0).getDate();
-            for (let i = startingDay - 1; i >= 0; i--) {
-                const dayElement = document.createElement('div');
-                dayElement.className = 'calendar-day calendar-day-disabled h-12 flex items-center justify-center rounded-lg';
-                dayElement.textContent = prevMonthLastDay - i;
-                calendarDaysContainer.appendChild(dayElement);
-            }
-
-            // Current month days
-            const today = new Date();
-            const isCurrentMonth = today.getMonth() === month && today.getFullYear() === year;
-
-            for (let i = 1; i <= daysInMonth; i++) {
-                const dayElement = document.createElement('div');
-                dayElement.className = 'calendar-day h-12 flex items-center justify-center rounded-lg cursor-pointer';
-
-                // Check if this is today
-                if (isCurrentMonth && i === today.getDate()) {
-                    dayElement.classList.add('bg-blue-100');
-                }
-
-                // Check if this is the selected date
-                if (selectedDate && selectedDate.getDate() === i &&
-                    selectedDate.getMonth() === month &&
-                    selectedDate.getFullYear() === year) {
-                    dayElement.classList.add('calendar-day-selected');
-                }
-
-                dayElement.textContent = i;
-
-                // Add click event
-                dayElement.addEventListener('click', () => {
-                    // Remove selected class from all days
-                    document.querySelectorAll('.calendar-day-selected').forEach(el => {
-                        el.classList.remove('calendar-day-selected');
-                    });
-
-                    // Add selected class to clicked day
-                    dayElement.classList.add('calendar-day-selected');
-
-                    // Update selected date
-                    selectedDate = new Date(year, month, i);
-
-                    // Update hidden input with selected date
-                    dataSelecionada.value = selectedDate.toISOString().split('T')[0];
-                });
-
-                calendarDaysContainer.appendChild(dayElement);
-            }
-
-            // Next month days
-            const totalCells = 42; // 6 rows of 7 days
-            const remainingCells = totalCells - (startingDay + daysInMonth);
-
-            for (let i = 1; i <= remainingCells; i++) {
-                const dayElement = document.createElement('div');
-                dayElement.className = 'calendar-day calendar-day-disabled h-12 flex items-center justify-center rounded-lg';
-                dayElement.textContent = i;
-                calendarDaysContainer.appendChild(dayElement);
-            }
-        }
-
-        // Event listeners for month navigation
-        prevMonthBtn.addEventListener('click', () => {
-            if (currentMonth > currentDate.getMonth() || currentYear > currentDate.getFullYear()) {
-                currentMonth--;
-                if (currentMonth < 0) {
-                    currentMonth = 11;
-                    currentYear--;
-                }
-                monthSelect.value = currentMonth;
-                yearSelect.value = currentYear;
-                generateCalendar(currentMonth, currentYear);
-            }
-        });
-
-        nextMonthBtn.addEventListener('click', () => {
-            currentMonth++;
-            if (currentMonth > 11) {
-                currentMonth = 0;
-                currentYear++;
-            }
-            monthSelect.value = currentMonth;
-            yearSelect.value = currentYear;
-            generateCalendar(currentMonth, currentYear);
-        });
-
-        // Event listeners for month and year selects
-        monthSelect.addEventListener('change', () => {
-            currentMonth = parseInt(monthSelect.value);
-            generateCalendar(currentMonth, currentYear);
-        });
-
-        yearSelect.addEventListener('change', () => {
-            currentYear = parseInt(yearSelect.value);
-            generateCalendar(currentMonth, currentYear);
-        });
-
-        // Initialize calendar
-        generateCalendar(currentMonth, currentYear);
-
-        // Time slot selection
-        const timeSlots = document.querySelectorAll('.time-slot');
-        const horarioSelecionado = document.getElementById('horario_selecionado');
-        timeSlots.forEach(slot => {
-            slot.addEventListener('click', () => {
-                // Remove selected class from all slots
-                timeSlots.forEach(s => {
-                    s.classList.remove('bg-teal-50');
-                    s.classList.remove('border-teal-500');
-                    s.classList.add('border-gray-300');
-                });
-                // Add selected class to clicked slot
-                slot.classList.remove('border-gray-300');
-                slot.classList.add('bg-teal-50');
-                slot.classList.add('border-teal-500');
-                // Update hidden input with selected time
-                horarioSelecionado.value = slot.textContent.trim();
-            });
-        });
-
-        // Campo oculto para a data selecionada
-        const dataSelecionada = document.getElementById('data_consulta');
-        // Add click event
-        dayElement.addEventListener('click', () => {
-            // Remove selected class from all days
-            document.querySelectorAll('.calendar-day-selected').forEach(el => {
-                el.classList.remove('calendar-day-selected');
-            });
-
-            // Add selected class to clicked day
-            dayElement.classList.add('calendar-day-selected');
-
-            // Update selected date
-            selectedDate = new Date(year, month, i);
-
-            // Update hidden input with selected date
-            dataSelecionada.value = selectedDate.toISOString().split('T')[0];
-        });
-    </script>
+    <script src="script/script_agendamento.js"></script> <!-- script do calendario -->
     <script>
         // alerta para mensagem se o agendamento foi realizado com sucesso ou não
         document.addEventListener('DOMContentLoaded', function() {

@@ -166,6 +166,10 @@ unset($_SESSION['sucesso'], $_SESSION['erro']);
             <i data-lucide="calendar" class="h-5 w-5"></i>
             <span>Agendar</span>
         </a>
+        <a href="pagar_agendamento.php" class="flex items-center space-x-2 px-4 py-3 rounded-lg text-white hover:bg-blue-800 transition">
+            <i data-lucide="banknote-arrow-up" class="h-5 w-5"></i>
+            <span>Pagar Agendamento</span>
+        </a>
         <a href="historico.php" class="flex items-center space-x-2 px-4 py-3 rounded-lg text-white hover:bg-blue-800 transition">
             <i data-lucide="clock" class="h-5 w-5"></i>
             <span>Histórico</span>
@@ -201,6 +205,10 @@ unset($_SESSION['sucesso'], $_SESSION['erro']);
                     <i data-lucide="calendar" class="h-5 w-5"></i>
                     <span>Agendar</span>
                 </a>
+                <a href="pagar_agendamento.php" class="flex items-center space-x-2 px-4 py-3 rounded-lg text-white hover:bg-blue-800 transition">
+            <i data-lucide="banknote-arrow-up" class="h-5 w-5"></i>
+            <span>Pagar Agendamento</span>
+        </a>
                 <!-- comentei caso esse dash não de para montrar amanha -->
 
                 <!-- <a href="PowerBiClientes.php" class="flex items-center space-x-2 px-4 py-3 rounded-lg text-white hover:bg-blue-800 transition">
