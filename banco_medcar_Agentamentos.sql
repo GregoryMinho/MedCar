@@ -53,6 +53,4 @@ FROM medcar_agendamentos.agendamentos a
 RIGHT JOIN medcar_cadastro_login.clientes c ON a.cliente_id = c.id
 WHERE c.id = 1;
 
-select * from agendamentos; 
-
-
+select * from agendamentos;
