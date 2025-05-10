@@ -13,7 +13,6 @@ $empresa_id = (int)$_SESSION['usuario']['id'];
 
 // Sanitização dos inputs
 $nome = filter_input(INPUT_POST, 'nome', FILTER_SANITIZE_SPECIAL_CHARS);
-$email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
 $cnpj = filter_input(INPUT_POST, 'cnpj', FILTER_SANITIZE_SPECIAL_CHARS);
 $telefone = filter_input(INPUT_POST, 'telefone', FILTER_SANITIZE_SPECIAL_CHARS);
 $cidade = filter_input(INPUT_POST, 'cidade', FILTER_SANITIZE_SPECIAL_CHARS);
@@ -28,13 +27,13 @@ try {
 
     // Atualiza dados básicos
     $sql = "UPDATE empresas SET 
-            nome = :nome, email = :email, cnpj = :cnpj, telefone = :telefone, 
+            nome = :nome, cnpj = :cnpj, telefone = :telefone, 
             cidade = :cidade, endereco = :endereco, cep = :cep 
             WHERE id = :id";
     $stmt = $conn->prepare($sql);
     $stmt->execute([
         ':nome' => $nome,
-        ':email' => $email,
+        
         ':cnpj' => $cnpj,
         ':telefone' => $telefone,
         ':cidade' => $cidade,

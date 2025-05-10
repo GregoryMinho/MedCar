@@ -30,7 +30,6 @@ CREATE TABLE clientes (
     cidade VARCHAR(100) NOT NULL,
     tipo VARCHAR(20) DEFAULT 'empresa',
     data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-     status ENUM(0, 1) DEFAULT 0, -- status da conta (0 = inativo, 1 = ativo), para a conta ser ativada, o cliente deve clicar no link enviado para o email
      status ENUM('0', '1') DEFAULT '0', -- status da conta (0 = inativo, 1 = ativo), para a conta ser ativada, o cliente deve clicar no link enviado para o email
     token VARCHAR(255) DEFAULT NULL,  -- Adicionado o campo token para autenticação, em ramdom_bytes(16) para gerar um token aleatório de 16 bytes 
     token_expiracao DATETIME DEFAULT NULL -- Adicionado o campo token_expiracao para armazenar a data e hora de expiração do token

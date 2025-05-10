@@ -1,5 +1,5 @@
 <?php
-$host = 'localhost:3307';
+$host = 'localhost:3306';
 $dbname = 'Motoristas_MedCar';
 $user = 'root';
 $pass = '';
@@ -9,5 +9,5 @@ try {
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     // echo "Conexão bem-sucedida!"; // Apenas para teste
 } catch (PDOException $e) {
-    die("Erro na conexão: " . $e->getMessage());
+    die("Erro na conexão banco motorista: " . $e->getMessage());
 }

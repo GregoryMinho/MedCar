@@ -18,12 +18,12 @@ if (isset($_GET['token']) || isset($_GET['d'])) {
             $token_expiracao = $result['token_expiracao'];
             if (strtotime($token_expiracao) > time()) {
                 // Token válido, atualiza o status
-                $sqlUpdate = "UPDATE clientes SET status = 1, token = NULL, token_expiracao = NULL WHERE token = :token AND id = :id_cliente";
+                $sqlUpdate = "UPDATE clientes SET status = '1', token = NULL, token_expiracao = NULL WHERE token = :token AND id = :id_cliente";
                 $stmtUpdate = $conn->prepare($sqlUpdate);
                 $stmtUpdate->bindParam(':id_cliente', $cliente_id);
                 $stmtUpdate->bindParam(':token', $token);
                 $stmtUpdate->execute();
-
+                $conn = null; // Fecha a conexão com o banco de dados
                 echo "<h2 style='color: green; text-align: center;'>✔ Cadastro confirmado com sucesso!</h2>";
                 header("Refresh: 5;  url=../login_clientes.php");
                 exit();

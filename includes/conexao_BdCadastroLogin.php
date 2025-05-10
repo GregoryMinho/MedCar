@@ -1,5 +1,5 @@
 <?php
-$servidor = "localhost:3307";
+$servidor = "localhost:3306";
 $usuario = "root";
 $senha = ""; // cimatec
 $banco = "medcar_cadastro_login";
@@ -9,6 +9,6 @@ try {
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 } catch (PDOException $e) {
-    die("Erro de conexão: " . $e->getMessage());
+    die("Erro de conexão banco cadastro: " . $e->getMessage());
 }
 ?>

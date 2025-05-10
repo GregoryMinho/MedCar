@@ -1,6 +1,6 @@
 <?php
 session_start();
-require '../../includes/conexao_BdCadastroLogin.php';
+require_once '../../includes/conexao_BdCadastroLogin.php';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
@@ -12,15 +12,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $stmt->bindParam(':email', $email, PDO::PARAM_STR);
         $stmt->execute();
         $empresa = $stmt->fetch(PDO::FETCH_ASSOC);
-
+         $conn = null; // Fecha a conexão com o banco de dados
+         
         if ($empresa) {
-            // Versão segura com hash (recomendado)
-             //if (password_verify($senha, $empresa['senha'])) {
-            
-            // Versão insegura com texto plano (apenas para teste)
-            if ($senha === $empresa['senha']) { 
+             if (password_verify($senha, $empresa['senha'])) {           
+           
                 $_SESSION['usuario'] = [
-                    'id' => $empresa['id'], // ID correto da empresa
+                    'id' => $empresa['id'], 
                     'nome' => $empresa['nome'],
                     'email' => $empresa['email'],
                     'tipo' => $empresa['tipo'],

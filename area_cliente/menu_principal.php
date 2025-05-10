@@ -6,14 +6,6 @@ use usuario\Usuario;
 
 Usuario::verificarPermissao('cliente'); // verifica se o usuário logado é um cliente
 
-/////// excluir depois //////
-// $_SESSION['usuario'] = [
-//     'id' => 1,
-//     'tipo' => 'cliente',
-//     'nome' => 'João Silva',
-// ];
-
-
 // Busca o próximo agendamento agendado mais próximo para o usuário logado 
     
 $query = "SELECT data_consulta, horario, rua_destino, cidade_destino, situacao 

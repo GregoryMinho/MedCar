@@ -53,7 +53,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt = $conn->prepare($query);
                 $stmt->bindParam(':id', $lastId);
                 $stmt->execute();
-
+                $conn = null; // Fecha a conexão com o banco de dados
+                
                 $result = $stmt->fetch(PDO::FETCH_ASSOC);
                 $_SESSION['usuario'] = $result;
 
