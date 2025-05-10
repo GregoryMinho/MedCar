@@ -80,9 +80,9 @@ INSERT INTO clientes (nome, email, senha, cpf, telefone) VALUES
 ('Ana Santos', 'ana.santos@email.com', '$2a$10$Xp1Q4J9z7JQZJZJZJZJZJO', '789.123.456-78', '(41) 98765-6789'),
 ('Pedro Costa', 'pedro.costa@email.com', '$2a$10$Xp1Q4J9z7JQZJZJZJZJZJO', '321.654.987-32', '(51) 98765-9876');
 
-INSERT INTO empresas (nome, email, senha, telefone, cnpj, endereco, cidade) VALUES
-('AutoMecânica Speed', 'speed@email.com', '$2a$10$Xp1Q4J9z7JQZJZJZJZJZJO', '(11) 3456-7890', '12.345.678/0001-01', 'Rua das Oficinas, 100', 'São Paulo'),
-('Mecânica Master', 'master@email.com', '$2a$10$Xp1Q4J9z7JQZJZJZJZJZJO', '(21) 3344-5566', '23.456.789/0001-02', 'Avenida dos Carros, 200', 'Rio de Janeiro'),
-('CarService Express', 'express@email.com', '$2a$10$Xp1Q4J9z7JQZJZJZJZJZJO', '(31) 9876-5432', '34.567.890/0001-03', 'Rua dos Motores, 300', 'Belo Horizonte'),
-('AutoCenter Total', 'total@email.com', '$2a$10$Xp1Q4J9z7JQZJZJZJZJZJO', '(41) 3456-1234', '45.678.901/0001-04', 'Avenida das Peças, 400', 'Curitiba'),
-('Mecânica Premium', 'premium@email.com', '$2a$10$Xp1Q4J9z7JQZJZJZJZJZJO', '(51) 3344-7788', '56.789.012/0001-05', 'Rua dos Veículos, 500', 'Porto Alegre');
+INSERT INTO empresas (nome, email, senha, telefone, cnpj, cep, endereco, cidade) VALUES
+('AutoMecânica Speed', 'speed@email.com', '$2a$10$Xp1Q4J9z7JQZJZJZJZJZJO', '(11) 3456-7890', '12.345.678/0001-01', '01001-000', 'Rua das Oficinas, 100', 'São Paulo'),
+('Mecânica Master', 'master@email.com', '$2a$10$Xp1Q4J9z7JQZJZJZJZJZJO', '(21) 3344-5566', '23.456.789/0001-02', '20040-020', 'Avenida dos Carros, 200', 'Rio de Janeiro'),
+('CarService Express', 'express@email.com', '$2a$10$Xp1Q4J9z7JQZJZJZJZJZJO', '(31) 9876-5432', '34.567.890/0001-03', '30130-010', 'Rua dos Motores, 300', 'Belo Horizonte'),
+('AutoCenter Total', 'total@email.com', '$2a$10$Xp1Q4J9z7JQZJZJZJZJZJO', '(41) 3456-1234', '45.678.901/0001-04', '80010-000', 'Avenida das Peças, 400', 'Curitiba'),
+('Mecânica Premium', 'premium@email.com', '$2a$10$Xp1Q4J9z7JQZJZJZJZJZJO', '(51) 3344-7788', '56.789.012/0001-05', '90010-000', 'Rua dos Veículos, 500', 'Porto Alegre');
