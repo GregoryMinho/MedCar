@@ -14,7 +14,8 @@ CREATE TABLE transacoes (
     descricao VARCHAR(255) NOT NULL,
     valor DECIMAL(10, 2) NOT NULL,
     status ENUM('Pago', 'Pendente', 'Cancelado') NOT NULL,
-    paypal_transaction_id VARCHAR(255) DEFAULT NULL, -- ID da transação no PayPal
+    metodo_pagamento VARCHAR(50) DEFAULT 'MercadoPago',
+    mercadopago_id VARCHAR(255), -- ID da transação do Mercado Pago 
     FOREIGN KEY (cliente_id) REFERENCES medcar_cadastro_login.clientes(id) ON DELETE SET NULL,
     FOREIGN KEY (empresa_id) REFERENCES medcar_cadastro_login.empresas(id) ON DELETE SET NULL,
     FOREIGN KEY (agendamento_id) REFERENCES medcar_agendamentos.agendamentos(id) ON DELETE SET NULL

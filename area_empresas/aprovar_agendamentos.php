@@ -1,4 +1,3 @@
-// Arquivo: agendamentos_pacientes.php
 <?php
 require '../includes/classe_usuario.php';
 use usuario\Usuario;
@@ -113,17 +112,11 @@ try {
 
                             <!-- Ações -->
                             <div class="flex gap-3">
-                                <!-- Botão Aprovar -->
-                                <form method="POST" action="processar_acao_aprovacao_agendamento.php">
-                                    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
-                                    <input type="hidden" name="agendamento_id" value="<?php echo $row['id']; ?>">
-                                    <input type="hidden" name="acao" value="aprovar">
-                                    <button type="submit" 
-                                            onclick="return confirm('Tem certeza que deseja aprovar este agendamento?')"
-                                            class="bg-teal-500 text-white px-4 py-2 rounded-lg hover:bg-teal-600 flex items-center">
-                                        <i data-lucide="check-circle" class="h-5 w-5 mr-2"></i>Aprovar
-                                    </button>
-                                </form>
+                                <!-- Botão Aprovar com Modal -->
+                                <button onclick="openApproveForm(<?php echo $row['id']; ?>)" 
+                                        class="bg-teal-500 text-white px-4 py-2 rounded-lg hover:bg-teal-600 flex items-center">
+                                    <i data-lucide="check-circle" class="h-5 w-5 mr-2"></i>Aprovar
+                                </button>
 
                                 <!-- Botão Recusar -->
                                 <button onclick="openRejectForm(<?php echo $row['id']; ?>)" 
@@ -138,6 +131,38 @@ try {
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <!-- Seções de Endereço... (mantidas como no original) -->
                             </div>
+                        </div>
+
+                        <!-- Formulário de Aprovação -->
+                        <div id="approveForm-<?php echo $row['id']; ?>" class="hidden mt-4">
+                            <form method="POST" action="processar_acao_aprovacao_agendamento.php">
+                                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+                                <input type="hidden" name="agendamento_id" value="<?php echo $row['id']; ?>">
+                                <input type="hidden" name="acao" value="aprovar">
+                                
+                                <div class="mb-3">
+                                    <label class="block text-gray-700 font-medium mb-2">Valor do Transporte (R$)</label>
+                                    <input type="number" name="valor" step="0.01" min="0.01" 
+                                        class="w-full px-4 py-2 border rounded-lg" required>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="block text-gray-700 font-medium mb-2">Observações (opcional)</label>
+                                    <textarea name="observacoes" rows="2" 
+                                        class="w-full px-4 py-2 border rounded-lg"></textarea>
+                                </div>
+                                
+                                <div class="flex justify-end gap-3">
+                                    <button type="button" onclick="closeApproveForm(<?php echo $row['id']; ?>)" 
+                                            class="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg">
+                                        Cancelar
+                                    </button>
+                                    <button type="submit" 
+                                            class="bg-teal-500 text-white px-4 py-2 rounded-lg hover:bg-teal-600">
+                                        Confirmar Aprovação
+                                    </button>
+                                </div>
+                            </form>
                         </div>
 
                         <!-- Formulário de Rejeição -->
@@ -175,6 +200,16 @@ try {
 
     <script>
         lucide.createIcons();
+
+        function openApproveForm(id) {
+            const form = document.getElementById(`approveForm-${id}`);
+            form.classList.remove('hidden');
+            form.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function closeApproveForm(id) {
+            document.getElementById(`approveForm-${id}`).classList.add('hidden');
+        }
 
         function openRejectForm(id) {
             const form = document.getElementById(`rejectForm-${id}`);

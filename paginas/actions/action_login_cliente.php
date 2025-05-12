@@ -15,8 +15,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $cliente = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($cliente) {
-        // Verifica se o status está ativo
-        if ($cliente['status'] !== '1') {
+       
+        if ($cliente['status'] !== '1') { // Verifica se o status está ativo
+            
             // Atualiza o token e a data de expiração para o cliente
             $stmt = $conn->prepare("UPDATE clientes SET token = :token, token_expiracao = :token_expiracao WHERE email = :email");
             $token = bin2hex(random_bytes(16)); // gera um token aleatório

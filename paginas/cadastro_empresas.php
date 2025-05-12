@@ -22,10 +22,11 @@ if (session_status() === PHP_SESSION_NONE) {
         .mobile-menu.open {
             transform: translateX(0);
         }
-        
+
         #sugestoes-cidades div {
             transition: background-color 0.2s;
         }
+
         #sugestoes-cidades div:hover {
             background-color: #f3f4f6;
         }
@@ -37,7 +38,7 @@ if (session_status() === PHP_SESSION_NONE) {
         <nav class="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-blue-900 to-blue-800 text-white shadow-md">
             <div class="container mx-auto px-4">
                 <div class="flex items-center justify-between h-16">
-                    <a href="#" class="flex items-center space-x-2 text-xl font-bold">
+                    <a href="pagina_inicial.php" class="flex items-center space-x-2 text-xl font-bold">
                         <i data-lucide="ambulance" class="h-6 w-6"></i>
                         <span>MedCar</span>
                     </a>
@@ -124,22 +125,22 @@ if (session_status() === PHP_SESSION_NONE) {
                                 </div>
                                 <input type="text" id="cep" name="cep" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" placeholder="00000-000" required>
                             </div>
-<!-- Endereço -->
-<div>
-    <div class="flex items-center mb-1 mt-4">
-    <i data-lucide="home" class="h-4 w-4 mr-2 text-teal-500"></i>
-        <label for="endereco" class="block text-sm font-medium text-gray-700">Endereço</label>
-    </div>
-    <input type="text" id="endereco" name="endereco" required class="mt-1 block w-full border border-gray-300 rounded-md p-2"placeholder="Digite o endereço">
-</div>
+                            <!-- Endereço -->
+                            <div>
+                                <div class="flex items-center mb-1 mt-4">
+                                    <i data-lucide="home" class="h-4 w-4 mr-2 text-teal-500"></i>
+                                    <label for="endereco" class="block text-sm font-medium text-gray-700">Endereço</label>
+                                </div>
+                                <input type="text" id="endereco" name="endereco" required class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Digite o endereço">
+                            </div>
                             <!-- Localização -->
                             <div class="relative">
-                            <i data-lucide="map" class="h-4 w-4 mr-2 text-teal-500"></i>
-    <label for="localizacao" class="block text-sm font-medium text-gray-700">Cidade</label>
-    <input type="text" id="localizacao" name="cidade" autocomplete="off" required
-           class="mt-1 block w-full border border-gray-300 rounded-md p-2"placeholder="Digite a cidade">
-    <div id="sugestoes-cidades" class="border border-gray-300 rounded-md bg-white mt-1 hidden absolute z-10 w-full"></div>
-</div>
+                                <i data-lucide="map" class="h-4 w-4 mr-2 text-teal-500"></i>
+                                <label for="localizacao" class="block text-sm font-medium text-gray-700">Cidade</label>
+                                <input type="text" id="localizacao" name="cidade" autocomplete="off" required
+                                    class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Digite a cidade">
+                                <div id="sugestoes-cidades" class="border border-gray-300 rounded-md bg-white mt-1 hidden absolute z-10 w-full"></div>
+                            </div>
 
                             <!-- Especialidades -->
                             <div>
@@ -179,50 +180,43 @@ if (session_status() === PHP_SESSION_NONE) {
                                 </div>
                             </div>
 
-                             <!-- Tipos de Veículos -->
-<div>
-    <div class="flex items-center mb-1">
-        <i data-lucide="ambulance" class="h-4 w-4 mr-2 text-teal-500"></i>
-        <label class="block text-sm font-medium text-gray-700">Tipos de Veículos Disponíveis</label>
-    </div>
-    <div class="space-y-2">
-        <div class="flex items-center">
-            <input id="veiculo_padrao" name="tipos_veiculos[]" type="checkbox" value="Padrão" class="h-4 w-4 text-teal-500 focus:ring-teal-500 border-gray-300 rounded">
-            <label for="veiculo_padrao" class="ml-2 block text-sm text-gray-700">
-                <span class="font-medium">Veículo Padrão</span>
-                <p class="text-xs text-gray-500">Para pacientes que podem se sentar durante o transporte</p>
-            </label>
-        </div>
-        <div class="flex items-center">
-            <input id="veiculo_cadeira" name="tipos_veiculos[]" type="checkbox" value="Cadeira de Rodas" class="h-4 w-4 text-teal-500 focus:ring-teal-500 border-gray-300 rounded">
-            <label for="veiculo_cadeira" class="ml-2 block text-sm text-gray-700">
-                <span class="font-medium">Adaptado para Cadeira de Rodas</span>
-                <p class="text-xs text-gray-500">Veículo com elevador e fixação para cadeira de rodas</p>
-            </label>
-        </div>
-        <div class="flex items-center">
-            <input id="veiculo_maca" name="tipos_veiculos[]" type="checkbox" value="Maca" class="h-4 w-4 text-teal-500 focus:ring-teal-500 border-gray-300 rounded">
-            <label for="veiculo_maca" class="ml-2 block text-sm text-gray-700">
-                <span class="font-medium">Transporte com Maca</span>
-                <p class="text-xs text-gray-500">Para pacientes que precisam permanecer deitados</p>
-            </label>
-        </div>
-        <div class="flex items-center">
-            <input id="veiculo_van" name="tipos_veiculos[]" type="checkbox" value="Van Adaptada" class="h-4 w-4 text-teal-500 focus:ring-teal-500 border-gray-300 rounded">
-            <label for="veiculo_van" class="ml-2 block text-sm text-gray-700">
-                <span class="font-medium">Van Adaptada</span>
-                <p class="text-xs text-gray-500">Veículo amplo com adaptações para transporte de pacientes</p>
-            </label>
-        </div>
-        <div class="flex items-center">
-            <input id="veiculo_carro" name="tipos_veiculos[]" type="checkbox" value="Carro Comum" class="h-4 w-4 text-teal-500 focus:ring-teal-500 border-gray-300 rounded">
-            <label for="veiculo_carro" class="ml-2 block text-sm text-gray-700">
-                <span class="font-medium">Carro Comum</span>
-                <p class="text-xs text-gray-500">Veículo padrão para transporte de pacientes ambulatoriais</p>
-            </label>
-        </div>
-    </div>
-</div>
+                            <!-- Tipos de Veículos -->
+                            <div>
+                                <div class="flex items-center mb-1">
+                                    <i data-lucide="ambulance" class="h-4 w-4 mr-2 text-teal-500"></i>
+                                    <label class="block text-sm font-medium text-gray-700">Tipos de Veículos Disponíveis</label>
+                                </div>
+                                <div class="space-y-2">
+                                    <div class="flex items-center">
+                                        <input id="veiculo_padrao" name="tipos_veiculos[]" type="checkbox" value="Carro Comum" class="h-4 w-4 text-teal-500 focus:ring-teal-500 border-gray-300 rounded">
+                                        <label for="veiculo_padrao" class="ml-2 block text-sm text-gray-700">
+                                            <span class="font-medium">Carro comum</span>
+                                            <p class="text-xs text-gray-500">Para pacientes que podem se sentar durante o transporte</p>
+                                        </label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input id="veiculo_cadeira" name="tipos_veiculos[]" type="checkbox" value="Cadeira de Rodas" class="h-4 w-4 text-teal-500 focus:ring-teal-500 border-gray-300 rounded">
+                                        <label for="veiculo_cadeira" class="ml-2 block text-sm text-gray-700">
+                                            <span class="font-medium">Adaptado para Cadeira de Rodas</span>
+                                            <p class="text-xs text-gray-500">Veículo com elevador e fixação para cadeira de rodas</p>
+                                        </label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input id="veiculo_maca" name="tipos_veiculos[]" type="checkbox" value="Maca" class="h-4 w-4 text-teal-500 focus:ring-teal-500 border-gray-300 rounded">
+                                        <label for="veiculo_maca" class="ml-2 block text-sm text-gray-700">
+                                            <span class="font-medium">Transporte com Maca</span>
+                                            <p class="text-xs text-gray-500">Para pacientes que precisam permanecer deitados</p>
+                                        </label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input id="veiculo_van" name="tipos_veiculos[]" type="checkbox" value="Van Adaptada" class="h-4 w-4 text-teal-500 focus:ring-teal-500 border-gray-300 rounded">
+                                        <label for="veiculo_van" class="ml-2 block text-sm text-gray-700">
+                                            <span class="font-medium">Van Adaptada</span>
+                                            <p class="text-xs text-gray-500">Veículo amplo com adaptações para transporte de pacientes</p>
+                                        </label>
+                                    </div>    
+                                </div>
+                            </div>
 
                             <!-- Senha -->
                             <div>
@@ -244,10 +238,10 @@ if (session_status() === PHP_SESSION_NONE) {
 
                             <p class="text-m text-red-600">
                                 <?php // imprimir mensagem de erro, então limpa a variável de sessão
-                                    if (isset($_SESSION['erro'])) {
-                                        echo $_SESSION['erro'];
-                                        unset($_SESSION['erro']);
-                                    }
+                                if (isset($_SESSION['erro'])) {
+                                    echo $_SESSION['erro'];
+                                    unset($_SESSION['erro']);
+                                }
                                 ?>
                             </p>
                             <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-teal-500 hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500">
@@ -316,22 +310,22 @@ if (session_status() === PHP_SESSION_NONE) {
         $('#cnpj').mask('00.000.000/0000-00');
         $('#telefone').mask('(00) 00000-0000');
         $('#cep').mask('00000-000');
-        
+
         // buscar endereço via api quando cep for preenchido
         $('#cep').blur(function() {
-    var cep = $(this).val().replace(/\D/g, '');
+            var cep = $(this).val().replace(/\D/g, '');
 
-    if (cep.length === 8) {
-        $.getJSON(`https://viacep.com.br/ws/${cep}/json/`, function(data) {
-            if (!data.erro) {
-                // Preenche os campos com os dados do endereço
-                $('#endereco').val(data.logradouro);  // Rua
-            } else {
-                alert("CEP não encontrado.");
+            if (cep.length === 8) {
+                $.getJSON(`https://viacep.com.br/ws/${cep}/json/`, function(data) {
+                    if (!data.erro) {
+                        // Preenche os campos com os dados do endereço
+                        $('#endereco').val(data.logradouro); // Rua
+                    } else {
+                        alert("CEP não encontrado.");
+                    }
+                });
             }
         });
-    }
-});
 
 
         // funcao para buscar cidades via api ibge
@@ -339,7 +333,7 @@ if (session_status() === PHP_SESSION_NONE) {
             try {
                 const response = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/municipios`);
                 const cidades = await response.json();
-                
+
                 return cidades
                     .filter(cidade => cidade.nome.toLowerCase().includes(termo.toLowerCase()))
                     .map(cidade => ({
@@ -359,14 +353,14 @@ if (session_status() === PHP_SESSION_NONE) {
         // evento de input para autocomplete
         inputLocalizacao.addEventListener('input', async function(e) {
             const termo = e.target.value.trim();
-            
+
             if (termo.length < 3) {
                 sugestoesContainer.classList.add('hidden');
                 return;
             }
-            
+
             const cidades = await buscarCidades(termo);
-            
+
             if (cidades.length > 0) {
                 sugestoesContainer.innerHTML = cidades.map(cidade => `
                     <div class="px-4 py-2 hover:bg-gray-100 cursor-pointer" 
@@ -374,7 +368,7 @@ if (session_status() === PHP_SESSION_NONE) {
                         ${cidade.nome}
                     </div>
                 `).join('');
-                
+
                 sugestoesContainer.classList.remove('hidden');
             } else {
                 sugestoesContainer.classList.add('hidden');
@@ -407,4 +401,5 @@ if (session_status() === PHP_SESSION_NONE) {
         });
     </script>
 </body>
+
 </html>

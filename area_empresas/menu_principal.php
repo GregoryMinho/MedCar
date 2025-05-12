@@ -1,5 +1,6 @@
 <?php
 require '../includes/classe_usuario.php';
+
 use usuario\Usuario;
 
 // Inicia a sessão se não estiver iniciada
@@ -118,21 +119,40 @@ $conn = null; // Fecha conexão avaliações
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         @keyframes fadeInOut {
-            0% { opacity: 0; transform: translateY(20px); }
-            10% { opacity: 1; transform: translateY(0); }
-            90% { opacity: 1; transform: translateY(0); }
-            100% { opacity: 0; transform: translateY(-20px); }
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            10% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            90% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
         }
+
         .animate-fade-in-out {
             animation: fadeInOut 5s ease-in-out forwards;
         }
+
         .mobile-menu {
             transition: transform 0.3s ease-in-out;
             transform: translateX(100%);
         }
+
         .mobile-menu.open {
             transform: translateX(0);
         }
+
         .vehicle-status {
             display: inline-block;
             width: 10px;
@@ -140,12 +160,15 @@ $conn = null; // Fecha conexão avaliações
             border-radius: 50%;
             margin-right: 5px;
         }
+
         .status-available {
             background-color: #10B981;
         }
+
         .status-in-use {
             background-color: #F59E0B;
         }
+
         .status-maintenance {
             background-color: #EF4444;
         }
@@ -247,9 +270,9 @@ $conn = null; // Fecha conexão avaliações
                 Motoristas
             </a>
             <a href="gestao_veiculos.php" class="w-full hover:text-teal-300 transition d-flex align-items-center gap-3">
-    <i class="bi bi-truck fs-5"></i> <!-- Ícone de veículo -->
-    Frota
-</a>
+                <i class="bi bi-truck fs-5"></i> <!-- Ícone de veículo -->
+                Frota
+            </a>
             <a href="relatorios_financeiros.php" class="w-full hover:text-teal-300 transition d-flex align-items-center gap-3">
                 <i class="bi bi-graph-up fs-5"></i>
                 Financeiro
@@ -265,9 +288,8 @@ $conn = null; // Fecha conexão avaliações
                     <i data-lucide="chevron-down" class="h-5 w-5"></i>
                 </button>
                 <div id="dropdown-menu-mobile" class="absolute hidden bg-white text-blue-900 rounded-lg shadow-lg mt-2 w-48">
-                    <a href="editar_empresa.php" class="block px-4 py-2 hover:bg-gray-100">Editar Cadastro</a>
-                    <a href="seguranca.php" class="block px-4 py-2 hover:bg-gray-100">Segurança</a>
-                    <a href="preferencias.php" class="block px-4 py-2 hover:bg-gray-100">Preferências</a>
+                    <a href="perfil_empresa.php" class="block px-4 py-2 hover:bg-gray-100">Editar Cadastro</a>
+                    <a href="seguranca.php" class="block px-4 py-2 hover:bg-gray-100">Segurança</a>                    
                 </div>
             </div>
             <a href="avaliacoes.php" class="w-full hover:text-teal-300 transition d-flex align-items-center gap-3">
@@ -300,15 +322,15 @@ $conn = null; // Fecha conexão avaliações
                     <span>Motoristas</span>
                 </a>
                 <a href="gestao_veiculos.php" class="w-full hover:text-teal-300 transition d-flex align-items-center gap-3">
-    <i class="bi bi-truck fs-5"></i> <!-- Ícone de veículo -->
-    Frota
-</a>
+                    <i class="bi bi-truck fs-5"></i> <!-- Ícone de veículo -->
+                    Frota
+                </a>
                 <a href="relatorios_financeiros.php" class="flex items-center gap-3 ps-4 py-3 rounded-lg hover:bg-blue-800 transition">
                     <i class="bi bi-graph-up fs-6"></i>
                     <span>Financeiro</span>
                 </a>
                 <a href="PowerBiDashFinanceiro.php" class="flex items-center gap-3 ps-4 py-3 rounded-lg hover:bg-blue-800 transition">
-                <i class="bi bi-coin"></i>
+                    <i class="bi bi-coin"></i>
                     <span>Dashboard Financeiro</span>
                 </a>
                 <a href="relatorios.php" class="flex items-center gap-3 ps-4 py-3 rounded-lg hover:bg-blue-800 transition">
@@ -320,9 +342,9 @@ $conn = null; // Fecha conexão avaliações
                     <span>Avaliações</span>
                 </a>
                 <a href="batepapo_clientes.php" class="flex items-center gap-3 ps-4 py-3 rounded-lg hover:bg-blue-800 transition">
-    <i class="bi bi-chat-dots fs-6"></i>
-    <span>Bate-Papo com Clientes</span>
-</a>
+                    <i class="bi bi-chat-dots fs-6"></i>
+                    <span>Bate-Papo com Clientes</span>
+                </a>
 
                 <div class="relative">
                     <button id="dropdown-button" class="flex items-center space-x-2 px-4 py-3 rounded-lg text-white hover:bg-blue-800 transition focus:outline-none">
@@ -392,7 +414,7 @@ $conn = null; // Fecha conexão avaliações
                     </div>
                 </div>
             </section>
-            
+
             <!-- Main Sections -->
             <div class="container mx-auto px-4 py-8">
                 <!-- Agendamentos -->
@@ -437,7 +459,7 @@ $conn = null; // Fecha conexão avaliações
                         </div>
                     <?php endif; ?>
                 </div>
-                
+
                 <!-- Gestão de Frota e Motoristas -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <!-- Gestão de Frota -->
@@ -478,7 +500,7 @@ $conn = null; // Fecha conexão avaliações
                             </table>
                         </div>
                     </div>
-                 <!-- Motoristas -->
+                    <!-- Motoristas -->
                     <div class="bg-white rounded-xl shadow-lg p-6 h-full">
                         <h4 class="text-xl font-bold text-blue-900 mb-4 flex items-center">
                             <i data-lucide="users" class="h-5 w-5 mr-2 text-teal-500"></i>
@@ -573,4 +595,5 @@ $conn = null; // Fecha conexão avaliações
         });
     </script>
 </body>
+
 </html>

@@ -1,12 +1,3 @@
-.mobile-menu {
-    transition: transform 0.3s ease-in-out;
-    transform: translateX(100%);
-}
-
-.mobile-menu.open {
-    transform: translateX(0);
-}
-
 .form-card {
     transition: all 0.3s ease;
 }

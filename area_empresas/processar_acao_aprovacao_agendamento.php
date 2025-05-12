@@ -1,58 +1,87 @@
-<?php 
-require '../includes/classe_usuario.php'; // inclui o arquivo de validação de login
-use usuario\Usuario; // usa o namespace usuario\Usuario
+<?php
+require '../includes/conexao_BdAgendamento.php';
+require '../includes/classe_usuario.php';
 
-Usuario::verificarPermissao('empresa'); // verifica se o usuário logado é uma empresa
+use usuario\Usuario;
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Obtém os dados enviados pelo formulário
-    $agendamento_id = $_POST['agendamento_id'] ?? null;
-    $acao = $_POST['acao'] ?? null;
+// Verifica se o usuário está logado e é uma empresa
+Usuario::verificarPermissao('empresa');
 
-    // Valida os dados mínimos
-    if (!$agendamento_id || !$acao) {
-        die("Dados insuficientes para processar a ação.");
-    }
-
-    // Conexão com o banco de dados
-    $host = "localhost";
-    $user = "root";
-    $pass = "";
-    $dbname = "medcar_agendamentos";
-
-    $conn = new mysqli($host, $user, $pass, $dbname);
-    if ($conn->connect_error) {
-        die("Erro na conexão: " . $conn->connect_error);
-    }
-
-    // Define a query e os parâmetros conforme a ação
-    if ($acao === 'aprovar') {
-        // Atualiza para 'Aprovado'
-        $sql = "UPDATE agendamentos SET situacao = 'Agendado' WHERE id = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("i", $agendamento_id);
-    } elseif ($acao === 'recusar') {
-        // Atualiza para 'Negado' e salva o motivo no campo 'observacoes'
-        $motivo = $_POST['motivo'] ?? '';
-        $sql = "UPDATE agendamentos SET situacao = 'Cancelado', observacoes = ? WHERE id = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("si", $motivo, $agendamento_id);
-    } else {
-        die("Ação inválida.");
-    }
-
-    // Executa a atualização e redireciona ou exibe mensagem de erro
-    if ($stmt->execute()) {
-        header("Location: aprovar_agendamentos.php");
-        exit;
-    } else {
-        echo "Erro ao atualizar o agendamento: " . $stmt->error;
-    }
-
-    $stmt->close();
-    $conn->close();
-} else {
-    header("Location: aprovar_agendamentos.php");
+// Verifica se a requisição é do tipo POST
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header('Location: aprovar_agendamentos.php');
     exit;
 }
-?>
+
+// Verifica o token CSRF
+if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+    header('Location: aprovar_agendamentos.php?erro=csrf');
+    exit;
+}
+
+// Verifica se os parâmetros necessários estão presentes
+if (!isset($_POST['agendamento_id']) || !isset($_POST['acao'])) {
+    header('Location: aprovar_agendamentos.php?erro=parametros');
+    exit;
+}
+
+$agendamento_id = $_POST['agendamento_id'];
+$acao = $_POST['acao'];
+$empresa_id = $_SESSION['usuario']['id'];
+
+// Verifica se o agendamento pertence à empresa
+$query = "SELECT * FROM agendamentos WHERE id = :id AND empresa_id = :empresa_id";
+$stmt = $conn->prepare($query);
+$stmt->bindParam(':id', $agendamento_id, PDO::PARAM_INT);
+$stmt->bindParam(':empresa_id', $empresa_id, PDO::PARAM_INT);
+$stmt->execute();
+$agendamento = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if (!$agendamento) {
+    header('Location: aprovar_agendamentos.php?erro=agendamento');
+    exit;
+}
+
+// Processa a ação
+if ($acao === 'aprovar') {
+    // Verifica se o valor foi informado
+    if (!isset($_POST['valor']) || empty($_POST['valor'])) {
+        header('Location: aprovar_agendamentos.php?erro=valor');
+        exit;
+    }
+
+    $valor = floatval($_POST['valor']);
+    $observacoes = $_POST['observacoes'] ?? '';
+
+    // Atualiza o agendamento
+    $query = "UPDATE agendamentos SET situacao = 'Agendado', valor = :valor, observacoes = :observacoes WHERE id = :id";
+    $stmt = $conn->prepare($query);
+    $stmt->bindParam(':valor', $valor, PDO::PARAM_STR);
+    $stmt->bindParam(':observacoes', $observacoes, PDO::PARAM_STR);
+    $stmt->bindParam(':id', $agendamento_id, PDO::PARAM_INT);
+    $stmt->execute();
+
+    // Redireciona para a página de agendamentos
+    header('Location: aprovar_agendamentos.php?sucesso=aprovado');
+} elseif ($acao === 'recusar') {
+    // Verifica se o motivo foi informado
+    if (!isset($_POST['motivo']) || empty($_POST['motivo'])) {
+        header('Location: aprovar_agendamentos.php?erro=motivo');
+        exit;
+    }
+
+    $motivo = $_POST['motivo'];
+
+    // Atualiza o agendamento
+    $query = "UPDATE agendamentos SET situacao = 'Cancelado', observacoes = :observacoes, data_cancelamento = NOW() WHERE id = :id";
+    $stmt = $conn->prepare($query);
+    $stmt->bindParam(':observacoes', $motivo, PDO::PARAM_STR);
+    $stmt->bindParam(':id', $agendamento_id, PDO::PARAM_INT);
+    $stmt->execute();
+
+    // Redireciona para a página de agendamentos
+    header('Location: aprovar_agendamentos.php?sucesso=recusado');
+} else {
+    // Ação inválida
+    header('Location: aprovar_agendamentos.php?erro=acao');
+}

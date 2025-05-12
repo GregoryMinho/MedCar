@@ -8,7 +8,34 @@ Usuario::verificarPermissao('cliente'); // verifica se o usuário logado é um c
 
 // Query para buscar os agendamentos do cliente logado
 try {
-    $sql = "SELECT * FROM agendamentos WHERE cliente_id = :cliente_id ORDER BY data_consulta DESC, horario DESC";
+    $sql = "SELECT 
+                a.id, 
+                a.data_consulta, 
+                a.horario, 
+                a.rua_origem, 
+                a.numero_origem,
+                a.complemento_origem, 
+                a.cidade_origem, 
+                a.cep_origem, 
+                a.rua_destino,
+                a.numero_destino, 
+                a.complemento_destino, 
+                a.cidade_destino, 
+                a.cep_destino,
+                a.condicao_medica,
+                a.situacao,
+                a.valor,
+                a.data_pagamento,
+                e.nome AS empresa_nome,
+                CASE 
+                    WHEN t.id IS NOT NULL THEN 'Sim' 
+                    ELSE 'Não' 
+                END AS pagamento_realizado
+            FROM medcar_agendamentos.agendamentos AS a 
+            INNER JOIN medcar_cadastro_login.empresas AS e ON e.id = a.empresa_id
+            LEFT JOIN medcar_financeiro.transacoes AS t ON t.agendamento_id = a.id AND t.status = 'Pago'
+            WHERE a.cliente_id = :cliente_id 
+            ORDER BY a.data_consulta DESC, a.horario DESC";
     $stmt = $conn->prepare($sql);
     $stmt->bindParam(':cliente_id', $_SESSION['usuario']['id'], PDO::PARAM_INT);
     $stmt->execute();
@@ -48,13 +75,13 @@ $anos = array_keys($agendamentosPorAno);
     <nav class="bg-blue-900 text-white p-4">
         <div class="container mx-auto flex justify-between items-center">
             <div class="flex items-center space-x-4">
-                <a onclick="window.history.back();" class="flex items-center space-x-2 text-white hover:text-teal-300 transition">
+                <a href="menu_principal.php" class="flex items-center space-x-2 text-white hover:text-teal-300 transition cursor-pointer">
                     <i data-lucide="arrow-left" class="h-6 w-6"></i>
                     <span>Voltar</span>
                 </a>
             </div>
             <a class="text-xl font-bold" href="menu_principal.php">
-                <i class="fas fa-calendar-alt mr-2"></i>
+                <i data-lucide="ambulance" class="h-6 w-6 inline mr-2"></i>
                 MedCar - Histórico
             </a>
 
@@ -137,6 +164,7 @@ $anos = array_keys($agendamentosPorAno);
                         <option value="Pendente">Pendente</option>
                         <option value="Concluido">Concluído</option>
                         <option value="Cancelado">Cancelado</option>
+                        <option value="Pago">Pago</option>
                     </select>
                 </div>
             </div>
@@ -160,7 +188,10 @@ $anos = array_keys($agendamentosPorAno);
                                 $dataFormatada = date("d/m/Y", strtotime($agendamento['data_consulta']));
                                 $horarioFormatado = date("H:i", strtotime($agendamento['horario']));
                                 $mes = date("n", strtotime($agendamento['data_consulta']));
-                                if ($agendamento['situacao'] == 'Agendado') {
+                                
+                                if ($agendamento['situacao'] == 'Pago') {
+                                    $statusClass = 'bg-blue-500 text-white';
+                                } elseif ($agendamento['situacao'] == 'Agendado') {
                                     $statusClass = 'bg-yellow-500 text-black';
                                 } elseif ($agendamento['situacao'] == 'Concluido') {
                                     $statusClass = 'bg-green-500 text-white';
@@ -174,24 +205,36 @@ $anos = array_keys($agendamentosPorAno);
                                     <div class="flex justify-between items-start">
                                         <div>
                                             <h5 class="text-lg font-bold"><?= htmlspecialchars($agendamento['rua_destino']) ?></h5>
-                                            <p class="text-sm text-gray-600"><i class="fas fa-calendar-day mr-2"></i><?= "$dataFormatada - $horarioFormatado" ?></p>
-                                            <p class="text-sm text-gray-600"><i class="fas fa-map-marker-alt mr-2"></i><?= htmlspecialchars($agendamento['cidade_destino']) ?></p>
+                                            <p class="text-sm text-gray-600"><i data-lucide="calendar" class="h-4 w-4 inline mr-1"></i><?= "$dataFormatada - $horarioFormatado" ?></p>
+                                            <p class="text-sm text-gray-600"><i data-lucide="map-pin" class="h-4 w-4 inline mr-1"></i><?= htmlspecialchars($agendamento['cidade_destino']) ?></p>
+                                            <p class="text-sm text-gray-600"><i data-lucide="building" class="h-4 w-4 inline mr-1"></i><?= htmlspecialchars($agendamento['empresa_nome']) ?></p>
+                                            <?php if ($agendamento['valor']): ?>
+                                                <p class="text-sm font-medium mt-1">
+                                                    <i data-lucide="credit-card" class="h-4 w-4 inline mr-1"></i>
+                                                    R$ <?= number_format($agendamento['valor'], 2, ',', '.') ?>
+                                                    <?php if ($agendamento['situacao'] == 'Pago'): ?>
+                                                        <span class="text-green-600 ml-1">(Pago)</span>
+                                                    <?php elseif ($agendamento['situacao'] == 'Agendado'): ?>
+                                                        <a href="pagar_agendamento.php?id=<?= $agendamento['id'] ?>" class="text-blue-600 ml-1 hover:underline">Pagar</a>
+                                                    <?php endif; ?>
+                                                </p>
+                                            <?php endif; ?>
                                         </div>
                                         <span class="px-3 py-1 rounded-full <?= $statusClass ?>"><?= $agendamento['situacao'] ?></span>
                                     </div>
                                     <hr class="my-2">
                                     <button class="text-blue-500 hover:underline" data-modal-target="#detailsModal-<?= $agendamento['id'] ?>">
-                                        <i class="fas fa-info-circle mr-2"></i>Detalhes
+                                        <i data-lucide="info" class="h-4 w-4 inline mr-1"></i>Detalhes
                                     </button>
                                 </div>
 
                                 <!-- Modal -->
-                                <div id="detailsModal-<?= $agendamento['id'] ?>" class="hidden fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center">
-                                    <div class="bg-white rounded-lg shadow-lg p-6 w-1/2">
+                                <div id="detailsModal-<?= $agendamento['id'] ?>" class="hidden fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50">
+                                    <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-2xl">
                                         <div class="flex justify-between items-center mb-4">
                                             <h5 class="text-xl font-bold">Detalhes do Agendamento</h5>
                                             <button class="text-gray-500 hover:text-gray-700" data-modal-close="#detailsModal-<?= $agendamento['id'] ?>">
-                                                <i class="fas fa-times"></i>
+                                                <i data-lucide="x" class="h-5 w-5"></i>
                                             </button>
                                         </div>
                                         <table class="min-w-full bg-white">
@@ -213,28 +256,39 @@ $anos = array_keys($agendamentosPorAno);
                                                     <td class="border px-4 py-2"><?= htmlspecialchars($agendamento['rua_destino']) ?>, <?= htmlspecialchars($agendamento['cidade_destino']) ?></td>
                                                 </tr>
                                                 <tr class="bg-gray-100">
+                                                    <td class="border px-4 py-2"><strong>Empresa:</strong></td>
+                                                    <td class="border px-4 py-2"><?= htmlspecialchars($agendamento['empresa_nome']) ?></td>
+                                                </tr>
+                                                <tr>
                                                     <td class="border px-4 py-2"><strong>Condição Médica:</strong></td>
                                                     <td class="border px-4 py-2"><?= htmlspecialchars($agendamento['condicao_medica']) ?></td>
                                                 </tr>
-                                                <tr>
-                                                    <td class="border px-4 py-2"><strong>Medicamentos:</strong></td>
-                                                    <td class="border px-4 py-2"><?= htmlspecialchars($agendamento['medicamentos']) ?></td>
-                                                </tr>
                                                 <tr class="bg-gray-100">
-                                                    <td class="border px-4 py-2"><strong>Alergias:</strong></td>
-                                                    <td class="border px-4 py-2"><?= htmlspecialchars($agendamento['alergias']) ?></td>
+                                                    <td class="border px-4 py-2"><strong>Situação:</strong></td>
+                                                    <td class="border px-4 py-2">
+                                                        <span class="px-2 py-1 rounded-full <?= $statusClass ?>"><?= $agendamento['situacao'] ?></span>
+                                                    </td>
                                                 </tr>
+                                                <?php if ($agendamento['valor']): ?>
                                                 <tr>
-                                                    <td class="border px-4 py-2"><strong>Contato de Emergência:</strong></td>
-                                                    <td class="border px-4 py-2"><?= htmlspecialchars($agendamento['contato_emergencia']) ?></td>
+                                                    <td class="border px-4 py-2"><strong>Valor:</strong></td>
+                                                    <td class="border px-4 py-2">R$ <?= number_format($agendamento['valor'], 2, ',', '.') ?></td>
                                                 </tr>
+                                                <?php endif; ?>
+                                                <?php if ($agendamento['data_pagamento']): ?>
                                                 <tr class="bg-gray-100">
-                                                    <td class="border px-4 py-2"><strong>Informações Adicionais:</strong></td>
-                                                    <td class="border px-4 py-2"><?= htmlspecialchars($agendamento['informacoes_adicionais']) ?></td>
+                                                    <td class="border px-4 py-2"><strong>Data do Pagamento:</strong></td>
+                                                    <td class="border px-4 py-2"><?= date("d/m/Y H:i", strtotime($agendamento['data_pagamento'])) ?></td>
                                                 </tr>
+                                                <?php endif; ?>
                                             </tbody>
                                         </table>
                                         <div class="mt-4 text-right">
+                                            <?php if ($agendamento['situacao'] == 'Agendado' && $agendamento['valor']): ?>
+                                                <a href="pagar_agendamento.php?id=<?= $agendamento['id'] ?>" class="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded mr-2">
+                                                    Pagar Agendamento
+                                                </a>
+                                            <?php endif; ?>
                                             <button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700" data-modal-close="#detailsModal-<?= $agendamento['id'] ?>">Fechar</button>
                                         </div>
                                     </div>

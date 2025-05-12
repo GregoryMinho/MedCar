@@ -28,14 +28,17 @@ CREATE TABLE agendamentos(
     informacoes_adicionais TEXT,
     acompanhante TINYINT,
     tipo_transporte VARCHAR(50),
-    situacao ENUM('Pendente','Agendado', 'Concluido', 'Cancelado') NOT NULL default('Pendente'),
+    situacao ENUM('Pendente', 'Agendado', 'Concluido', 'Cancelado', 'Pago') NOT NULL DEFAULT 'Pendente',
     observacoes VARCHAR(255), -- Campo para observações adicionais, como motivo do cancelamento
     valor DECIMAL(10, 2), -- Campo para armazenar o valor do agendamento
     data_cancelamento TIMESTAMP NULL, -- Campo para armazenar a data de cancelamento, se aplicável
     data_conclusao TIMESTAMP NULL, -- Campo para armazenar a data de conclusão, se aplicável
+    data_pagamento TIMESTAMP NULL -- oluna para armazenar a data de pagamento
     agendado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (cliente_id) REFERENCES medcar_cadastro_login.clientes(id) ON DELETE CASCADE,
-    FOREIGN KEY (empresa_id) REFERENCES medcar_cadastro_login.empresas(id) ON DELETE CASCADE
+    FOREIGN KEY (empresa_id) REFERENCES medcar_cadastro_login.empresas(id) ON DELETE CASCADE,
+    CREATE INDEX idx_agendamentos_situacao ON medcar_agendamentos.agendamentos(situacao),
+    CREATE INDEX idx_agendamentos_cliente_situacao ON medcar_agendamentos.agendamentos(cliente_id, situacao);
 );
 
 

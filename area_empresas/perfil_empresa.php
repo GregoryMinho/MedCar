@@ -24,6 +24,19 @@ try {
     echo "Erro ao buscar informações da empresa: " . $e->getMessage();
 }
 
+// Busca especialidades e tipos de veículos
+try {
+    $stmtEsp = $conn->prepare("SELECT especialidade FROM empresa_especialidades WHERE empresa_id = :id");
+    $stmtEsp->execute([':id' => $idEmpresa]);
+    $especialidadesSelecionadas = $stmtEsp->fetchAll(PDO::FETCH_COLUMN);
+
+    $stmtVeic = $conn->prepare("SELECT tipo_veiculo FROM empresa_veiculos WHERE empresa_id = :id");
+    $stmtVeic->execute([':id' => $idEmpresa]);
+    $veiculosSelecionados = $stmtVeic->fetchAll(PDO::FETCH_COLUMN);
+} catch (PDOException $e) {
+    echo "Erro ao buscar especialidades ou veículos: " . $e->getMessage();
+}
+
 $conn = null; // Fecha a conexão com o banco de dados
 
 // Verifica se há mensagens de sucesso ou erro na sessão
@@ -31,6 +44,13 @@ $mensagemSucesso = $_SESSION['sucesso'] ?? null;
 $mensagemErro = $_SESSION['erro'] ?? null;
 // Limpa as mensagens após exibição
 unset($_SESSION['sucesso'], $_SESSION['erro']);
+
+if (!isset($especialidadesSelecionadas)) {
+    $especialidadesSelecionadas = [];
+}
+if (!isset($veiculosSelecionados)) {
+    $veiculosSelecionados = [];
+}
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -43,6 +63,12 @@ unset($_SESSION['sucesso'], $_SESSION['erro']);
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .tab-button.active {
+            background-color: #14b8a6;
+            color: white;
+        }
+    </style>
 </head>
 
 <body class="min-h-screen bg-gray-50">
@@ -150,7 +176,7 @@ unset($_SESSION['sucesso'], $_SESSION['erro']);
                 <!-- Profile Tabs -->
                 <div class="bg-white rounded-xl shadow-md p-6">
                     <!-- Tab Buttons -->
-                    <div class="grid grid-cols-2 gap-2 mb-6">
+                    <div class="grid grid-cols-4 gap-2 mb-6">
                         <button class="tab-button active flex items-center justify-center py-2 px-4 rounded-lg font-medium transition-colors" data-tab="company">
                             <i data-lucide="briefcase" class="h-4 w-4 mr-2"></i>
                             Dados da Empresa
@@ -158,6 +184,14 @@ unset($_SESSION['sucesso'], $_SESSION['erro']);
                         <button class="tab-button flex items-center justify-center py-2 px-4 rounded-lg font-medium transition-colors" data-tab="address">
                             <i data-lucide="map-pin" class="h-4 w-4 mr-2"></i>
                             Endereço
+                        </button>
+                        <button class="tab-button flex items-center justify-center py-2 px-4 rounded-lg font-medium transition-colors" data-tab="specialties">
+                            <i data-lucide="stethoscope" class="h-4 w-4 mr-2"></i>
+                            Especialidades
+                        </button>
+                        <button class="tab-button flex items-center justify-center py-2 px-4 rounded-lg font-medium transition-colors" data-tab="vehicles">
+                            <i data-lucide="ambulance" class="h-4 w-4 mr-2"></i>
+                            Tipos de Veículos
                         </button>
                     </div>
 
@@ -194,7 +228,7 @@ unset($_SESSION['sucesso'], $_SESSION['erro']);
                     </div>
 
                     <!-- Address Tab -->
-                    <div id="address-tab" class="tab-content">
+                    <div id="address-tab" class="tab-content hidden">
                         <h3 class="text-xl font-bold text-blue-900 mb-4 flex items-center">
                             <i data-lucide="map-pin" class="h-5 w-5 mr-2 text-teal-500"></i>
                             Endereço
@@ -222,6 +256,32 @@ unset($_SESSION['sucesso'], $_SESSION['erro']);
                                 </p>
                             </div>
                         </div>
+                    </div>
+
+                    <!-- Specialties Tab -->
+                    <div id="specialties-tab" class="tab-content hidden">
+                        <h3 class="text-xl font-bold text-blue-900 mb-4 flex items-center">
+                            <i data-lucide="stethoscope" class="h-5 w-5 mr-2 text-teal-500"></i>
+                            Especialidades
+                        </h3>
+                        <ul class="list-disc pl-5 text-gray-800">
+                            <?php foreach ($especialidadesSelecionadas as $especialidade): ?>
+                                <li><?= htmlspecialchars($especialidade) ?></li>
+                            <?php endforeach; ?>
+                        </ul>
+                    </div>
+
+                    <!-- Vehicles Tab -->
+                    <div id="vehicles-tab" class="tab-content hidden">
+                        <h3 class="text-xl font-bold text-blue-900 mb-4 flex items-center">
+                            <i data-lucide="ambulance" class="h-5 w-5 mr-2 text-teal-500"></i>
+                            Tipos de Veículos
+                        </h3>
+                        <ul class="list-disc pl-5 text-gray-800">
+                            <?php foreach ($veiculosSelecionados as $veiculo): ?>
+                                <li><?= htmlspecialchars($veiculo) ?></li>
+                            <?php endforeach; ?>
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -273,6 +333,64 @@ unset($_SESSION['sucesso'], $_SESSION['erro']);
                         </div>
                     </div>
 
+                    <!-- Specialties Section -->
+                    <div>
+                        <h4 class="text-lg font-semibold text-blue-900 mb-3 flex items-center justify-between">
+                            <span>Especialidades</span>
+                            <button type="button" id="toggle-all-especialidades" class="text-sm text-teal-600 hover:text-teal-800 font-medium">
+                                Selecionar Todos
+                            </button>
+                        </h4>
+                        <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <?php
+                                $especialidades = ['Fisioterapia', 'Idosos', 'Cadeirantes', 'Cardíaco'];
+                                foreach ($especialidades as $especialidade) {
+                                    $checked = in_array($especialidade, $especialidadesSelecionadas) ? 'checked' : '';
+                                    $id = 'esp_' . str_replace(' ', '_', strtolower($especialidade));
+                                    echo <<<HTML
+                <div class="relative">
+                    <label for="$id" class="flex items-center p-3 bg-white rounded-lg border border-gray-200 hover:border-teal-400 transition-all cursor-pointer">
+                        <input type="checkbox" id="$id" name="especialidades[]" value="$especialidade" class="form-checkbox h-5 w-5 text-teal-500 rounded border-gray-300 focus:ring-teal-500 mr-3" $checked>
+                        <span class="text-gray-700">$especialidade</span>
+                    </label>
+                </div>
+                HTML;
+                                }
+                                ?>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Vehicle Types Section -->
+                    <div>
+                        <h4 class="text-lg font-semibold text-blue-900 mb-3 flex items-center justify-between">
+                            <span>Tipos de Veículos</span>
+                            <button type="button" id="toggle-all-veiculos" class="text-sm text-teal-600 hover:text-teal-800 font-medium">
+                                Selecionar Todos
+                            </button>
+                        </h4>
+                        <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <?php
+                                $tiposVeiculos = ['Van Adaptada', 'Transporte com Maca', 'Adaptado para Cadeira de Rodas', 'Carro comum'];
+                                foreach ($tiposVeiculos as $tipoVeiculo) {
+                                    $checked = in_array($tipoVeiculo, $veiculosSelecionados) ? 'checked' : '';
+                                    $id = 'veic_' . str_replace(' ', '_', strtolower($tipoVeiculo));
+                                    echo <<<HTML
+                <div class="relative">
+                    <label for="$id" class="flex items-center p-3 bg-white rounded-lg border border-gray-200 hover:border-teal-400 transition-all cursor-pointer">
+                        <input type="checkbox" id="$id" name="tipos_veiculos[]" value="$tipoVeiculo" class="form-checkbox h-5 w-5 text-teal-500 rounded border-gray-300 focus:ring-teal-500 mr-3" $checked>
+                        <span class="text-gray-700">$tipoVeiculo</span>
+                    </label>
+                </div>
+                HTML;
+                                }
+                                ?>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="flex justify-end space-x-3">
                         <button type="button" id="cancel-edit-btn" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition">Cancelar</button>
                         <button type="submit" class="px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition">Salvar Alterações</button>
@@ -294,12 +412,12 @@ unset($_SESSION['sucesso'], $_SESSION['erro']);
             button.addEventListener('click', () => {
                 // Remove active class from all buttons and contents
                 tabButtons.forEach(btn => btn.classList.remove('active'));
-                tabContents.forEach(content => content.classList.remove('active'));
+                tabContents.forEach(content => content.classList.add('hidden')); // Esconde todos os conteúdos
 
                 // Add active class to clicked button and corresponding content
                 button.classList.add('active');
                 const tabId = button.getAttribute('data-tab');
-                document.getElementById(`${tabId}-tab`).classList.add('active');
+                document.getElementById(`${tabId}-tab`).classList.remove('hidden'); // Mostra o conteúdo da aba ativa
             });
         });
 
@@ -326,6 +444,65 @@ unset($_SESSION['sucesso'], $_SESSION['erro']);
             if (e.target === editProfileModal) {
                 editProfileModal.classList.add('hidden');
             }
+        });
+    </script>
+    <script>
+        // Fecha o modal de avisos ao clicar no botão "Fechar"
+        const closeModalButton = document.getElementById('close-modal');
+        const modal = document.getElementById('modal');
+
+        if (closeModalButton) {
+            closeModalButton.addEventListener('click', () => {
+                modal.style.display = 'none';
+            });
+        }
+    </script>
+    <script>
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Funcionalidade para selecionar/desselecionar todos os checkboxes de especialidades
+            const toggleAllEspecialidades = document.getElementById('toggle-all-especialidades');
+            const especialidadesCheckboxes = document.querySelectorAll('input[name="especialidades[]"]');
+            let especialidadesAllChecked = false;
+
+            toggleAllEspecialidades.addEventListener('click', function() {
+                especialidadesAllChecked = !especialidadesAllChecked;
+                especialidadesCheckboxes.forEach(checkbox => {
+                    checkbox.checked = especialidadesAllChecked;
+                });
+                this.textContent = especialidadesAllChecked ? 'Desselecionar Todos' : 'Selecionar Todos';
+            });
+
+            // Funcionalidade para selecionar/desselecionar todos os checkboxes de tipos de veículos
+            const toggleAllVeiculos = document.getElementById('toggle-all-veiculos');
+            const veiculosCheckboxes = document.querySelectorAll('input[name="tipos_veiculos[]"]');
+            let veiculosAllChecked = false;
+
+            toggleAllVeiculos.addEventListener('click', function() {
+                veiculosAllChecked = !veiculosAllChecked;
+                veiculosCheckboxes.forEach(checkbox => {
+                    checkbox.checked = veiculosAllChecked;
+                });
+                this.textContent = veiculosAllChecked ? 'Desselecionar Todos' : 'Selecionar Todos';
+            });
+
+            // Verificar estado inicial dos checkboxes
+            function updateToggleButtonText(checkboxes, button) {
+                const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+                const noneChecked = Array.from(checkboxes).every(cb => !cb.checked);
+
+                if (allChecked) {
+                    button.textContent = 'Desselecionar Todos';
+                    return true;
+                } else {
+                    button.textContent = 'Selecionar Todos';
+                    return false;
+                }
+            }
+
+            // Inicializar estado dos botões
+            especialidadesAllChecked = updateToggleButtonText(especialidadesCheckboxes, toggleAllEspecialidades);
+            veiculosAllChecked = updateToggleButtonText(veiculosCheckboxes, toggleAllVeiculos);
         });
     </script>
 </body>

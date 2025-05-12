@@ -41,10 +41,10 @@ try {
     $conn = null; // Fecha a conexão com o banco de dados
 
     // Verifica se a atualização foi bem-sucedida
-    if ($sql->rowCount() > 0 || $sqlEndereco->rowCount() > 0) {
+      if ($stmt->rowCount() > 0) {
         $_SESSION['sucesso'] = "Dados atualizados com sucesso!";
     } else {
-        $_SESSION['erro'] = "Erro ao atualizar os dados. :(";
+        $_SESSION['erro'] = "Nenhuma alteração foi realizada.";
     }
 
     // Redireciona para a página de perfil do cliente
