@@ -34,7 +34,6 @@ $conn = null; // Fecha a conexão com o banco de dados
     <nav class="navbar navbar-expand-lg navbar-dark medq-navbar">
         <div class="container">
             <a class="navbar-brand d-flex align-items-center" href="#">
-                <img src="logo-medq.png" alt="MedCar" height="40" class="me-2">
                 <span class="fw-bold">MedCar Transportes</span>
             </a>
             <div class="d-flex align-items-center">

@@ -198,7 +198,7 @@ $conn = null; // Fecha conexão avaliações
                                 <a href="aprovar_agendamentos.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-900">
                                     <i data-lucide="clipboard-check" class="h-4 w-4 inline mr-2"></i>Aprovar Agendamentos
                                 </a>
-                                <a href="gestao_motorista.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-900">
+                                <a href="gestao_motoristas.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-900">
                                     <i data-lucide="car" class="h-4 w-4 inline mr-2"></i>Motoristas
                                 </a>
                                 <a href="relatorios_financeiros.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-900">

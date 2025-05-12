@@ -1,4 +1,4 @@
-CREATE DATABASE IF NOT EXISTS medcar_agendamentos;
+  CREATE DATABASE IF NOT EXISTS medcar_agendamentos;
 USE medcar_agendamentos;
 
 -- Cria a tabela "agendamentos_registros" para armazenar os dados dos agendamentos

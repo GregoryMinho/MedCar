@@ -1,7 +1,7 @@
-CREATE DATABASE medcar_cadastro_login;
+  CREATE DATABASE medcar_cadastro_login;
 USE medcar_cadastro_login;
 
-CREATE TABLE clientes (
+ CREATE TABLE clientes (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(255) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
@@ -18,7 +18,7 @@ CREATE TABLE clientes (
     token_expiracao DATETIME DEFAULT NULL -- Adicionado o campo token_expiracao para armazenar a data e hora de expiração do token
 );
 
- CREATE TABLE empresas (
+  CREATE TABLE empresas (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(255) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
@@ -29,21 +29,17 @@ CREATE TABLE clientes (
     endereco VARCHAR(255) NOT NULL,
     cidade VARCHAR(100) NOT NULL,
     tipo VARCHAR(20) DEFAULT 'empresa',
-    data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    status ENUM('0', '1') DEFAULT '0', -- status da conta (0 = inativo, 1 = ativo), para a conta ser ativada, o cliente deve clicar no link enviado para o email
-    token VARCHAR(255) DEFAULT NULL,  -- Adicionado o campo token para autenticação, em ramdom_bytes(16) para gerar um token aleatório de 16 bytes 
-    token_expiracao DATETIME DEFAULT NULL -- Adicionado o campo token_expiracao para armazenar a data e hora de expiração do token
+    data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status ENUM('0', '1') DEFAULT '0', -- status da conta (0 = inativo, 1 = ativo)
+    token VARCHAR(255) DEFAULT NULL, -- Campo token para autenticação
+    token_expiracao DATETIME DEFAULT NULL -- Campo de expiração do token
 );
-
--- nova Tabela de empresa_especialidades
 CREATE TABLE empresa_especialidades (
     id INT AUTO_INCREMENT PRIMARY KEY,
     empresa_id INT NOT NULL,
     especialidade VARCHAR(100) NOT NULL,
     FOREIGN KEY (empresa_id) REFERENCES empresas(id) ON DELETE CASCADE
 );
-
--- nova Tabela de empresa_veiculos
 CREATE TABLE empresa_veiculos (
     id INT AUTO_INCREMENT PRIMARY KEY,
     empresa_id INT NOT NULL,

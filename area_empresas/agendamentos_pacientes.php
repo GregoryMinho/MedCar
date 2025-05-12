@@ -142,12 +142,11 @@ $calendario = gerarCalendario($mes, $ano, $agendamentos);
         <div class="container">
             <a class="navbar-brand" href="/MedQ-2/area_empresas/menu_principal.php">
                 <i class="fas fa-ambulance me-2"></i>
-                MedCar Transportes
+                MedCar
             </a>
             <div class="d-flex align-items-center">
                 <div class="text-white me-3"><?= $_SESSION['usuario']['nome']?></div>
-                <img src="https://source.unsplash.com/random/40x40/?icon" class="rounded-circle" alt="Perfil">
-            </div>
+                 </div>
         </div>
     </nav>
 

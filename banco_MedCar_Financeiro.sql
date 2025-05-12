@@ -1,4 +1,4 @@
--- Criação do banco de dados
+  -- Criação do banco de dados
 CREATE DATABASE medcar_financeiro;
 
 -- Selecionando o banco de dados

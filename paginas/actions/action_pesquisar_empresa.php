@@ -1,81 +1,76 @@
 <?php
-
+session_start();
 require '../../includes/conexao_BdCadastroLogin.php';
 
-$busca = isset($_GET['busca']) ? $_GET['busca'] : '';
-$localizacao = isset($_GET['localizacao']) ? $_GET['localizacao'] : '';
-$especialidade = isset($_GET['especialidade']) ? $_GET['especialidade'] : '';
-$tipo_veiculo = isset($_GET['tipo_veiculo']) ? $_GET['tipo_veiculo'] : '';
-$telefone = isset($_GET['telefone']) ? $_GET['telefone'] : '';
-$cep = isset($_GET['cep']) ? $_GET['cep'] : '';
+// Sanitização dos parâmetros restantes
+$localizacao = filter_input(INPUT_GET, 'localizacao', FILTER_SANITIZE_STRING);
+$especialidade = filter_input(INPUT_GET, 'especialidade', FILTER_SANITIZE_STRING);
+$tipo_veiculo = filter_input(INPUT_GET, 'tipo_veiculo', FILTER_SANITIZE_STRING);
 
 try {
-    $sql = "SELECT e.* FROM empresas e";
+    $sql = "SELECT 
+    e.id,
+    e.nome,
+    e.cnpj,
+    e.cidade,
+    e.endereco,
+    e.email,
+    e.telefone,
+    e.cep,
+    GROUP_CONCAT(DISTINCT esp.especialidade SEPARATOR ', ') AS especialidades,
+    GROUP_CONCAT(DISTINCT vei.tipo_veiculo SEPARATOR ', ') AS tipos_veiculos
+FROM empresas e
+LEFT JOIN empresa_especialidades esp ON e.id = esp.empresa_id
+LEFT JOIN empresa_veiculos vei ON e.id = vei.empresa_id";
+
     $conditions = [];
     $params = [];
 
-    if (!empty($busca)) {
-        $conditions[] = "(e.nome LIKE :busca OR e.email LIKE :busca OR e.cnpj LIKE :busca)";
-        $params[':busca'] = '%' . $busca . '%';
-    }
-
+    // Filtro por Localização
     if (!empty($localizacao)) {
-        $conditions[] = "e.cidade = :localizacao";
-        $params[':localizacao'] = $localizacao;
+        $partes = explode('-', $localizacao);
+        $cidade = trim($partes[0]);
+        $uf = isset($partes[1]) ? trim($partes[1]) : null;
+        
+        $conditions[] = "e.cidade LIKE :cidade";
+        $params[':cidade'] = "%$cidade%";
+        
+         
     }
 
-    if (!empty($telefone)) {
-        // Remove formatação para buscar no banco de dados
-        $telefone_limpo = preg_replace('/[^0-9]/', '', $telefone);
-        $conditions[] = "REPLACE(REPLACE(REPLACE(REPLACE(e.telefone, '(', ''), ')', ''), ' ', ''), '-', '') LIKE :telefone";
-        $params[':telefone'] = '%' . $telefone_limpo . '%';
-    }
-
-    if (!empty($cep)) {
-        // Remove formatação para buscar no banco de dados
-        $cep_limpo = preg_replace('/[^0-9]/', '', $cep);
-        $conditions[] = "REPLACE(e.cep, '-', '') LIKE :cep";
-        $params[':cep'] = '%' . $cep_limpo . '%';
-    }
-
-    // Filtrar por especialidade (requer join com a tabela empresa_especialidades)
+    // Filtro por Especialidade
     if (!empty($especialidade)) {
-        $sql .= " INNER JOIN empresa_especialidades ee ON e.id = ee.empresa_id";
-        $conditions[] = "ee.especialidade = :especialidade";
+        $conditions[] = "esp.especialidade = :especialidade";
         $params[':especialidade'] = $especialidade;
     }
 
-    // Filtrar por tipo de veículo (requer join com a tabela empresa_veiculos)
+    // Filtro por Tipo de Veículo
     if (!empty($tipo_veiculo)) {
-        $sql .= " INNER JOIN empresa_veiculos ev ON e.id = ev.empresa_id";
-        $conditions[] = "ev.tipo_veiculo = :tipo_veiculo";
+        $conditions[] = "vei.tipo_veiculo = :tipo_veiculo";
         $params[':tipo_veiculo'] = $tipo_veiculo;
     }
 
+    // Montagem da query final
     if (!empty($conditions)) {
         $sql .= " WHERE " . implode(" AND ", $conditions);
     }
 
-    // Para evitar resultados duplicados ao usar JOIN com especialidades/veículos
-    if (!empty($especialidade) || !empty($tipo_veiculo)) {
-        $sql .= " GROUP BY e.id";
-    }
-
+    $sql .= " GROUP BY e.id";
     $stmt = $conn->prepare($sql);
     $stmt->execute($params);
     $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Redireciona de volta para a página de pesquisa com os resultados via GET
-    $query_string = http_build_query(['resultados' => $resultados] + $_GET);
-    header('Location: ../pesquisar_empresa.php?' . $query_string);
+    // Redirecionamento com resultados
+    header('Location: ../pesquisar_empresa.php?' . http_build_query([
+        'resultados' => $resultados,
+        'localizacao' => $localizacao,
+        'especialidade' => $especialidade,
+        'tipo_veiculo' => $tipo_veiculo
+    ]));
     exit();
 
 } catch (PDOException $e) {
-    // Log do erro para depuração
-    error_log("Erro na pesquisa de empresas: " . $e->getMessage());
-    // Exibe uma mensagem de erro amigável para o usuário
-    $_SESSION['erro_pesquisa'] = "Ocorreu um erro ao realizar a pesquisa. Por favor, tente novamente mais tarde.";
+    $_SESSION['erro_pesquisa'] = "Erro ao pesquisar: " . $e->getMessage();
     header('Location: ../pesquisar_empresa.php');
     exit();
 }
-?>

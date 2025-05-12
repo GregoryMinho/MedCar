@@ -147,7 +147,6 @@ $dailyAverage = number_format($dailyAverage, 1);
             </a>
             <div class="d-flex align-items-center">
                 <div class="text-white me-3">Relatórios Mensais</div>
-                <img src="https://source.unsplash.com/random/40x40/?icon" class="rounded-circle" alt="Perfil">
             </div>
         </div>
     </nav>

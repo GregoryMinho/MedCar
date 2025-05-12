@@ -80,51 +80,7 @@ function uploadFoto($arquivo) {
     <title>MedCar - Cadastro de Motoristas</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        :root {
-            --primary-color: #1a365d;
-            --secondary-color: #2a4f7e;
-            --accent-color: #38b2ac;
-        }
-
-        .registration-card {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            padding: 2rem;
-            margin: 2rem auto;
-            max-width: 800px;
-        }
-
-        .form-section {
-            border-left: 4px solid var(--accent-color);
-            padding-left: 1rem;
-            margin: 2rem 0;
-        }
-
-        .file-upload {
-            border: 2px dashed #dee2e6;
-            border-radius: 10px;
-            padding: 2rem;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .file-upload:hover {
-            border-color: var(--accent-color);
-            background: rgba(56, 178, 172, 0.05);
-        }
-
-        .preview-image {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin: 1rem auto;
-            display: none;
-        }
-    </style>
+    <link rel="stylesheet" href="style/style_adicionar_motorista.css">
 </head>
 <body>
     <!-- Navbar -->

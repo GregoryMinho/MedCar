@@ -37,25 +37,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Obtém o ID da empresa recém-inserida
         $empresa_id = $conn->lastInsertId();
 
-        // // Inserção das especialidades
-        // $sqlEspecialidade = "INSERT INTO empresa_especialidades (empresa_id, especialidade) VALUES (:empresa_id, :especialidade)";
-        // $stmtEsp = $conn->prepare($sqlEspecialidade);
-        // foreach ($especialidades as $esp) {
-        //     $stmtEsp->execute([
-        //         ':empresa_id' => $empresa_id,
-        //         ':especialidade' => $esp
-        //     ]);
-        // }
-        // // Inserção dos tipos de veículos
-        // $sqlVeiculo = "INSERT INTO empresa_veiculos (empresa_id, tipo_veiculo) VALUES (:empresa_id, :tipo_veiculo)";
-        // $stmtVeic = $conn->prepare($sqlVeiculo);
-        // foreach ($tipos_veiculos as $veic) {
-        //     $stmtVeic->execute([
-        //         ':empresa_id' => $empresa_id,
-        //         ':tipo_veiculo' => $veic
-        //     ]);
-        // }
-        // // Commit
+
+        //  OBS: se tirar ou comentar essa parte não funciona a parte da pesquisa da empresa vai da erro. //
+         $sqlEspecialidade = "INSERT INTO empresa_especialidades (empresa_id, especialidade) VALUES (:empresa_id, :especialidade)";
+         $stmtEsp = $conn->prepare($sqlEspecialidade);
+         foreach ($especialidades as $esp) {
+             $stmtEsp->execute([
+                 ':empresa_id' => $empresa_id,
+                 ':especialidade' => $esp
+             ]);
+         }
+         $sqlVeiculo = "INSERT INTO empresa_veiculos (empresa_id, tipo_veiculo) VALUES (:empresa_id, :tipo_veiculo)";
+         $stmtVeic = $conn->prepare($sqlVeiculo);
+        foreach ($tipos_veiculos as $veic) {
+             $stmtVeic->execute([
+                 ':empresa_id' => $empresa_id,
+                ':tipo_veiculo' => $veic
+         ]);
+         } //  OBS: se tirar ou comentar essa parte não funciona a parte da pesquisa da empresa vai da erro. //
+         
+
+        // Commit
         $conn->commit();
         
         // Cria a sessão

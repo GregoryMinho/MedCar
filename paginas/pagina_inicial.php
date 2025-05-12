@@ -466,8 +466,8 @@
                                 <i data-lucide="map-pin" class="h-6 w-6 text-teal-600"></i>
                             </div>
                             <div>
-                                <p class="text-gray-700">Av. Paulista, 1000 - Bela Vista</p>
-                                <p class="text-gray-700">São Paulo - SP, 01310-100</p>
+                                <p class="text-gray-700">Av. Tancredo Neves, 1234 - Beiru</p>
+                                <p class="text-gray-700">Salvador - BA,  40170-010</p>
                             </div>
                         </div>
                         <div class="flex items-start space-x-4 mb-4">
@@ -475,8 +475,8 @@
                                 <i data-lucide="phone" class="h-6 w-6 text-teal-600"></i>
                             </div>
                             <div>
-                                <p class="text-gray-700">(11) 3456-7890</p>
-                                <p class="text-gray-700">(11) 98765-4321</p>
+                                <p class="text-gray-700">(71) 3456-7890</p>
+                                <p class="text-gray-700">(71) 98765-4321</p>
                             </div>
                         </div>
                         <div class="flex items-start space-x-4">

@@ -1,4 +1,4 @@
-CREATE DATABASE Motoristas_MedCar;
+ CREATE DATABASE Motoristas_MedCar;
 USE Motoristas_MedCar;
 
 -- Tabela de Motoristas
