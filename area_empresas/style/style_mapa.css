@@ -1,0 +1,67 @@
+:root {
+            --primary-color: #1a365d;
+            --secondary-color: #2a4f7e;
+            --accent-color: #38b2ac;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .sidebar {
+            background: var(--primary-color);
+            color: white;
+            min-height: 100vh;
+            width: 250px;
+            position: fixed;
+            padding: 20px;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar .nav-link {
+            color: rgba(255,255,255,.75);
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            transition: all 0.3s;
+        }
+
+        .sidebar .nav-link.active {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .sidebar .nav-link:hover {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+        }
+
+        .map-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        #map {
+            height: 600px;
+            width: 100%;
+            border-radius: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                position: relative;
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+        }

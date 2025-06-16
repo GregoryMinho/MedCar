@@ -30,6 +30,9 @@ $endereco_cliente = $stmt->fetch(PDO::FETCH_ASSOC);
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Leaflet e Routing Machine CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
     <script>
         function updateTransportType() {
             // Obtém o valor do rádio selecionado
@@ -43,7 +46,7 @@ $endereco_cliente = $stmt->fetch(PDO::FETCH_ASSOC);
 <body class="min-h-screen bg-gray-50">
 
     <!-- Navbar -->
-    <nav class="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-blue-900 to-blue-800 text-white shadow-md">
+    <nav class="fixed top-0 left-0 right-0 z-[9999] bg-gradient-to-r from-blue-900 to-blue-800 text-white shadow-md">
         <div class="container mx-auto px-4">
             <div class="flex items-center justify-between h-16">
                 <div class="flex items-center space-x-4">
@@ -101,10 +104,19 @@ $endereco_cliente = $stmt->fetch(PDO::FETCH_ASSOC);
     <!-- Scheduling Form Section -->
     <section class="py-10">
         <div class="container mx-auto px-4">
+
             <div class="bg-white rounded-xl shadow-lg p-6 md:p-8">
                 <div class="flex flex-col md:flex-row md:space-x-8">
                     <!-- Left Column - Calendar -->
                     <div class="md:w-1/2 mb-8 md:mb-0">
+                        <!-- MAPA DE ROTA -->
+                        <div class="md:w-full mt-8 md:mt-0 mb-8">
+                            <h2 class="text-xl font-bold text-blue-900 mb-4 flex items-center">
+                                <i data-lucide="map" class="h-5 w-5 mr-2 text-teal-500"></i>
+                                Visualização da Rota
+                            </h2>
+                            <div id="map" class="map-container w-auto h-72 md:h-96 rounded-lg border border-gray-200"></div>
+                        </div>
                         <div class="form-card bg-white rounded-xl shadow-md p-6 mb-6">
                             <h2 class="text-xl font-bold text-blue-900 mb-4 flex items-center">
                                 <i data-lucide="calendar" class="h-5 w-5 mr-2 text-teal-500"></i>
@@ -215,7 +227,7 @@ $endereco_cliente = $stmt->fetch(PDO::FETCH_ASSOC);
                     <form action="actions/action_agendamento.php" method="POST" class="md:w-1/2">
                         <input type="hidden" id="empresa_id" name="empresa_id" value="<?php echo $empresa_id; ?>">
                         <input type="hidden" id="horario_selecionado" name="horario_selecionado" value="14:00">
-                        <input type="hidden" id="data_consulta" name="data_consulta">
+                        <input type="hidden" id="data_consulta" name="data_consulta" value="<?php echo date('Y-m-d'); ?>">
                         <input type="hidden" id="hidden_transport_type" name="hidden_transport_type" value="Padrão">
                         <div>
                             <div class="form-card bg-white rounded-xl shadow-md p-6 mb-6">
@@ -234,28 +246,28 @@ $endereco_cliente = $stmt->fetch(PDO::FETCH_ASSOC);
                                     <div class="space-y-4">
                                         <div>
                                             <label for="pickup_street" class="block text-gray-700 font-medium mb-1">Rua/Avenida</label>
-                                            <input type="text" id="pickup_street" name="pickup_street" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Ex: Av. Paulista">
+                                            <input type="text" id="pickup_street" name="pickup_street" class="address-input w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Ex: Av. Paulista">
                                         </div>
 
                                         <div class="grid grid-cols-2 gap-4">
                                             <div>
                                                 <label for="pickup_number" class="block text-gray-700 font-medium mb-1">Número</label>
-                                                <input type="text" id="pickup_number" name="pickup_number" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Ex: 1000">
+                                                <input type="text" id="pickup_number" name="pickup_number" class="address-input w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Ex: 1000">
                                             </div>
                                             <div>
                                                 <label for="pickup_complement" class="block text-gray-700 font-medium mb-1">Complemento</label>
-                                                <input type="text" id="pickup_complement" name="pickup_complement" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Ex: Apto 101">
+                                                <input type="text" id="pickup_complement" name="pickup_complement" class="address-input w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Ex: Apto 101">
                                             </div>
                                         </div>
 
                                         <div class="grid grid-cols-2 gap-4">
                                             <div>
                                                 <label for="pickup_city" class="block text-gray-700 font-medium mb-1">Cidade</label>
-                                                <input type="text" id="pickup_city" name="pickup_city" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Ex: São Paulo">
+                                                <input type="text" id="pickup_city" name="pickup_city" class="address-input w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Ex: São Paulo">
                                             </div>
                                             <div>
                                                 <label for="pickup_zipcode" class="block text-gray-700 font-medium mb-1">CEP</label>
-                                                <input type="text" id="pickup_zipcode" name="pickup_zipcode" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Ex: 01310-100">
+                                                <input type="text" id="pickup_zipcode" name="pickup_zipcode" class="address-input w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Ex: 01310-100">
                                             </div>
                                         </div>
                                     </div>
@@ -271,28 +283,28 @@ $endereco_cliente = $stmt->fetch(PDO::FETCH_ASSOC);
                                 <div class="space-y-4">
                                     <div>
                                         <label for="dest_street" class="block text-gray-700 font-medium mb-1">Rua/Avenida</label>
-                                        <input type="text" id="dest_street" name="dest_street" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Ex: Rua Vergueiro">
+                                        <input type="text" id="dest_street" name="dest_street" class="address-input w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Ex: Rua Vergueiro">
                                     </div>
 
                                     <div class="grid grid-cols-2 gap-4">
                                         <div>
                                             <label for="dest_number" class="block text-gray-700 font-medium mb-1">Número</label>
-                                            <input type="text" id="dest_number" name="dest_number" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Ex: 2000">
+                                            <input type="text" id="dest_number" name="dest_number" class="address-input w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Ex: 2000">
                                         </div>
                                         <div>
                                             <label for="dest_complement" class="block text-gray-700 font-medium mb-1">Complemento</label>
-                                            <input type="text" id="dest_complement" name="dest_complement" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Ex: Hospital, Sala 202">
+                                            <input type="text" id="dest_complement" name="dest_complement" class="address-input w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Ex: Hospital, Sala 202">
                                         </div>
                                     </div>
 
                                     <div class="grid grid-cols-2 gap-4">
                                         <div>
                                             <label for="dest_city" class="block text-gray-700 font-medium mb-1">Cidade</label>
-                                            <input type="text" id="dest_city" name="dest_city" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Ex: São Paulo">
+                                            <input type="text" id="dest_city" name="dest_city" class="address-input w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Ex: São Paulo">
                                         </div>
                                         <div>
                                             <label for="dest_zipcode" class="block text-gray-700 font-medium mb-1">CEP</label>
-                                            <input type="text" id="dest_zipcode" name="dest_zipcode" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Ex: 04101-300">
+                                            <input type="text" id="dest_zipcode" name="dest_zipcode" class="address-input w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Ex: 04101-300">
                                         </div>
                                     </div>
                                 </div>
@@ -434,6 +446,8 @@ $endereco_cliente = $stmt->fetch(PDO::FETCH_ASSOC);
                 document.getElementById('pickup_city').value = cidade;
                 document.getElementById('pickup_zipcode').value = cep;
                 isUsingAddress = true; // Atualiza o estado para "usando endereço"
+                // Trigger map update after filling saved address
+                setTimeout(atualizarRota, 100);
             } else {
                 document.getElementById('pickup_street').value = '';
                 document.getElementById('pickup_number').value = '';
@@ -441,6 +455,8 @@ $endereco_cliente = $stmt->fetch(PDO::FETCH_ASSOC);
                 document.getElementById('pickup_city').value = '';
                 document.getElementById('pickup_zipcode').value = '';
                 isUsingAddress = false; // Atualiza o estado para "não usando endereço"
+                // Trigger map update after clearing address
+                setTimeout(atualizarRota, 100);
             }
         });
     </script>
@@ -448,6 +464,207 @@ $endereco_cliente = $stmt->fetch(PDO::FETCH_ASSOC);
     <script src="../jquery.mask.min.js"></script>
     <script>
         $('#emergency_contact').mask('(00) 00000-0000');
+    </script>
+    <!-- Leaflet e Routing Machine JS -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.min.js"></script>
+    <script>
+        // Inicializa Lucide icons
+        lucide.createIcons();
+
+        // Inicialização do mapa (ajustado para Salvador)
+        let map;
+        let rota;
+        let mapInitialized = false;
+        let updateTimeout;
+
+        function inicializarMapa() {
+            if (mapInitialized) return;
+            
+            try {
+                map = L.map('map').setView([-12.9777, -38.5016], 13); // Salvador
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap contributors'
+                }).addTo(map);
+                mapInitialized = true;
+                
+                // Força o redimensionamento do mapa após inicialização
+                setTimeout(() => {
+                    if (map) {
+                        map.invalidateSize();
+                    }
+                }, 250);
+            } catch (error) {
+                console.error('Erro ao inicializar mapa:', error);
+            }
+        }
+
+        function geocodificar(endereco, callback) {
+            if (!endereco || endereco.trim() === '') {
+                callback(null);
+                return;
+            }
+            
+            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(endereco)}&limit=1`)
+                .then(res => {
+                    if (!res.ok) throw new Error('Erro na geocodificação');
+                    return res.json();
+                })
+                .then(data => {
+                    if (data && data.length > 0) {
+                        const latlng = [parseFloat(data[0].lat), parseFloat(data[0].lon)];
+                        callback(latlng);
+                    } else {
+                        callback(null);
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro na geocodificação:', error);
+                    callback(null);
+                });
+        }
+
+        function atualizarRota() {
+            // Clear previous timeout
+            if (updateTimeout) {
+                clearTimeout(updateTimeout);
+            }
+            
+            // Debounce the update
+            updateTimeout = setTimeout(() => {
+                inicializarMapa();
+                
+                const origem = [
+                    document.getElementById('pickup_street').value.trim(),
+                    document.getElementById('pickup_number').value.trim(),
+                    document.getElementById('pickup_city').value.trim(),
+                    document.getElementById('pickup_zipcode').value.trim()
+                ].filter(Boolean).join(', ');
+
+                const destino = [
+                    document.getElementById('dest_street').value.trim(),
+                    document.getElementById('dest_number').value.trim(),
+                    document.getElementById('dest_city').value.trim(),
+                    document.getElementById('dest_zipcode').value.trim()
+                ].filter(Boolean).join(', ');
+
+                console.log('Origem:', origem);
+                console.log('Destino:', destino);
+
+                // Remove existing route
+                if (rota) {
+                    try {
+                        map.removeControl(rota);
+                        rota = null;
+                    } catch (error) {
+                        console.error('Erro ao remover rota:', error);
+                    }
+                }
+
+                // If both addresses are empty, just return
+                if (!origem && !destino) {
+                    return;
+                }
+
+                // If only one address is provided, center map on it
+                if (origem && !destino) {
+                    geocodificar(origem, (coord) => {
+                        if (coord && map) {
+                            map.setView(coord, 15);
+                        }
+                    });
+                    return;
+                }
+
+                if (!origem && destino) {
+                    geocodificar(destino, (coord) => {
+                        if (coord && map) {
+                            map.setView(coord, 15);
+                        }
+                    });
+                    return;
+                }
+
+                // If both addresses are provided, create route
+                if (origem && destino) {
+                    geocodificar(origem, (origemCoord) => {
+                        if (origemCoord) {
+                            geocodificar(destino, (destinoCoord) => {
+                                if (destinoCoord && map) {
+                                    try {
+                                        rota = L.Routing.control({
+                                            waypoints: [
+                                                L.latLng(origemCoord[0], origemCoord[1]),
+                                                L.latLng(destinoCoord[0], destinoCoord[1])
+                                            ],
+                                            routeWhileDragging: false,
+                                            draggableWaypoints: false,
+                                            addWaypoints: false,
+                                            fitSelectedRoutes: true,
+                                            show: false,
+                                            lineOptions: {
+                                                styles: [{
+                                                    color: '#14b8a6',
+                                                    weight: 6,
+                                                    opacity: 0.8
+                                                }]
+                                            },
+                                            createMarker: function(i, waypoint, n) {
+                                                const marker = L.marker(waypoint.latLng, {
+                                                    draggable: false
+                                                });
+                                                
+                                                if (i === 0) {
+                                                    marker.bindPopup('Origem');
+                                                } else if (i === n - 1) {
+                                                    marker.bindPopup('Destino');
+                                                }
+                                                
+                                                return marker;
+                                            }
+                                        }).addTo(map);
+
+                                        // Fit map to show entire route
+                                        rota.on('routesfound', function(e) {
+                                            const bounds = L.latLngBounds([origemCoord, destinoCoord]);
+                                            map.fitBounds(bounds, { padding: [20, 20] });
+                                        });
+
+                                        console.log('Rota criada com sucesso');
+                                    } catch (error) {
+                                        console.error('Erro ao criar rota:', error);
+                                    }
+                                }
+                            });
+                        }
+                    });
+                }
+            }, 500); // 500ms debounce
+        }
+
+        // Initialize map when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            inicializarMapa();
+            
+            // Add event listeners to all address input fields
+            const addressInputs = document.querySelectorAll('.address-input');
+            addressInputs.forEach(input => {
+                input.addEventListener('input', atualizarRota);
+                input.addEventListener('blur', atualizarRota);
+            });
+
+            // Initial route update if fields are already filled
+            setTimeout(atualizarRota, 1000);
+        });
+
+        // Ensure map renders properly on window resize
+        window.addEventListener('resize', function() {
+            if (map) {
+                setTimeout(() => {
+                    map.invalidateSize();
+                }, 100);
+            }
+        });
     </script>
 </body>
 

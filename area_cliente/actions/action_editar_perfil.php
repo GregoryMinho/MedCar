@@ -38,19 +38,17 @@ try {
     $sqlEndereco->bindValue(':id_cliente', $id);
     $sqlEndereco->execute();
 
-    $conn = null; // Fecha a conexão com o banco de dados
 
     // Verifica se a atualização foi bem-sucedida
-      if ($stmt->rowCount() > 0) {
+    if ($sqlEndereco->rowCount() > 0 || $sql->rowCount() > 0) {
         $_SESSION['sucesso'] = "Dados atualizados com sucesso!";
     } else {
         $_SESSION['erro'] = "Nenhuma alteração foi realizada.";
     }
-
+    $conn = null; // Fecha a conexão com o banco de dados
     // Redireciona para a página de perfil do cliente
     header("Location:../perfil_cliente.php");
     exit;
-
 } catch (PDOException $e) {
     $_SESSION['erro'] = "Erro ao atualizar os dados. :( <br> Detalhes: " . $e->getMessage();
     header("Location:../perfil_cliente.php");

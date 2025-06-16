@@ -1,49 +1,132 @@
 .mobile-menu {
-    transition: transform 0.3s ease-in-out;
-    transform: translateX(100%);
+  transition: transform 0.3s ease-in-out;
+  transform: translateX(100%);
 }
 
 .mobile-menu.open {
-    transform: translateX(0);
+  transform: translateX(0);
 }
 
 .calendar-day {
-    transition: all 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .calendar-day:hover:not(.calendar-day-disabled) {
-    background-color: rgba(56, 178, 172, 0.1);
-    transform: scale(1.05);
+  background-color: rgba(56, 178, 172, 0.1);
+  transform: scale(1.05);
 }
 
 .calendar-day-selected {
-    background-color: rgba(56, 178, 172, 0.2);
-    border: 2px solid #38b2ac;
-    color: #38b2ac;
-    font-weight: bold;
+  background-color: rgba(56, 178, 172, 0.2);
+  border: 2px solid #38b2ac;
+  color: #38b2ac;
+  font-weight: bold;
 }
 
 .calendar-day-disabled {
-    color: #cbd5e0;
-    cursor: not-allowed;
+  color: #cbd5e0;
+  cursor: not-allowed;
 }
 
 .form-card {
-    transition: all 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .form-card:hover {
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 }
 
 .group:hover .group-hover\:visible {
-    visibility: visible;
+  visibility: visible;
 }
 
 .group:hover .group-hover\:opacity-100 {
-    opacity: 1;
+  opacity: 1;
 }
 
 .group:hover .group-hover\:translate-y-0 {
-    transform: translateY(0);
+  transform: translateY(0);
+}
+
+/* Map container styles - Fix z-index issues */
+.map-container {
+  position: relative;
+  z-index: 10 !important;
+}
+
+/* Leaflet map specific styles */
+.leaflet-container {
+  z-index: 10 !important;
+  position: relative;
+}
+
+.leaflet-control-container {
+  z-index: 15 !important;
+}
+
+.leaflet-popup {
+  z-index: 20 !important;
+}
+
+.leaflet-tooltip {
+  z-index: 20 !important;
+}
+
+/* Hide routing instructions panel */
+.leaflet-routing-container {
+  display: none !important;
+}
+
+.leaflet-routing-alt {
+  display: none !important;
+}
+
+/* Ensure navbar stays on top */
+nav {
+  z-index: 50 !important;
+}
+
+/* Dropdown menu z-index */
+.group .absolute {
+  z-index: 60 !important;
+}
+
+/* Map loading indicator */
+.map-container::before {
+  content: "Carregando mapa...";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #666;
+  font-size: 14px;
+  z-index: 5;
+}
+
+.map-container.loaded::before {
+  display: none;
+}
+
+/* Address input highlighting when focused */
+.address-input:focus {
+  border-color: #14b8a6 !important;
+  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.1) !important;
+}
+
+/* Smooth transitions for form elements */
+.address-input {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Map responsiveness */
+@media (max-width: 768px) {
+  .map-container {
+    height: 250px !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .map-container {
+    height: 200px !important;
+  }
 }

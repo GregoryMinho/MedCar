@@ -300,7 +300,7 @@ unset($_SESSION['sucesso'], $_SESSION['erro']);
                 <div class="container mx-auto px-4">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div class="dashboard-card relative overflow-hidden bg-white rounded-xl shadow-lg p-6 text-center">
-                            <a href="../paginas/pesquisar_empresa.php">
+                            <a id="box_agendar" href="../paginas/pesquisar_empresa.php">
                                 <i data-lucide="ambulance" class="h-10 w-10 mx-auto text-teal-500 mb-3"></i>
                                 <h5 class="text-lg font-semibold text-blue-900 mb-2">Agendar Transporte</h5>
                                 <p class="text-sm text-gray-600 mb-4">Agende seu transporte médico com antecedência</p>
@@ -311,7 +311,7 @@ unset($_SESSION['sucesso'], $_SESSION['erro']);
                         </div>
 
                         <div class="dashboard-card relative overflow-hidden bg-white rounded-xl shadow-lg p-6 text-center">
-                            <a href="historico.php">
+                            <a id="box_historico" href="historico.php">
                                 <i data-lucide="clock" class="h-10 w-10 mx-auto text-teal-500 mb-3"></i>
                                 <h5 class="text-lg font-semibold text-blue-900 mb-2">Histórico Completo</h5>
                                 <p class="text-sm text-gray-600 mb-4">Veja todos seus transportes realizados</p>
@@ -322,7 +322,7 @@ unset($_SESSION['sucesso'], $_SESSION['erro']);
                         </div>
 
                         <div class="dashboard-card relative overflow-hidden bg-white rounded-xl shadow-lg p-6 text-center">
-                            <a href="">
+                            <a id="box_favoritos" href="">
                                 <i data-lucide="star" class="h-10 w-10 mx-auto text-teal-500 mb-3"></i>
                                 <h5 class="text-lg font-semibold text-blue-900 mb-2">Empresas Favoritas</h5>
                                 <p class="text-sm text-gray-600 mb-4">Gerencie suas empresas preferidas</p>

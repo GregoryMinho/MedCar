@@ -51,7 +51,6 @@ $cliente = $stmt_cliente->fetch(PDO::FETCH_ASSOC);
 
 // Configurações do Mercado Pago
 $mercadopago_public_key = getenv('MERCADO_PAGO_PUBLIC_KEY');
-
 ?>
 
 <!DOCTYPE html>
@@ -193,10 +192,79 @@ $mercadopago_public_key = getenv('MERCADO_PAGO_PUBLIC_KEY');
                             </div>
                         </div>
                     </div>
+                <?php elseif (count($agendamentos) > 0) : ?>
+                    <!-- Lista de agendamentos disponíveis para pagamento -->
+                    <div class="mb-6">
+                        <h2 class="text-xl font-bold text-blue-900 mb-4">Agendamentos Disponíveis para Pagamento</h2>
+                        <p class="text-gray-600 mb-4">Selecione um agendamento abaixo para realizar o pagamento:</p>
+                    </div>
+
+                    <!-- Versão desktop (tabela) -->
+                    <div class="hidden md:block overflow-x-auto">
+                        <table class="min-w-full bg-white border border-gray-200 rounded-lg overflow-hidden">
+                            <thead class="bg-blue-900 text-white">
+                                <tr>
+                                    <th class="py-3 px-4 text-left">Data</th>
+                                    <th class="py-3 px-4 text-left">Horário</th>
+                                    <th class="py-3 px-4 text-left">Destino</th>
+                                    <th class="py-3 px-4 text-left">Empresa</th>
+                                    <th class="py-3 px-4 text-left">Valor</th>
+                                    <th class="py-3 px-4 text-center">Ação</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($agendamentos as $agendamento) : ?>
+                                    <tr class="border-b hover:bg-gray-50">
+                                        <td class="py-3 px-4"><?= date("d/m/Y", strtotime($agendamento['data_consulta'])) ?></td>
+                                        <td class="py-3 px-4"><?= date("H:i", strtotime($agendamento['horario'])) ?></td>
+                                        <td class="py-3 px-4"><?= htmlspecialchars($agendamento['cidade_destino']) ?></td>
+                                        <td class="py-3 px-4"><?= htmlspecialchars($agendamento['empresa_nome']) ?></td>
+                                        <td class="py-3 px-4 font-medium">R$ <?= number_format($agendamento['valor'], 2, ',', '.') ?></td>
+                                        <td class="py-3 px-4 text-center">
+                                            <a href="pagar_agendamento.php?id=<?= $agendamento['id'] ?>" class="bg-teal-500 hover:bg-teal-600 text-white font-medium py-2 px-4 rounded-lg inline-block transition">
+                                                Pagar
+                                            </a>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Versão mobile (cards) -->
+                    <div class="md:hidden space-y-4">
+                        <?php foreach ($agendamentos as $agendamento) : ?>
+                            <div class="bg-white border rounded-lg shadow-sm p-4">
+                                <div class="flex justify-between items-start mb-3">
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-500">Data e Hora</p>
+                                        <p class="text-lg"><?= date("d/m/Y", strtotime($agendamento['data_consulta'])) ?> às <?= date("H:i", strtotime($agendamento['horario'])) ?></p>
+                                    </div>
+                                    <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">Agendado</span>
+                                </div>
+                                <div class="mb-3">
+                                    <p class="text-sm font-medium text-gray-500">Destino</p>
+                                    <p class="text-lg"><?= htmlspecialchars($agendamento['cidade_destino']) ?></p>
+                                </div>
+                                <div class="mb-3">
+                                    <p class="text-sm font-medium text-gray-500">Empresa</p>
+                                    <p class="text-lg"><?= htmlspecialchars($agendamento['empresa_nome']) ?></p>
+                                </div>
+                                <div class="mb-4">
+                                    <p class="text-sm font-medium text-gray-500">Valor</p>
+                                    <p class="text-xl font-bold text-blue-900">R$ <?= number_format($agendamento['valor'], 2, ',', '.') ?></p>
+                                </div>
+                                <a href="pagar_agendamento.php?id=<?= $agendamento['id'] ?>" class="w-full bg-teal-500 hover:bg-teal-600 text-white font-medium py-2 px-4 rounded-lg inline-block text-center transition">
+                                    Pagar
+                                </a>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
                 <?php else : ?>
-                    <div class="bg-yellow-50 border border-yellow-200 text-yellow-700 p-4 rounded-lg mb-6 flex items-start">
-                        <i data-lucide="alert-triangle" class="h-5 w-5 mr-2 mt-0.5"></i>
-                        <p>Nenhum agendamento pendente de pagamento encontrado.</p>
+                    <!-- Nenhum agendamento encontrado -->
+                    <div class="bg-white p-8 rounded-lg text-center">
+                        <i data-lucide="calendar-x" class="h-16 w-16 mx-auto text-gray-400 mb-4"></i>
+                        <p class="text-gray-600 text-lg">Nenhum agendamento pendente de pagamento encontrado.</p>
                         <a href="menu_principal.php" class="mt-4 inline-block bg-blue-900 hover:bg-blue-800 text-white font-medium py-2 px-4 rounded-lg transition">
                             Voltar ao Menu Principal
                         </a>
@@ -231,6 +299,7 @@ $mercadopago_public_key = getenv('MERCADO_PAGO_PUBLIC_KEY');
             document.getElementById('mobile-menu').classList.toggle('hidden');
         });
 
+        <?php if ($agendamento_selecionado) : ?>
         const publicKey = '<?= $mercadopago_public_key ?>';
         const mp = new MercadoPago(publicKey);
         const agendamentoId = <?= $agendamento_selecionado ? $agendamento_selecionado['id'] : 'null' ?>;
@@ -379,6 +448,7 @@ $mercadopago_public_key = getenv('MERCADO_PAGO_PUBLIC_KEY');
 
         showPaymentLoading();
         initializeCheckoutBricks();
+        <?php endif; ?>
     </script>
 </body>
 

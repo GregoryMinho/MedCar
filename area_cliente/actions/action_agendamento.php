@@ -1,10 +1,10 @@
 <?php
 include '../../includes/classe_usuario.php'; // inclui o arquivo de validação de login
 require '../../includes/conexao_BdAgendamento.php'; // inclui o arquivo de conexão com o banco de dados
-
+session_start(); // inicia a sessão
 if (!isset($_SESSION['usuario'])) {
     // Se a sessão não estiver iniciada, redireciona para a página de login
-    header("Location: medq-2/paginas/login_clientes.php");
+    header("Location: ../../paginas/login_clientes.php");
     exit();
 }
 
