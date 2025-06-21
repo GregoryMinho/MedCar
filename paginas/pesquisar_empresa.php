@@ -24,7 +24,7 @@ session_start();
                     <span>MedCar</span>
                 </a>
                 <div class="hidden md:flex space-x-6">
-                    <a href="/MedQ-2/area_cliente/menu_principal.php" class="font-medium hover:text-teal-300 transition duration-300">Home</a>
+                    <a href="/MedCar/area_cliente/menu_principal.php" class="font-medium hover:text-teal-300 transition duration-300">Home</a>
                 </div>
                 <button id="mobile-menu-button" class="md:hidden text-white focus:outline-none">
                     <i data-lucide="menu" class="h-6 w-6"></i>
@@ -213,7 +213,7 @@ session_start();
                     </div>
                     
                     <div class="mt-4">
-                        <a href="/MedQ-2/area_cliente/agendamento_cliente.php?empresa_id=<?php echo urlencode($empresa['id']); ?>" 
+                        <a href="/MedCar/area_cliente/agendamento_cliente.php?empresa_id=<?php echo urlencode($empresa['id']); ?>" 
                            class="flex items-center justify-center bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 px-6 rounded-lg transform transition-all hover:scale-105 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50">
                             <i data-lucide="calendar-plus" class="mr-2"></i>
                             Solicitar Agendamento
