@@ -1,300 +1,257 @@
 <?php
-session_start();
-require '../includes/classe_usuario.php';
+require_once '../includes/classe_usuario.php';
+require '../includes/conexao_BdAgendamento.php';
+
 use usuario\Usuario;
 
-// Verify user permission and authentication
-Usuario::verificarPermissao('empresa');
-
-
-if (!isset($_SESSION['empresa_id'])) {
-   header('Location: login_empresa.php');
-    exit();
+// Verifica se a empresa está logada
+if (!Usuario::validarSessaoEmpresa()) {
+    header('Location: ../paginas/login_empresas.php');
+    exit;
 }
 
-require '../includes/conexao_BdConversas.php';
+// CORREÇÃO AQUI: usar o ID correto da sessão
+$empresaId = $_SESSION['usuario']['id'];
 
-// Initialize variables
-$mensagens = [];
-$conversaAtual = null;
-$conversas = [];
-
-// Fetch all conversations for the current company
-try {
-    $stmt = $pdo->prepare("
-        SELECT 
-            c.id,
-            c.assunto,
-            c.data_abertura,
-            p.nome AS paciente,
-            p.foto_url,
-            (SELECT mensagem FROM mensagens WHERE conversa_id = c.id ORDER BY data_envio DESC LIMIT 1) AS ultima_mensagem,
-            (SELECT data_envio FROM mensagens WHERE conversa_id = c.id ORDER BY data_envio DESC LIMIT 1) AS ultima_data,
-            (SELECT COUNT(*) FROM mensagens WHERE conversa_id = c.id AND remetente = 'paciente' AND lida = 0) AS nao_lidas
-        FROM conversas c
-        INNER JOIN pacientes p ON c.paciente_id = p.id
-        WHERE c.empresa_id = ?
-        ORDER BY ultima_data DESC
-    ");
-    
-    $stmt->execute([$_SESSION['empresa_id']]);
-    $conversas = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
-} catch (Exception $e) {
-    error_log("Error fetching conversations: " . $e->getMessage());
-    $conversas = []; // Ensure empty array on error
+// Buscar clientes ÚNICOS com agendamento ativo para esta empresa, incluindo foto
+$stmt = $conn->prepare("
+    SELECT DISTINCT 
+        c.id, 
+        c.nome, 
+        c.email, 
+        c.foto
+    FROM agendamentos a
+    INNER JOIN medcar_cadastro_login.clientes c 
+        ON a.cliente_id = c.id
+    WHERE 
+        a.empresa_id = :empresa_id AND 
+        a.situacao NOT IN ('Cancelado', 'Concluido')
+");
+$stmt->bindParam(':empresa_id', $empresaId, PDO::PARAM_INT);
+if (!$stmt->execute()) {
+    error_log("Erro SQL: " . implode(" - ", $stmt->errorInfo()));
 }
+$clientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Handle specific conversation if requested
-if (isset($_GET['conversa'])) {
-    try {
-        $conversa_id = filter_input(INPUT_GET, 'conversa', FILTER_VALIDATE_INT);
-        
-        if (!$conversa_id) {
-            throw new Exception("ID de conversa inválido");
+$clienteSelecionado = null;
+$clienteInfo = null;
+
+if (isset($_GET['cliente_id'])) {
+    $clienteId = (int)$_GET['cliente_id'];
+    $sala = "empresa_{$empresaId}_cliente_{$clienteId}";
+    foreach ($clientes as $cliente) {
+        if ($cliente['id'] == $clienteId) {
+            $clienteInfo = $cliente;
+            $clienteSelecionado = $clienteId;
+            break;
         }
-
-        // Verify conversation belongs to this company
-        $stmt = $pdo->prepare("
-            SELECT c.*, p.nome AS paciente, p.foto_url 
-            FROM conversas c
-            INNER JOIN pacientes p ON c.paciente_id = p.id
-            WHERE c.id = ? AND c.empresa_id = ?
-        ");
-        $stmt->execute([$conversa_id, $_SESSION['empresa_id']]);
-        $conversaAtual = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if (!$conversaAtual) {
-            throw new Exception("Conversa não encontrada ou acesso não autorizado");
-        }
-
-        // Fetch messages
-        $stmt = $pdo->prepare("
-            SELECT * 
-            FROM mensagens 
-            WHERE conversa_id = ?
-            ORDER BY data_envio ASC
-        ");
-        $stmt->execute([$conversa_id]);
-        $mensagens = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        // Mark patient messages as read
-        $stmt = $pdo->prepare("
-            UPDATE mensagens 
-            SET lida = 1 
-            WHERE conversa_id = ? AND remetente = 'paciente' AND lida = 0
-        ");
-        $stmt->execute([$conversa_id]);
-
-    } catch (Exception $e) {
-        error_log("Error: " . $e->getMessage());
-        // Show error to user but continue loading page
-        $error_message = $e->getMessage();
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MedCar - Central de Mensagens</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        :root {
-            --primary-color: #1a365d;
-            --secondary-color: #2a4f7e;
-            --accent-color: #38b2ac;
-            --chat-bg: #f0f4f8;
-        }
-        .chat-container {
-            height: calc(100vh - 120px);
-            background: var(--chat-bg);
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-        .conversation-list {
-            border-right: 2px solid #e9ecef;
-            overflow-y: auto;
-        }
-        .chat-messages {
-            overflow-y: auto;
-            background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAOklEQVRoge3BMQEAAADCoPVPbQlPoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABeA8XKAAFZcBBuAAAAAElFTkSuQmCC');
-        }
-        .message-bubble {
-            max-width: 70%;
-            border-radius: 15px;
-            padding: 12px 15px;
-            margin: 8px 0;
-            position: relative;
-        }
-        .received {
-            background: white;
-            align-self: flex-start;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
-        .sent {
-            background: var(--accent-color);
-            color: white;
-            align-self: flex-end;
-        }
-        .unread-badge {
-            background: #dc3545;
-            color: white;
-            font-size: 0.8em;
-            min-width: 20px;
-            height: 20px;
-            border-radius: 10px;
-        }
-        .conversation-item:hover {
-            background: #f8f9fa;
-            cursor: pointer;
-        }
-        .active-conversation {
-            background: var(--chat-bg);
-            border-left: 4px solid var(--accent-color);
-        }
-        .message-input {
-            border-radius: 25px;
-            padding: 12px 20px;
-            border: 2px solid #e9ecef;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MedCar - Chat com Cliente</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.socket.io/4.5.0/socket.io.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
-<body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark" style="background: var(--primary-color)">
-        <div class="container">
-            <a class="navbar-brand" href="#">
-                <i class="fas fa-comments me-2"></i>
-                MedCar - Central de Mensagens
+<body class="bg-gray-50 min-h-screen">
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-blue-900 to-blue-800 text-white shadow">
+    <div class="container mx-auto px-4">
+      <div class="flex justify-between items-center h-16">
+        <a href="#" class="flex items-center space-x-2 text-xl font-bold">
+          <i data-lucide="ambulance" class="h-6 w-6"></i>
+          <span>MedCar</span>
+        </a>
+        <div class="flex items-center space-x-4">
+          <span class="flex items-center gap-2"><i data-lucide="user" class="w-5 h-5"></i> Empresa</span>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="flex pt-20">
+    <aside class="hidden md:block w-64 bg-blue-900 text-white min-h-screen pt-6">
+      <nav class="flex flex-col space-y-1 px-3">
+        <a href="#" class="flex items-center gap-3 ps-4 py-3 rounded-lg hover:bg-blue-800">
+          <i class="bi bi-speedometer2"></i>
+          <span>Dashboard</span>
+        </a>
+        <a href="#" class="flex items-center gap-3 ps-4 py-3 rounded-lg bg-blue-800 font-semibold">
+          <i class="bi bi-chat-dots"></i>
+          <span>Atendimentos</span>
+        </a>
+        <a href="#" class="flex items-center gap-3 ps-4 py-3 rounded-lg hover:bg-blue-800">
+          <i class="bi bi-calendar-event"></i>
+          <span>Agendamentos</span>
+        </a>
+      </nav>
+    </aside>
+
+    <main class="flex-1 px-4 py-8 md:px-10">
+      <div class="max-w-4xl mx-auto">
+        <h1 class="text-2xl font-bold text-blue-900 mb-4 flex items-center gap-2">
+          <i data-lucide="message-square-text" class="w-6 h-6 text-blue-800"></i>
+          Conversas com Clientes
+        </h1>
+
+        <?php if (count($clientes) === 0): ?>
+          <div class="bg-yellow-100 text-yellow-900 p-4 rounded-lg shadow mb-4">
+            Nenhum paciente com agendamento ativo no momento.
+          </div>
+        <?php endif; ?>
+
+        <?php foreach ($clientes as $cliente): ?>
+          <div class="bg-white shadow rounded-lg p-4 mb-3 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+              <?php if ($cliente['foto']): ?>
+                <img src="<?= htmlspecialchars($cliente['foto']) ?>" 
+                     alt="Foto de <?= htmlspecialchars($cliente['nome']) ?>"
+                     class="w-10 h-10 rounded-full object-cover">
+              <?php else: ?>
+                <div class="bg-gray-200 border-2 border-dashed rounded-full w-10 h-10"></div>
+              <?php endif; ?>
+              <div>
+                <p class="font-semibold text-blue-900"><?= htmlspecialchars($cliente['nome']) ?></p>
+                <p class="text-sm text-gray-600"><?= htmlspecialchars($cliente['email']) ?></p>
+              </div>
+            </div>
+            <a href="?cliente_id=<?= $cliente['id'] ?>" class="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded">
+              Abrir Chat
             </a>
-            <div class="ms-auto">
-                <a href="logout.php" class="btn btn-outline-light">
-                    <i class="fas fa-sign-out-alt"></i> Sair
-                </a>
+          </div>
+        <?php endforeach; ?>
+
+        <?php if ($clienteSelecionado && $clienteInfo): ?>
+        <div class="bg-white rounded-2xl shadow-lg overflow-hidden mt-6">
+          <div class="bg-gradient-to-r from-blue-700 to-blue-800 p-4 text-white flex items-center gap-4">
+            <?php if ($clienteInfo['foto']): ?>
+              <img src="<?= htmlspecialchars($clienteInfo['foto']) ?>" 
+                   alt="Foto de <?= htmlspecialchars($clienteInfo['nome']) ?>"
+                   class="w-10 h-10 rounded-full object-cover">
+            <?php else: ?>
+              <div class="bg-gray-200 border-2 border-dashed rounded-full w-10 h-10"></div>
+            <?php endif; ?>
+            <div>
+              <h3 class="font-semibold text-lg">Conversa com <?= htmlspecialchars($clienteInfo['nome']) ?></h3>
+              <p class="text-sm text-blue-200">ID: #<?= $clienteSelecionado ?></p>
             </div>
-        </div>
-    </nav>
+          </div>
 
-    <!-- Error Alert -->
-    <?php if (!empty($error_message)): ?>
-    <div class="container mt-3">
-        <div class="alert alert-danger">
-            <?= htmlspecialchars($error_message) ?>
-        </div>
-    </div>
-    <?php endif; ?>
+          <div id="chat" class="h-96 overflow-y-auto p-4 space-y-3 bg-gray-50"></div>
 
-    <div class="container-fluid py-4">
-        <div class="row chat-container mx-2">
-            <!-- Conversation List -->
-            <div class="col-md-4 conversation-list p-0">
-                <div class="p-3 border-bottom">
-                    <input type="text" class="form-control" placeholder="Pesquisar conversas...">
-                </div>
-                <?php foreach ($conversas as $conversa): ?>
-                <a href="?conversa=<?= $conversa['id'] ?>" class="text-decoration-none">
-                    <div class="conversation-item p-3 border-bottom <?= ($_GET['conversa'] ?? null) == $conversa['id'] ? 'active-conversation' : '' ?>">
-                        <div class="d-flex align-items-center">
-                            <img src="<?= htmlspecialchars($conversa['foto_url']) ?>" class="rounded-circle me-3" width="50" height="50" onerror="this.src='default_profile.png'">
-                            <div class="flex-grow-1">
-                                <h6 class="mb-0 text-dark"><?= htmlspecialchars($conversa['paciente']) ?></h6>
-                                <small class="text-muted"><?= htmlspecialchars(substr($conversa['ultima_mensagem'] ?? '', 0, 30)) ?>...</small>
-                            </div>
-                            <div class="text-end">
-                                <small class="text-muted d-block"><?= date('H:i', strtotime($conversa['ultima_data'])) ?></small>
-                                <?php if (($conversa['nao_lidas'] ?? 0) > 0): ?>
-                                <span class="unread-badge d-inline-flex align-items-center justify-content-center">
-                                    <?= $conversa['nao_lidas'] ?>
-                                </span>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-                <?php endforeach; ?>
+          <div class="border-t border-gray-200 p-4 bg-white">
+            <div class="flex gap-2">
+              <input id="mensagem" type="text" placeholder="Digite sua mensagem..." class="flex-1 border rounded-full px-4 py-2 shadow-sm focus:outline-none">
+              <button onclick="enviarMensagem()" class="bg-blue-800 text-white px-6 py-2 rounded-full hover:bg-blue-900 transition">
+                <i class="bi bi-send"></i>
+              </button>
             </div>
-
-            <!-- Chat Area -->
-            <div class="col-md-8 p-0 d-flex flex-column">
-                <?php if (isset($_GET['conversa']) && $conversaAtual): ?>
-                <!-- Chat Header -->
-                <div class="p-3 border-bottom bg-white">
-                    <div class="d-flex align-items-center">
-                        <img src="<?= htmlspecialchars($conversaAtual['foto_url']) ?>" class="rounded-circle me-3" width="45" height="45" onerror="this.src='default_profile.png'">
-                        <div>
-                            <h5 class="mb-0"><?= htmlspecialchars($conversaAtual['paciente']) ?></h5>
-                            <small class="text-muted">Assunto: <?= htmlspecialchars($conversaAtual['assunto']) ?></small>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Messages -->
-                <div class="flex-grow-1 chat-messages p-3" id="messages-container">
-                    <?php foreach ($mensagens as $msg): ?>
-                    <div class="d-flex <?= $msg['remetente'] === 'empresa' ? 'justify-content-end' : 'justify-content-start' ?>">
-                        <div class="message-bubble <?= $msg['remetente'] === 'empresa' ? 'sent' : 'received' ?>">
-                            <?= nl2br(htmlspecialchars($msg['mensagem'])) ?>
-                            <small class="d-block text-end mt-1" style="opacity: 0.7;">
-                                <?= date('H:i', strtotime($msg['data_envio'])) ?>
-                                <?php if ($msg['remetente'] === 'empresa'): ?>
-                                <i class="fas fa-check ms-2 <?= $msg['lida'] ? 'text-primary' : 'text-muted' ?>"></i>
-                                <?php endif; ?>
-                            </small>
-                        </div>
-                    </div>
-                    <?php endforeach; ?>
-                </div>
-
-                <!-- Message Input -->
-                <form method="POST" action="enviar_mensagem.php" class="p-3 border-top bg-white">
-                    <input type="hidden" name="conversa_id" value="<?= htmlspecialchars($_GET['conversa']) ?>">
-                    <div class="input-group">
-                        <input type="text" name="mensagem" class="form-control message-input" 
-                               placeholder="Digite sua mensagem..." required>
-                        <button type="submit" class="btn btn-primary ms-2">
-                            <i class="fas fa-paper-plane"></i>
-                        </button>
-                    </div>
-                </form>
-                <?php else: ?>
-                <div class="flex-grow-1 d-flex align-items-center justify-content-center">
-                    <div class="text-center text-muted">
-                        <i class="fas fa-comments fa-3x mb-3"></i>
-                        <h4>Selecione uma conversa para começar</h4>
-                    </div>
-                </div>
-                <?php endif; ?>
-            </div>
+          </div>
         </div>
-    </div>
+        <?php endif; ?>
+      </div>
+    </main>
+  </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Auto-scroll to bottom
-        const messagesContainer = document.getElementById('messages-container');
-        if (messagesContainer) {
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }
+  <script>
+    lucide.createIcons();
+  </script>
 
-        // Auto-refresh every 30 seconds
-        setInterval(() => {
-            if (window.location.search.includes('conversa')) {
-                window.location.reload();
-            }
-        }, 30000);
+  <?php if ($clienteSelecionado && $clienteInfo): ?>
+  <script>
+    const socket = io("http://localhost:3001");
+    const sala = "<?= $sala ?>";
+    const remetente = "empresa_<?= $empresaId ?>";
+    const clienteNome = "<?= htmlspecialchars($clienteInfo['nome']) ?>";
 
-        // Error handling for profile images
-        document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('img').forEach(img => {
-                img.onerror = function() {
-                    this.src = 'default_profile.png';
-                };
-            });
+    socket.emit("join_room", sala);
+
+    // Carrega histórico do chat
+    fetch(`/includes/chat_api.php?sala=${sala}`)
+      .then(res => res.json())
+      .then(mensagens => {
+        const chat = document.getElementById("chat");
+        chat.innerHTML = '';
+        mensagens.forEach(data => {
+          const isEmpresa = data.remetente.includes("empresa");
+          const horario = new Date(data.data_envio).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          chat.innerHTML += `
+            <div class="chat-bubble ${isEmpresa ? 'sent' : 'received'}">
+              <div ${!isEmpresa ? 'class="flex items-end gap-2"' : ''}>
+                ${!isEmpresa ? '<div class="bg-gray-200 border-2 border-dashed rounded-xl w-6 h-6"></div>' : ''}
+                <div>
+                  <p class="text-sm font-medium">${data.mensagem}</p>
+                  <p class="message-time">${isEmpresa ? 'Você' : clienteNome} • ${horario}</p>
+                </div>
+              </div>
+            </div>`;
         });
-    </script>
+        chat.scrollTop = chat.scrollHeight;
+      });
+
+    function enviarMensagem() {
+      const input = document.getElementById("mensagem");
+      const msg = input.value.trim();
+      if (msg === "") return;
+
+      const timestamp = new Date().toISOString();
+      const horario = new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      const chat = document.getElementById("chat");
+      chat.innerHTML += `
+        <div class="chat-bubble sent">
+          <div>
+            <p class="text-sm font-medium">${msg}</p>
+            <p class="message-time">Você • ${horario}</p>
+          </div>
+        </div>`;
+      chat.scrollTop = chat.scrollHeight;
+
+      socket.emit("send_message", {
+        room: sala,
+        message: msg,
+        sender: remetente,
+        timestamp: timestamp
+      });
+
+      fetch("/includes/chat_api.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sala, remetente, mensagem: msg, timestamp })
+      });
+
+      input.value = "";
+    }
+
+    socket.on("receive_message", (data) => {
+      const isEmpresa = data.sender.includes("empresa");
+      const horario = new Date(data.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      const chat = document.getElementById("chat");
+      chat.innerHTML += `
+        <div class="chat-bubble ${isEmpresa ? 'sent' : 'received'}">
+          <div ${!isEmpresa ? 'class="flex items-end gap-2"' : ''}>
+            ${!isEmpresa ? '<div class="bg-gray-200 border-2 border-dashed rounded-xl w-6 h-6"></div>' : ''}
+            <div>
+              <p class="text-sm font-medium">${data.message}</p>
+              <p class="message-time">${isEmpresa ? 'Você' : clienteNome} • ${horario}</p>
+            </div>
+          </div>
+        </div>`;
+      chat.scrollTop = chat.scrollHeight;
+    });
+
+    document.getElementById("mensagem").addEventListener("keypress", function (e) {
+      if (e.key === "Enter") {
+        enviarMensagem();
+      }
+    });
+  </script>
+  <?php endif; ?>
 </body>
 </html>

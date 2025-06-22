@@ -6,17 +6,19 @@ use usuario\Usuario;
 
 Usuario::verificarPermissao('cliente'); // verifica se o usuário logado é um cliente
 
-// pegar o id da empresa selecionada por sessão
-// $empresa_id = $_SESSION['empresa_id'];
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
-$empresa_id = 1;    //////// temporario////////////////////////
 $user_id = $_SESSION['usuario']['id']; // pega o id do cliente logado
 
 
+$empresa_id = isset($_GET['empresa_id']) ? (int) $_GET['empresa_id'] : 0;
 $stmt = $conn->prepare("SELECT e.*, c.contato_emergencia FROM enderecos_clientes e JOIN clientes c WHERE e.id_cliente = :id AND e.id_cliente = c.id");
 $stmt->bindParam(':id', $user_id);
 $stmt->execute();
 $endereco_cliente = $stmt->fetch(PDO::FETCH_ASSOC);
+
 ?>
 
 <!DOCTYPE html>

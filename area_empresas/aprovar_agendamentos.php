@@ -1,10 +1,22 @@
 <?php
 require '../includes/classe_usuario.php';
 use usuario\Usuario;
-// Usuario::verificarPermissao('empresa'); // Verifica se o usuário tem permissão de empresa
+
+// Garante que apenas empresas acessem a página
+Usuario::verificarPermissao('empresa');
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
+}
+
+// ✅ Geração do token CSRF
+if (!isset($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
+// Verifica se a sessão tem um ID de usuário
+if (!isset($_SESSION['usuario']['id'])) {
+    die('Erro: Usuário não autenticado.');
 }
 
 $empresa_id = $_SESSION['usuario']['id'];
@@ -12,7 +24,6 @@ $empresa_id = $_SESSION['usuario']['id'];
 require '../includes/conexao_BdAgendamento.php';
 
 try {
-    // Query Corrigida (Sem comentários HTML)
     $sql = "SELECT 
                 a.id, 
                 a.data_consulta, 
@@ -33,8 +44,8 @@ try {
             INNER JOIN medcar_cadastro_login.clientes AS c 
                 ON c.id = a.cliente_id 
             WHERE a.empresa_id = :empresa_id 
-            AND a.situacao = 'Pendente'
-            ORDER BY a.data_consulta, a.horario"; // <-- Formatado corretamente
+              AND a.situacao = 'Pendente'
+            ORDER BY a.data_consulta, a.horario";
 
     $stmt = $conn->prepare($sql);
     $stmt->bindParam(':empresa_id', $empresa_id, PDO::PARAM_INT);
@@ -45,6 +56,15 @@ try {
     die("Erro detalhado: " . $e->getMessage());
 }
 ?>
+
+<!-- Continua o HTML normalmente -->
+
+<!-- No seu formulário de aprovação e recusa (já está correto) -->
+<!-- Apenas certifique-se de que este input existe e usa $_SESSION['csrf_token']: -->
+
+<input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>

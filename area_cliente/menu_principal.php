@@ -215,6 +215,11 @@ unset($_SESSION['sucesso'], $_SESSION['erro']);
                     <i data-lucide="heart" class="h-5 w-5"></i>
                     <span>Favoritos</span>
                 </a>
+                <a href="batepapo_clientes.php" class="flex items-center space-x-2 px-4 py-3 rounded-lg text-white hover:bg-blue-800 transition">
+  <i data-lucide="message-square-text" class="h-5 w-5"></i>
+  <span>Atendimento</span>
+</a>
+
                 <div class="relative">
                     <button id="dropdown-button" class="flex items-center space-x-2 px-4 py-3 rounded-lg text-white hover:bg-blue-800 transition focus:outline-none">
                         <i data-lucide="settings" class="h-5 w-5"></i>
