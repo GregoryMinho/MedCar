@@ -1,6 +1,16 @@
 // socket-server.js
+
 const { Server } = require("socket.io");
 const http = require("http");
+const mysql = require("mysql2/promise");
+
+// === SUA CONFIGURAÇÃO DO BANCO ===
+const pool = mysql.createPool({
+  host: 'localhost',
+  user: 'root',
+  password: '', // coloque 'cimatec' se usar senha
+  database: 'medcar_chat'
+});
 
 const server = http.createServer();
 const io = new Server(server, {
@@ -17,9 +27,19 @@ io.on("connection", (socket) => {
     console.log(`Cliente ${socket.id} entrou na sala ${room}`);
   });
 
-  socket.on("send_message", (data) => {
+  socket.on("send_message", async (data) => {
+    // Esperado: data = { room, sender, message }
     console.log(`Mensagem recebida: ${data.message}`);
-    io.to(data.room).emit("receive_message", data);
+
+    try {
+      await pool.query(
+        "INSERT INTO mensagens_chat (sala, remetente, mensagem) VALUES (?, ?, ?)",
+        [data.room, data.sender, data.message]
+      );
+      io.to(data.room).emit("receive_message", data);
+    } catch (err) {
+      console.error("Erro ao salvar mensagem no banco:", err);
+    }
   });
 
   socket.on("disconnect", () => {

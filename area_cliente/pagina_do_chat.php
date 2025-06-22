@@ -38,6 +38,62 @@ if ($empresaSelecionada) {
   <title>Chat com a Empresa</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.socket.io/4.5.0/socket.io.min.js"></script>
+  <style>
+    .chat-bubble {
+      max-width: 75%;
+      padding: 0.75rem;
+      border-radius: 1rem;
+      margin-bottom: 0.5rem;
+      position: relative;
+      word-wrap: break-word;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+    .chat-bubble.sent {
+      background-color: #2563eb;
+      color: white;
+      margin-left: auto;
+      border-bottom-right-radius: 0.25rem;
+    }
+    .chat-bubble.received {
+      background-color: #f3f4f6;
+      color: #1f2937;
+      margin-right: auto;
+      border-bottom-left-radius: 0.25rem;
+    }
+    .message-time {
+      font-size: 0.7rem;
+      opacity: 0.8;
+      text-align: right;
+      margin-top: 0.25rem;
+    }
+    .chat-bubble.received .message-time {
+      color: #6b7280;
+    }
+    .chat-bubble.sent .message-time {
+      color: rgba(255,255,255,0.8);
+    }
+    .chat-container {
+      height: 24rem;
+      display: flex;
+      flex-direction: column;
+    }
+    .messages-container {
+      flex-grow: 1;
+      overflow-y: auto;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .message-input:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3);
+    }
+  </style>
 </head>
 <body class="bg-gray-100 min-h-screen py-10">
   <div class="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow">
@@ -47,19 +103,32 @@ if ($empresaSelecionada) {
         <p class="text-gray-600"><?= htmlspecialchars($empresa['email']) ?></p>
       </div>
 
-      <div id="chat" class="h-96 overflow-y-auto p-4 space-y-3 bg-gray-50 rounded mb-4"></div>
+      <div class="chat-container">
+        <div id="chat" class="messages-container bg-gray-50 rounded mb-4"></div>
+      </div>
       <div class="flex gap-2">
-        <input id="mensagem" type="text" placeholder="Digite sua mensagem..." class="flex-1 border rounded-full px-4 py-2 shadow-sm focus:outline-none">
-        <button onclick="enviarMensagem()" class="bg-blue-800 text-white px-6 py-2 rounded-full hover:bg-blue-900">Enviar</button>
+        <input id="mensagem" type="text" placeholder="Digite sua mensagem..." 
+               class="flex-1 border rounded-full px-4 py-2 shadow-sm focus:outline-none message-input">
+        <button id="btn-enviar" class="bg-blue-800 text-white px-6 py-2 rounded-full hover:bg-blue-900">Enviar</button>
       </div>
 
       <script>
-        const socket = io("http://localhost:3001"); // Altere para seu servidor real
+        // Verifica se já existe uma conexão socket antes de criar uma nova
+        if (typeof window.socketConnection === 'undefined') {
+          window.socketConnection = io("http://localhost:3001");
+        }
+        const socket = window.socketConnection;
+        
         const sala = "<?= $sala ?>";
         const remetente = "cliente_<?= $clienteId ?>";
 
+        console.log("Conectando ao socket com ID:", socket.id);
+        console.log("Sala:", sala);
+        console.log("Remetente:", remetente);
+
         socket.emit("join_room", sala);
 
+        // Carrega histórico do chat
         fetch(`/includes/chat_api.php?sala=${sala}`)
           .then(res => res.json())
           .then(mensagens => {
@@ -69,13 +138,23 @@ if ($empresaSelecionada) {
               const isCliente = data.remetente.includes("cliente");
               const horario = new Date(data.data_envio).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-              chat.innerHTML += `
-                <div class="chat-bubble ${isCliente ? 'sent' : 'received'}">
-                  <div>
-                    <p class="text-sm font-medium">${data.mensagem}</p>
-                    <p class="message-time">${isCliente ? 'Você' : 'Empresa'} • ${horario}</p>
-                  </div>
-                </div>`;
+              if (isCliente) {
+                chat.innerHTML += `
+                  <div class="chat-bubble sent">
+                    <div>
+                      <p class="text-sm font-medium">${data.mensagem}</p>
+                      <p class="message-time">Você • ${horario}</p>
+                    </div>
+                  </div>`;
+              } else {
+                chat.innerHTML += `
+                  <div class="chat-bubble received">
+                    <div>
+                      <p class="text-sm font-medium">${data.mensagem}</p>
+                      <p class="message-time">Empresa • ${horario}</p>
+                    </div>
+                  </div>`;
+              }
             });
             chat.scrollTop = chat.scrollHeight;
           });
@@ -89,6 +168,8 @@ if ($empresaSelecionada) {
           const horario = new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
           const chat = document.getElementById("chat");
+          
+          // Adiciona a mensagem enviada pelo usuário (UI otimista)
           chat.innerHTML += `
             <div class="chat-bubble sent">
               <div>
@@ -96,8 +177,10 @@ if ($empresaSelecionada) {
                 <p class="message-time">Você • ${horario}</p>
               </div>
             </div>`;
+          
           chat.scrollTop = chat.scrollHeight;
 
+          // Envia a mensagem via socket.io
           socket.emit("send_message", {
             room: sala,
             message: msg,
@@ -105,41 +188,64 @@ if ($empresaSelecionada) {
             timestamp: timestamp
           });
 
+          // Salva a mensagem no banco de dados
           fetch("/includes/chat_api.php", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ sala, remetente, mensagem: msg, timestamp })
+            body: JSON.stringify({ 
+              sala, 
+              remetente, 
+              mensagem: msg, 
+              timestamp 
+            })
           });
 
           input.value = "";
         }
 
+        // Evento para receber mensagens
         socket.on("receive_message", (data) => {
-          const isCliente = data.sender.includes("cliente");
-          const horario = new Date(data.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          console.log("Mensagem recebida via socket:", data);
+          console.log("Remetente local:", remetente);
+          console.log("Remetente mensagem:", data.sender);
+          
+          // Verificação robusta para evitar mensagens duplicadas
+          if (data.sender && remetente && data.sender.trim() === remetente.trim()) {
+            console.log("Ignorando mensagem do próprio usuário");
+            return;
+          }
 
+          const horario = new Date(data.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
           const chat = document.getElementById("chat");
+          
           chat.innerHTML += `
-            <div class="chat-bubble ${isCliente ? 'sent' : 'received'}">
+            <div class="chat-bubble received">
               <div>
                 <p class="text-sm font-medium">${data.message}</p>
-                <p class="message-time">${isCliente ? 'Você' : 'Empresa'} • ${horario}</p>
+                <p class="message-time">Empresa • ${horario}</p>
               </div>
             </div>`;
+          
           chat.scrollTop = chat.scrollHeight;
         });
 
+        // Event listeners
+        document.getElementById("btn-enviar").addEventListener("click", enviarMensagem);
+        
         document.getElementById("mensagem").addEventListener("keypress", function (e) {
           if (e.key === "Enter") {
             enviarMensagem();
           }
         });
+
+        // Limpeza ao sair da página para evitar múltiplas conexões
+        window.addEventListener('beforeunload', () => {
+          if (socket) {
+            socket.disconnect();
+            console.log("Socket desconectado");
+          }
+        });
       </script>
-      <style>
-        .chat-bubble.sent { text-align: right; }
-        .chat-bubble.received { text-align: left; }
-        .message-time { font-size: 0.7rem; color: #888; }
-      </style>
     <?php else: ?>
       <p class="text-gray-600">Nenhuma empresa selecionada ou você não tem agendamento com essa empresa.</p>
       <a href="batepapo_empresas.php" class="text-blue-700 underline">Voltar</a>

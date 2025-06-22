@@ -4,16 +4,13 @@ require '../includes/conexao_BdAgendamento.php';
 
 use usuario\Usuario;
 
-// Verifica se a empresa está logada
 if (!Usuario::validarSessaoEmpresa()) {
     header('Location: ../paginas/login_empresas.php');
     exit;
 }
 
-// CORREÇÃO AQUI: usar o ID correto da sessão
 $empresaId = $_SESSION['usuario']['id'];
 
-// Buscar clientes ÚNICOS com agendamento ativo para esta empresa, incluindo foto
 $stmt = $conn->prepare("
     SELECT DISTINCT 
         c.id, 
@@ -58,6 +55,53 @@ if (isset($_GET['cliente_id'])) {
   <script src="https://cdn.socket.io/4.5.0/socket.io.min.js"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <style>
+    .chat-bubble {
+      max-width: 75%;
+      padding: 0.75rem;
+      border-radius: 1rem;
+      margin-bottom: 0.5rem;
+      position: relative;
+      word-wrap: break-word;
+    }
+    .chat-bubble.sent {
+      background-color: #2563eb;
+      color: white;
+      margin-left: auto;
+      border-bottom-right-radius: 0.25rem;
+    }
+    .chat-bubble.received {
+      background-color: #f3f4f6;
+      color: #1f2937;
+      margin-right: auto;
+      border-bottom-left-radius: 0.25rem;
+    }
+    .message-time {
+      font-size: 0.7rem;
+      opacity: 0.8;
+      text-align: right;
+      margin-top: 0.25rem;
+    }
+    .chat-bubble.received .message-time {
+      color: #6b7280;
+    }
+    .chat-bubble.sent .message-time {
+      color: rgba(255,255,255,0.8);
+    }
+    .chat-container {
+      height: 24rem;
+      display: flex;
+      flex-direction: column;
+    }
+    .messages-container {
+      flex-grow: 1;
+      overflow-y: auto;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+  </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
   <nav class="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-blue-900 to-blue-800 text-white shadow">
@@ -142,7 +186,9 @@ if (isset($_GET['cliente_id'])) {
             </div>
           </div>
 
-          <div id="chat" class="h-96 overflow-y-auto p-4 space-y-3 bg-gray-50"></div>
+          <div class="chat-container">
+            <div id="chat" class="messages-container bg-gray-50"></div>
+          </div>
 
           <div class="border-t border-gray-200 p-4 bg-white">
             <div class="flex gap-2">
@@ -171,38 +217,49 @@ if (isset($_GET['cliente_id'])) {
 
     socket.emit("join_room", sala);
 
-    // Carrega histórico do chat
+    // Carrega o histórico do chat
     fetch(`/includes/chat_api.php?sala=${sala}`)
       .then(res => res.json())
       .then(mensagens => {
         const chat = document.getElementById("chat");
         chat.innerHTML = '';
         mensagens.forEach(data => {
-          const isEmpresa = data.remetente.includes("empresa");
+          const isEmpresa = data.remetente === remetente;
           const horario = new Date(data.data_envio).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-          chat.innerHTML += `
-            <div class="chat-bubble ${isEmpresa ? 'sent' : 'received'}">
-              <div ${!isEmpresa ? 'class="flex items-end gap-2"' : ''}>
-                ${!isEmpresa ? '<div class="bg-gray-200 border-2 border-dashed rounded-xl w-6 h-6"></div>' : ''}
+          if (isEmpresa) {
+            chat.innerHTML += `
+              <div class="chat-bubble sent">
                 <div>
                   <p class="text-sm font-medium">${data.mensagem}</p>
-                  <p class="message-time">${isEmpresa ? 'Você' : clienteNome} • ${horario}</p>
+                  <p class="message-time">Você • ${horario}</p>
                 </div>
-              </div>
-            </div>`;
+              </div>`;
+          } else {
+            chat.innerHTML += `
+              <div class="chat-bubble received">
+                <div class="flex items-end gap-2">
+                  <div class="bg-gray-200 border-2 border-dashed rounded-xl w-6 h-6"></div>
+                  <div>
+                    <p class="text-sm font-medium">${data.mensagem}</p>
+                    <p class="message-time">${clienteNome} • ${horario}</p>
+                  </div>
+                </div>
+              </div>`;
+          }
         });
         chat.scrollTop = chat.scrollHeight;
       });
 
+    // Função para enviar mensagem
     function enviarMensagem() {
       const input = document.getElementById("mensagem");
       const msg = input.value.trim();
       if (msg === "") return;
-
       const timestamp = new Date().toISOString();
-      const horario = new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
+      // Mostra mensagem imediatamente no chat para quem enviou
       const chat = document.getElementById("chat");
+      const horario = new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       chat.innerHTML += `
         <div class="chat-bubble sent">
           <div>
@@ -228,30 +285,35 @@ if (isset($_GET['cliente_id'])) {
       input.value = "";
     }
 
+    // Recebe mensagem em tempo real (evita duplicar a própria mensagem)
     socket.on("receive_message", (data) => {
-      const isEmpresa = data.sender.includes("empresa");
-      const horario = new Date(data.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-      const chat = document.getElementById("chat");
-      chat.innerHTML += `
-        <div class="chat-bubble ${isEmpresa ? 'sent' : 'received'}">
-          <div ${!isEmpresa ? 'class="flex items-end gap-2"' : ''}>
-            ${!isEmpresa ? '<div class="bg-gray-200 border-2 border-dashed rounded-xl w-6 h-6"></div>' : ''}
-            <div>
-              <p class="text-sm font-medium">${data.message}</p>
-              <p class="message-time">${isEmpresa ? 'Você' : clienteNome} • ${horario}</p>
+        if (data.sender && data.sender.trim() === remetente.trim()) {
+            // Ignora mensagem enviada pelo próprio usuário
+            return;
+        }
+        const horario = new Date(data.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const chat = document.getElementById("chat");
+        chat.innerHTML += `
+          <div class="chat-bubble received">
+            <div class="flex items-end gap-2">
+              <div class="bg-gray-200 border-2 border-dashed rounded-xl w-6 h-6"></div>
+              <div>
+                <p class="text-sm font-medium">${data.message}</p>
+                <p class="message-time">${clienteNome} • ${horario}</p>
+              </div>
             </div>
-          </div>
-        </div>`;
-      chat.scrollTop = chat.scrollHeight;
+          </div>`;
+        chat.scrollTop = chat.scrollHeight;
     });
 
+    // Permite enviar com Enter
     document.getElementById("mensagem").addEventListener("keypress", function (e) {
       if (e.key === "Enter") {
         enviarMensagem();
       }
     });
-  </script>
+</script>
+
   <?php endif; ?>
 </body>
 </html>
