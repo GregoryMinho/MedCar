@@ -28,13 +28,12 @@ io.on("connection", (socket) => {
   });
 
   socket.on("send_message", async (data) => {
-    // Esperado: data = { room, sender, message }
+    // Esperado: data = { room, sender, message, timestamp, empresa_id, cliente_id }
     console.log(`Mensagem recebida: ${data.message}`);
-
     try {
       await pool.query(
-        "INSERT INTO mensagens_chat (sala, remetente, mensagem) VALUES (?, ?, ?)",
-        [data.room, data.sender, data.message]
+        "INSERT INTO mensagens_chat (sala, remetente, mensagem, data_envio, empresa_id, cliente_id) VALUES (?, ?, ?, ?, ?, ?)",
+        [data.room, data.sender, data.message, data.timestamp, data.empresa_id, data.cliente_id]
       );
       io.to(data.room).emit("receive_message", data);
     } catch (err) {

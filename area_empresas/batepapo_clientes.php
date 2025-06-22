@@ -214,11 +214,13 @@ if (isset($_GET['cliente_id'])) {
     const sala = "<?= $sala ?>";
     const remetente = "empresa_<?= $empresaId ?>";
     const clienteNome = "<?= htmlspecialchars($clienteInfo['nome']) ?>";
+    const empresaId = <?= $empresaId ?>;
+    const clienteId = <?= $clienteSelecionado ?>;
 
     socket.emit("join_room", sala);
 
-    // Carrega o histórico do chat
-    fetch(`/includes/chat_api.php?sala=${sala}`)
+    // Carrega o histórico do chat (busca por empresa_id e cliente_id)
+    fetch(`../includes/chat_api.php?empresa_id=${empresaId}&cliente_id=${clienteId}`)
       .then(res => res.json())
       .then(mensagens => {
         const chat = document.getElementById("chat");
@@ -273,13 +275,9 @@ if (isset($_GET['cliente_id'])) {
         room: sala,
         message: msg,
         sender: remetente,
-        timestamp: timestamp
-      });
-
-      fetch("/includes/chat_api.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sala, remetente, mensagem: msg, timestamp })
+        timestamp: timestamp,
+        empresa_id: empresaId,
+        cliente_id: clienteId
       });
 
       input.value = "";
@@ -312,8 +310,7 @@ if (isset($_GET['cliente_id'])) {
         enviarMensagem();
       }
     });
-</script>
-
+  </script>
   <?php endif; ?>
 </body>
 </html>

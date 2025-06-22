@@ -1,61 +1,20 @@
 <?php
 require_once 'conexao_BdChat.php';
-
 header('Content-Type: application/json');
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $data = json_decode(file_get_contents('php://input'), true);
-
-    if (!isset($data['sala'], $data['remetente'], $data['mensagem'], $data['timestamp'])) {
-        http_response_code(400);
-        echo json_encode(['erro' => 'Campos obrigatórios ausentes.']);
-        exit;
-    }
-
-    try {
-        $stmt = $conn->prepare("
-            INSERT INTO mensagens_chat (sala, remetente, mensagem, data_envio) 
-            VALUES (:sala, :remetente, :mensagem, :data_envio)
-        ");
-        $stmt->execute([
-            ':sala' => $data['sala'],
-            ':remetente' => $data['remetente'],
-            ':mensagem' => $data['mensagem'],
-            ':data_envio' => $data['timestamp']
-        ]);
-
-        http_response_code(200);
-        echo json_encode(['status' => 'ok']);
-    } catch (PDOException $e) {
-        http_response_code(500);
-        echo json_encode(['erro' => 'Erro ao salvar mensagem', 'detalhes' => $e->getMessage()]);
-    }
-    exit;
-}
-
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    $sala = $_GET['sala'] ?? '';
+    $empresa_id = isset($_GET['empresa_id']) ? (int)$_GET['empresa_id'] : 0;
+    $cliente_id = isset($_GET['cliente_id']) ? (int)$_GET['cliente_id'] : 0;
 
-    if (empty($sala)) {
+    if (!$empresa_id || !$cliente_id) {
         http_response_code(400);
-        echo json_encode(['erro' => 'Sala não especificada.']);
+        echo json_encode(['erro' => 'IDs obrigatórios ausentes.']);
         exit;
     }
 
-    try {
-        $stmt = $conn->prepare("SELECT * FROM mensagens_chat WHERE sala = :sala ORDER BY data_envio ASC");
-        $stmt->execute([':sala' => $sala]);
-        $mensagens = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        echo json_encode($mensagens);
-    } catch (PDOException $e) {
-        http_response_code(500);
-        echo json_encode(['erro' => 'Erro ao buscar mensagens', 'detalhes' => $e->getMessage()]);
-    }
+    $stmt = $conn->prepare("SELECT * FROM mensagens_chat WHERE empresa_id = :empresa AND cliente_id = :cliente ORDER BY data_envio ASC");
+    $stmt->execute([':empresa' => $empresa_id, ':cliente' => $cliente_id]);
+    $mensagens = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    echo json_encode($mensagens);
     exit;
 }
-
-// Requisição com método não permitido
-http_response_code(405);
-echo json_encode(['erro' => 'Método não permitido.']);
-exit;
