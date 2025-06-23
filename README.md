@@ -1,7 +1,7 @@
 MedCar
 Gestão Inteligente de Transporte Médico
 
-Visão Geral
+Visão Geral:
 O MedCar é uma plataforma SaaS de gestão, agendamento e monitoramento de transportes médicos, desenvolvida para clínicas, operadoras de saúde e empresas especializadas em mobilidade assistida. Nosso objetivo é garantir a excelência, eficiência operacional e humanização no deslocamento de pacientes, conectando pessoas que necessitam de transporte seguro a prestadores de serviço qualificados.
 
 Funcionalidades Principais
