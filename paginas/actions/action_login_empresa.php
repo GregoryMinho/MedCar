@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     'tipo' => $empresa['tipo'],
                     'foto' => $empresa['picture']
                 ];
-                header("Location: /MedQ-2/area_empresas/menu_principal.php");
+                header("Location: /MedCar/area_empresas/menu_principal.php");
                 exit();
             } else {
                 // Senha incorreta
@@ -38,11 +38,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
        error_log("Erro de login: " . $e->getMessage());
     }
     
-    header("Location: /MedQ-2/paginas/login_empresas.php");
+    header("Location: /MedCar/paginas/login_empresas.php");
     exit();
 } else {
     error_log("Método de requisição inválido.");
-    header("Location: /MedQ-2/paginas/login_empresas.php");
+    header("Location: /MedCar/paginas/login_empresas.php");
     exit();
 }
 ?>

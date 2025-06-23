@@ -31,13 +31,13 @@ $_SESSION['tipo_login_google'] = 'empresa'; // Define o tipo de login como empre
     <nav class="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-blue-900 to-blue-800 text-white shadow-md">
         <div class="container mx-auto px-4">
             <div class="flex items-center justify-between h-16">
-                <a href="/MedQ-2/paginas/pagina_inicial.php" class="flex items-center space-x-2 text-xl font-bold">
+                <a href="/MedCar/paginas/pagina_inicial.php" class="flex items-center space-x-2 text-xl font-bold">
                     <i data-lucide="ambulance" class="h-6 w-6"></i>
                     <span>MedCar</span>
                 </a>
                                 
                 <div class="hidden md:flex space-x-6">
-                    <a href="/MedQ-2/area_cliente/menu_principal.php" class="font-medium hover:text-teal-300 transition">Home</a>
+                    <a href="/MedCar/area_cliente/menu_principal.php" class="font-medium hover:text-teal-300 transition">Home</a>
                     <a href="#" class="font-medium hover:text-teal-300 transition">Contato</a>
                 </div>
                 
@@ -57,7 +57,7 @@ $_SESSION['tipo_login_google'] = 'empresa'; // Define o tipo de login como empre
         </div>
 
         <div class="flex flex-col items-center justify-center space-y-8 flex-grow text-xl">
-            <a href="/MedQ-2/paginas/pagina_inicial.php" class="font-medium hover:text-teal-300 transition">Home</a>           
+            <a href="/MedCar/paginas/pagina_inicial.php" class="font-medium hover:text-teal-300 transition">Home</a>           
             <a href="#" class="font-medium hover:text-teal-300 transition">Contato</a>
         </div>
     </div>
@@ -99,7 +99,7 @@ $_SESSION['tipo_login_google'] = 'empresa'; // Define o tipo de login como empre
                         <div class="mt-6 text-center">
                             <p class="text-sm text-gray-600">
                                 Não tem conta?
-                                <a href="/MedQ-2/paginas/cadastro_empresas.php" class="font-medium text-teal-500 hover:text-teal-600">Cadastre sua empresa</a>
+                                <a href="/MedCar/paginas/cadastro_empresas.php" class="font-medium text-teal-500 hover:text-teal-600">Cadastre sua empresa</a>
                             </p>
                         </div>
                     </div>

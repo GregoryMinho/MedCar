@@ -202,7 +202,7 @@ if (isset($_GET['cliente_id'])) {
           <i class="bi bi-chat-dots"></i>
           Bate-Papo
         </a>
-        <a href="dashboard.php" class="back-btn">
+        <a href="menu_principal.php" class="back-btn">
           <i class="bi bi-arrow-left"></i>
           Voltar
         </a>

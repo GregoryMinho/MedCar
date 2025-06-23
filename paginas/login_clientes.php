@@ -66,7 +66,7 @@ unset($_SESSION['sucesso']);
 
 
                 <div class="hidden md:flex space-x-6">
-                    <a href="/MedQ-2/paginas/pagina_inicial.php" class="font-medium hover:text-teal-300 transition">Home</a>
+                    <a href="/MedCar/paginas/pagina_inicial.php" class="font-medium hover:text-teal-300 transition">Home</a>
                     <a href="#" class="font-medium hover:text-teal-300 transition">Contato</a>
                 </div>
 
@@ -85,7 +85,7 @@ unset($_SESSION['sucesso']);
         </div>
 
         <div class="flex flex-col items-center justify-center space-y-8 flex-grow text-xl">
-            <a href="/MedQ-2/paginas/pagina_inicial.php" class="font-medium hover:text-teal-300 transition">Home</a>
+            <a href="/MedCar/paginas/pagina_inicial.php" class="font-medium hover:text-teal-300 transition">Home</a>
             <a href="#" class="font-medium hover:text-teal-300 transition">Contato</a>
         </div>
     </div>
@@ -142,7 +142,7 @@ unset($_SESSION['sucesso']);
                         <div class="mt-6 text-center">
                             <p class="text-sm text-gray-600">
                                 Não tem conta?
-                                <a href="/MedQ-2/paginas/cadastro_cliente.php" class="font-medium text-teal-500 hover:text-teal-600">Cadastre-se aqui</a>
+                                <a href="/MedCar/paginas/cadastro_cliente.php" class="font-medium text-teal-500 hover:text-teal-600">Cadastre-se aqui</a>
                             </p>
                         </div>
                     </div>

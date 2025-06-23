@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $emailSender->setFrom('medcartransportemedico@gmail.com', 'MedCar Transporte Médico');
             $emailSender->addRecipient($cliente['email'], $cliente['nome']);
             $emailSender->setSubject('Confirmação de Cadastro - MedCar');
-            $confirmationLink = "http://localhost/MedQ-2/paginas/actions/action_confirmar_cadastro_cliente.php?token=" . $token . "&d=" . $cliente['id'];
+            $confirmationLink = "http://localhost/MedCar/paginas/actions/action_confirmar_cadastro_cliente.php?token=" . $token . "&d=" . $cliente['id'];
             $emailBody = '
                             <html>
                                 <body style="font-family: Arial, sans-serif; background: linear-gradient(to right, #1e3a8a, #1e40af); color: white; text-align: center; padding: 20px;">
@@ -66,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $emailSender->send();
 
             $_SESSION['erro'] = "Sua conta ainda não foi ativada. Um novo e-mail de confirmação foi enviado.";
-            header("Location: /MedQ-2/paginas/login_clientes.php");
+            header("Location: /MedCar/paginas/login_clientes.php");
             exit();
         }
 
@@ -86,7 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 'email' => $cliente['email'],
                 'tipo' => $cliente['tipo'] // Define o tipo de usuário como cliente
             ];
-            header("Location: /MedQ-2/area_cliente/menu_principal.php");
+            header("Location: /MedCar/area_cliente/menu_principal.php");
             exit();
         } else {
             // Senha incorreta
@@ -96,9 +96,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // E-mail não encontrado
         $_SESSION['login_erro'] = "Senha ou E-mail incorreto.";
     }
-    header("Location: /MedQ-2/paginas/login_clientes.php");
+    header("Location: /MedCar/paginas/login_clientes.php");
     exit();
 } else {
-    header("Location: /MedQ-2/paginas/login_clientes.php");
+    header("Location: /MedCar/paginas/login_clientes.php");
     exit();
 }
