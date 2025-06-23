@@ -165,13 +165,15 @@ $motoristas = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 </button>
 
                 <a href="adicionar_motorista.php" class="btn btn-driver w-100">
-    <i class="fas fa-plus me-2"></i>Adicionar Motorista
-</a>
-
+                    <i class="fas fa-plus me-2"></i>Adicionar Motorista
+                </a>
             </div>
 
             <!-- Main Content -->
             <div class="col-md-9 pt-5">
+                <a href="menu_principal.php" class="btn btn-secondary mb-3">
+                    <i class="fas fa-arrow-left me-2"></i>Voltar
+                </a>
                 <div class="container">
                     <!-- Header -->
                     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -208,17 +210,15 @@ $motoristas = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                         </p>
                                     </div>
                                     <span class="status-badge status-<?= strtolower(str_replace(' ', '-', $motorista['status_motorista'] ?? '')) ?>">
-    <?= htmlspecialchars($motorista['status_motorista'] ?? 'Desconhecido') ?>
-</span>
+                                        <?= htmlspecialchars($motorista['status_motorista'] ?? 'Desconhecido') ?>
+                                    </span>
                                 </div>
                                 <div class="d-flex gap-2">
-                                <a href="crud_motoristas/editar_motorista.php?id=<?= $motorista['motorista_id'] ?>" class="btn btn-driver btn-sm w-100"> Editar
-
+                                    <a href="crud_motoristas/editar_motorista.php?id=<?= $motorista['motorista_id'] ?>" class="btn btn-driver btn-sm w-100"> 
                                         <i class="fas fa-edit me-2"></i>Editar
                                     </a>
                                     <button class="btn btn-danger btn-sm w-100" 
-                                    onclick="confirmarExclusao(<?= $motorista['motorista_id'] ?>)"
-
+                                        onclick="confirmarExclusao(<?= $motorista['motorista_id'] ?>)">
                                         <i class="fas fa-trash me-2"></i>Remover
                                     </button>
                                 </div>

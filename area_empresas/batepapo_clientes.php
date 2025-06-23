@@ -101,9 +101,53 @@ if (isset($_GET['cliente_id'])) {
       flex-direction: column;
       gap: 0.75rem;
     }
+    /* Lateral padrão */
+    .menu-lateral {
+      background: #1a365d;
+      color: white;
+      min-height: 100vh;
+      padding: 0;
+      position: sticky;
+      top: 0;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+      z-index: 2;
+    }
+    .menu-lateral nav {
+      padding: 24px 0;
+    }
+    .menu-lateral a, .menu-lateral button {
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 32px;
+      border-radius: 10px;
+      margin-bottom: 8px;
+      background: none;
+      text-decoration: none;
+      font-weight: 500;
+      transition: background .15s;
+    }
+    .menu-lateral a.active, .menu-lateral a:hover, .menu-lateral button:hover {
+      background: #234372;
+      color: #38b2ac;
+    }
+    .menu-lateral .back-btn {
+      color: #38b2ac;
+      border: 1px solid #38b2ac;
+      margin-top: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+    }
+    .menu-lateral .back-btn i {
+      margin-right: 6px;
+    }
   </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
+  <!-- Navbar -->
   <nav class="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-blue-900 to-blue-800 text-white shadow">
     <div class="container mx-auto px-4">
       <div class="flex justify-between items-center h-16">
@@ -119,19 +163,48 @@ if (isset($_GET['cliente_id'])) {
   </nav>
 
   <div class="flex pt-20">
-    <aside class="hidden md:block w-64 bg-blue-900 text-white min-h-screen pt-6">
-      <nav class="flex flex-col space-y-1 px-3">
-        <a href="#" class="flex items-center gap-3 ps-4 py-3 rounded-lg hover:bg-blue-800">
-          <i class="bi bi-speedometer2"></i>
-          <span>Dashboard</span>
+    <!-- Menu Lateral padrão -->
+    <aside class="hidden md:block w-64 menu-lateral">
+      <nav class="flex flex-col space-y-2">
+        <a href="dashboard.php">
+          <i class="bi bi-graph-up"></i>
+          Estatísticas
         </a>
-        <a href="#" class="flex items-center gap-3 ps-4 py-3 rounded-lg bg-blue-800 font-semibold">
-          <i class="bi bi-chat-dots"></i>
-          <span>Atendimentos</span>
-        </a>
-        <a href="#" class="flex items-center gap-3 ps-4 py-3 rounded-lg hover:bg-blue-800">
+        <a href="agendamentos_pacientes.php">
           <i class="bi bi-calendar-event"></i>
-          <span>Agendamentos</span>
+          Agendamentos
+        </a>
+        <a href="aprovar_agendamentos.php">
+          <i class="bi bi-check-circle"></i>
+          Aprovar Agendamentos
+        </a>
+        <a href="gestao_motoristas.php">
+          <i class="bi bi-people"></i>
+          Motoristas
+        </a>
+        <a href="gestao_veiculos.php">
+          <i class="bi bi-truck"></i>
+          Frota
+        </a>
+        <a href="relatorios_financeiros.php">
+          <i class="bi bi-graph-up-arrow"></i>
+          Financeiro
+        </a>
+        <a href="relatorios.php">
+          <i class="bi bi-file-earmark-text"></i>
+          Relatórios
+        </a>
+        <a href="avaliacoes.php">
+          <i class="bi bi-star"></i>
+          Avaliações
+        </a>
+        <a href="batepapo_clientes.php" class="active">
+          <i class="bi bi-chat-dots"></i>
+          Bate-Papo
+        </a>
+        <a href="dashboard.php" class="back-btn">
+          <i class="bi bi-arrow-left"></i>
+          Voltar
         </a>
       </nav>
     </aside>

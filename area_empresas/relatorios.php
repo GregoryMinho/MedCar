@@ -1,126 +1,103 @@
 <?php
+session_start();
+
 require '../includes/conexao_BdAgendamento.php';
-require '../includes/classe_usuario.php'; // Inclui o arquivo de validação de login
-use usuario\Usuario; // Usa o namespace usuario\Usuario
+require '../includes/classe_usuario.php';
 
-Usuario::verificarPermissao('empresa'); // Verifica se o usuário logado é uma empresa
+use usuario\Usuario;
+// Usuario::verificarPermissao('empresa');
 
-// Recupera o mês selecionado via GET
-$selectedMonth = isset($_GET['month']) ? $_GET['month'] : '2024-03';
+$empresa_id = $_SESSION['usuario']['id'];
 
-// Query com filtro por mês usando consulta preparada
-// Query ajustada com JOIN
+// ==== FILTROS ====
+$filtros = [
+    'status' => $_GET['status'] ?? 'all',
+    'mes'    => $_GET['mes'] ?? date('Y-m'),
+    'tipo'   => $_GET['tipo'] ?? 'all'
+];
+
+// Checa o formato do mês
+if (!preg_match('/^\d{4}-\d{2}$/', $filtros['mes'])) {
+    $filtros['mes'] = date('Y-m');
+}
+$ano = (int)substr($filtros['mes'], 0, 4);
+$mes = (int)substr($filtros['mes'], 5, 2);
+
+// Intervalo do mês selecionado
+$inicio_mes = $filtros['mes'] . '-01';
+$fim_mes = date('Y-m-t', strtotime($inicio_mes));
+
+// ==== QUERY PRINCIPAL ====
 $sql = "SELECT 
-            a.id, 
-            a.cliente_id, 
-            c.nome AS cliente_nome, 
-            a.rua_origem, 
-            a.data_consulta, 
-            a.horario, 
-            a.situacao 
-        FROM agendamentos a
-        LEFT JOIN medcar_cadastro_login.clientes c ON a.cliente_id = c.id
-        WHERE DATE_FORMAT(data_consulta, '%Y-%m') = :selectedMonth 
-        ORDER BY data_consulta DESC, horario DESC";
+            a.*, 
+            CONVERT_TZ(a.data_consulta, '+00:00', '+03:00') AS data_convertida, 
+            c.nome 
+        FROM medcar_agendamentos.agendamentos a
+        JOIN medcar_cadastro_login.clientes c ON a.cliente_id = c.id
+        WHERE a.empresa_id = :empresa_id
+        AND DATE(CONVERT_TZ(a.data_consulta, '+00:00', '+03:00')) BETWEEN :inicio_mes AND :fim_mes";
 
+$params = [
+    ':inicio_mes' => $inicio_mes,
+    ':fim_mes' => $fim_mes,
+    ':empresa_id' => $empresa_id
+];
 
-
-
-
-$stmt = $conn->prepare($sql);
-$stmt->bindParam(':selectedMonth', $selectedMonth, PDO::PARAM_STR);
-$stmt->execute();
-$patients = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-$totalPatients = count($patients);
-
-$completedCount = 0;
-foreach ($patients as $patient) {
-    if ($patient['situacao'] == 'Concluído') {
-        $completedCount++;
-    }
+if ($filtros['status'] != 'all') {
+    $sql .= " AND a.situacao = :status";
+    $params[':status'] = $filtros['status'];
+}
+if ($filtros['tipo'] != 'all') {
+    $sql .= " AND a.tipo_transporte = :tipo";
+    $params[':tipo'] = $filtros['tipo'];
 }
 
-$completionRate = ($totalPatients > 0) ? round(($completedCount / $totalPatients) * 100) : 0;
+$sql .= " ORDER BY a.data_consulta DESC, a.horario DESC";
 
-$dailyAverage = ($totalPatients / 30); // Considerando um mês de 30 dias
+$stmt = $conn->prepare($sql);
+$stmt->execute($params);
+$agendamentos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$total = count($agendamentos);
+$totalConcluidos = 0;
+foreach ($agendamentos as $a) if ($a['situacao'] === 'Concluído') $totalConcluidos++;
+$completionRate = $total > 0 ? round(($totalConcluidos / $total) * 100) : 0;
+$dailyAverage = $total / cal_days_in_month(CAL_GREGORIAN, $mes, $ano);
 $dailyAverage = number_format($dailyAverage, 1);
 
-// Exibição do relatório
+function nomeMes($mes) {
+    $meses = [
+        1 => "Janeiro", 2 => "Fevereiro", 3 => "Março", 4 => "Abril",
+        5 => "Maio", 6 => "Junho", 7 => "Julho", 8 => "Agosto",
+        9 => "Setembro", 10 => "Outubro", 11 => "Novembro", 12 => "Dezembro"
+    ];
+    return $meses[(int)$mes] ?? $mes;
+}
 ?>
-
-<!-- HTML para a página de relatórios -->
 <!DOCTYPE html>
 <html lang="pt-br">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MedCar - Relatórios de Pacientes</title>
+    <title>MedCar - Relatórios</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-          :root {
+        :root {
             --primary-color: #1a365d;
             --secondary-color: #2a4f7e;
             --accent-color: #38b2ac;
         }
-
-        .reports-page {
+        body {
             background: #f8f9fa;
-            min-height: 100vh;
         }
-
         .reports-sidebar {
             background: var(--primary-color);
             color: white;
             min-height: 100vh;
-            padding: 20px;
-            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            padding: 24px 16px;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.07);
         }
-
-        .patient-card {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s;
-            margin-bottom: 20px;
-        }
-
-        .patient-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-        }
-
-        .month-selector {
-            background: var(--secondary-color);
-            color: white;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 30px;
-        }
-
-        .status-badge {
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 0.9em;
-        }
-
-        .status-agendado {
-            background: #ffc107;
-            color: black;
-        }
-
-        .status-concluido {
-            background: #28a745;
-            color: white;
-        }
-
-        .status-cancelado {
-            background: #dc3545;
-            color: white;
-        }
-
         .filter-btn {
             background: var(--accent-color);
             color: white;
@@ -129,186 +106,159 @@ $dailyAverage = number_format($dailyAverage, 1);
             border-radius: 8px;
             transition: all 0.3s;
         }
-
         .filter-btn:hover {
             background: #2c7a7b;
-            color: white;
         }
+        .report-header {
+            background: var(--secondary-color);
+            color: white;
+            border-radius: 12px;
+            padding: 28px 30px 18px;
+            margin-bottom: 30px;
+        }
+        .patient-card {
+            background: white;
+            border-radius: 13px;
+            box-shadow: 0 4px 13px rgba(0,0,0,0.08);
+            margin-bottom: 18px;
+            padding: 18px 22px;
+            transition: box-shadow 0.2s;
+        }
+        .patient-card:hover {
+            box-shadow: 0 8px 25px rgba(0,0,0,0.14);
+        }
+        .status-badge {
+            padding: 7px 14px;
+            border-radius: 18px;
+            font-size: .94em;
+            font-weight: 500;
+        }
+        .status-agendado { background: #ffc107; color: #222; }
+        .status-concluido { background: #28a745; color: #fff; }
+        .status-cancelado { background: #dc3545; color: #fff; }
+        .status-pendente { background: #e67e22; color: #fff; }
     </style>
 </head>
-
 <body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark fixed-top" style="background: var(--primary-color);">
-        <div class="container">
-            <a class="navbar-brand" href="#">
-                <i class="fas fa-chart-line me-2"></i>
-                MedCar Relatórios
-            </a>
-            <div class="d-flex align-items-center">
-                <div class="text-white me-3">Relatórios Mensais</div>
-            </div>
+<nav class="navbar navbar-expand-lg navbar-dark" style="background: var(--primary-color);">
+    <div class="container">
+        <a class="navbar-brand" href="menu_principal.php">
+            <i class="fas fa-ambulance me-2"></i>
+            MedCar
+        </a>
+        <div class="d-flex align-items-center">
+            <div class="text-white me-3"><?= $_SESSION['usuario']['nome'] ?? '' ?></div>
         </div>
-    </nav>
-
-    <!-- Página de Relatórios -->
-    <div class="reports-page">
-        <div class="row">
-            <!-- Sidebar -->
-            <div class="col-md-3 reports-sidebar pt-5">
-                <h5 class="mb-4"><i class="fas fa-filter me-2"></i>Filtros</h5>
-                <form method="GET">
-                    <div class="mb-4">
-                        <label class="form-label">Selecione o Mês</label>
-                        <select class="form-select" id="monthSelect" name="month">
-                            <option value="2024-01" <?= $selectedMonth == '2024-01' ? 'selected' : '' ?>>Janeiro 2024</option>
-                            <option value="2024-02" <?= $selectedMonth == '2024-02' ? 'selected' : '' ?>>Fevereiro 2024</option>
-                            <option value="2024-03" <?= $selectedMonth == '2024-03' ? 'selected' : '' ?>>Março 2024</option>
-                        </select>
+    </div>
+</nav>
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar Filtros -->
+        <div class="col-md-3 reports-sidebar">
+            <h5 class="mb-4"><i class="fas fa-filter me-2"></i>Filtros</h5>
+            <form method="GET">
+                <div class="mb-4">
+                    <label class="form-label">Status</label>
+                    <select class="form-select" name="status">
+                        <option value="all" <?= $filtros['status']=='all'?'selected':'' ?>>Todos</option>
+                        <option value="Pendente" <?= $filtros['status']=='Pendente'?'selected':'' ?>>Pendentes</option>
+                        <option value="Agendado" <?= $filtros['status']=='Agendado'?'selected':'' ?>>Agendados</option>
+                        <option value="Concluído" <?= $filtros['status']=='Concluído'?'selected':'' ?>>Concluídos</option>
+                        <option value="Cancelado" <?= $filtros['status']=='Cancelado'?'selected':'' ?>>Cancelados</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label">Período</label>
+                    <input type="month" class="form-control" name="mes" value="<?= htmlspecialchars($filtros['mes']) ?>">
+                </div>
+                <div class="mb-4">
+                    <label class="form-label">Tipo de Serviço</label>
+                    <select class="form-select" name="tipo">
+                        <option value="all" <?= $filtros['tipo']=='all'?'selected':'' ?>>Todos</option>
+                        <option value="rotina" <?= $filtros['tipo']=='rotina'?'selected':'' ?>>Rotina</option>
+                        <option value="exame" <?= $filtros['tipo']=='exame'?'selected':'' ?>>Exames</option>
+                        <option value="emergencia" <?= $filtros['tipo']=='emergencia'?'selected':'' ?>>Emergência</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn filter-btn w-100 mt-2 mb-3">
+                    <i class="fas fa-sync me-2"></i>Aplicar Filtros
+                </button>
+            </form>
+        </div>
+        <!-- Conteúdo Relatório -->
+        <div class="col-md-9 pt-5 pb-5 px-4">
+            <div class="report-header mb-4">
+                <div class="d-flex flex-column flex-md-row align-items-md-end justify-content-between">
+                    <div>
+                        <h3 class="mb-1"><i class="fas fa-calendar-alt me-2"></i>
+                            <?= nomeMes($mes) . " de $ano" ?>
+                        </h3>
+                        <div class="mb-0">Total de agendamentos: <strong><?= $total ?></strong></div>
                     </div>
-
-                    <h6 class="mt-4 mb-3">Status do Transporte</h6>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="Agendado" name="status[]" id="status1" checked>
-                        <label class="form-check-label" for="status1">Agendados</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="Concluído" name="status[]" id="status2" checked>
-                        <label class="form-check-label" for="status2">Concluídos</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="Cancelado" name="status[]" id="status3">
-                        <label class="form-check-label" for="status3">Cancelados</label>
-                    </div>
-
-                    <button type="submit" class="btn filter-btn w-100 mt-4">
-                        <i class="fas fa-sync me-2"></i>Aplicar Filtros
-                    </button>
-                </form>
-            </div>
-
-            <!-- Conteúdo Principal -->
-            <div class="col-md-9 pt-5">
-                <div class="container">
-                    <!-- Cabeçalho -->
-                    <div class="month-selector">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h3><i class="fas fa-calendar-alt me-2"></i>
-                                    <?php
-                                    $dataObj = DateTime::createFromFormat('Y-m', $selectedMonth);
-                                    echo $dataObj ? $dataObj->format('F Y') : $selectedMonth;
-                                    ?>
-                                </h3>
-                                <p class="mb-0">Total de pacientes: <?= $totalPatients ?></p>
-                            </div>
-                            <div>
-                                <button class="btn btn-light">
-                                    <i class="fas fa-download me-2"></i>Exportar
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Lista de Pacientes -->
-                    <div class="row" id="patientList">
-                        <?php foreach ($patients as $patient) :
-                            $dataFormatada = date("d/m/Y", strtotime($patient['data_consulta']));
-                            $horarioFormatado = date("H:i", strtotime($patient['horario']));
-                            if ($patient['situacao'] == 'Agendado') { // Usando 'situacao' aqui
-                                $statusClass = 'status-agendado';
-                            } elseif ($patient['situacao'] == 'Concluído') {
-                                $statusClass = 'status-concluido';
-                            } elseif ($patient['situacao'] == 'Cancelado') {
-                                $statusClass = 'status-cancelado';
-                            } else {
-                                $statusClass = '';
-                            }
-                        ?>
-                            <div class="col-md-6">
-                                <!-- Cartão de Paciente -->
-                                <div class="patient-card p-3">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <div>
-                                        <h5><?= htmlspecialchars($patient['cliente_nome']) ?></h5> <!-- Ajuste conforme o que deseja exibir -->
-                                            <p class="mb-1"><i class="fas fa-calendar-day me-2"></i><?= "$dataFormatada - $horarioFormatado" ?></p>
-                                            <p class="mb-1"><i class="fas fa-map-marker-alt me-2"></i><?= htmlspecialchars($patient['rua_origem']) ?></p> <!-- Ajuste conforme o destino -->
-                                        </div>
-                                        <span class="status-badge <?= $statusClass ?>"><?= $patient['situacao'] ?></span>
-                                    </div>
-                                    <hr>
-                                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#detailsModal-<?= $patient['id'] ?>">
-                                        <i class="fas fa-file-alt me-2"></i>Detalhes
-                                    </button>
-                                </div>
-
-                                <!-- Modal de Detalhes -->
-                                <div class="modal fade" id="detailsModal-<?= $patient['id'] ?>" tabindex="-1" aria-labelledby="detailsModalLabel-<?= $patient['id'] ?>" aria-hidden="true">
-                                    <div class="modal-dialog modal-dialog-centered">
-                                        <div class="modal-content">
-                                            <div class="modal-header bg-primary text-white">
-                                                <h5 class="modal-title" id="detailsModalLabel-<?= $patient['id'] ?>">
-                                                    <i class="fas fa-info-circle me-2"></i>Opções de Detalhes
-                                                </h5>
-                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
-                                            </div>
-                                            <div class="modal-body p-0">
-                                                <div class="list-group list-group-flush">
-                                                    <a href="#" class="list-group-item list-group-item-action d-flex align-items-center">
-                                                        <i class="fas fa-calendar-check me-3 fa-fw text-primary"></i>
-                                                        Detalhes da Consulta
-                                                    </a>
-                                                    <a href="#" class="list-group-item list-group-item-action d-flex align-items-center">
-                                                        <i class="fas fa-user-injured me-3 fa-fw text-success"></i>
-                                                        Tabela de Pacientes
-                                                    </a>
-                                                    <a href="#" class="list-group-item list-group-item-action d-flex align-items-center">
-                                                        <i class="fas fa-truck-moving me-3 fa-fw text-warning"></i>
-                                                        Tabela de Empresas de Transporte
-                                                    </a>
-                                                    <a href="#" class="list-group-item list-group-item-action d-flex align-items-center">
-                                                        <i class="fas fa-calendar-alt me-3 fa-fw text-info"></i>
-                                                        Tabela de Reservas/Agendamentos
-                                                    </a>
-                                                </div>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        <?php endforeach; ?>
-                    </div>
-
-                    <!-- Estatísticas -->
-                    <div class="row mt-4">
-                        <div class="col-md-4">
-                            <div class="patient-card p-3 text-center">
-                                <h5>Total de Transportes</h5>
-                                <p class="display-6 mb-0"><?= $totalPatients ?></p>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="patient-card p-3 text-center">
-                                <h5>Média Diária</h5>
-                                <p class="display-6 mb-0"><?= $dailyAverage ?></p>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="patient-card p-3 text-center">
-                                <h5>Taxa de Conclusão</h5>
-                                <p class="display-6 mb-0"><?= $completionRate ?>%</p>
-                            </div>
-                        </div>
+                    <div>
+                        <a class="btn btn-light" href="#">
+                            <i class="fas fa-download me-2"></i>Exportar
+                        </a>
                     </div>
                 </div>
             </div>
+
+            <!-- Estatísticas -->
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="patient-card text-center mb-0">
+                        <h5>Total de Transportes</h5>
+                        <p class="display-6 mb-0"><?= $total ?></p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="patient-card text-center mb-0">
+                        <h5>Média Diária</h5>
+                        <p class="display-6 mb-0"><?= $dailyAverage ?></p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="patient-card text-center mb-0">
+                        <h5>Taxa de Conclusão</h5>
+                        <p class="display-6 mb-0"><?= $completionRate ?>%</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lista de Agendamentos -->
+            <h5 class="mb-3"><i class="fas fa-list me-2"></i>Agendamentos deste Período</h5>
+            <?php if ($agendamentos): ?>
+                <div class="row">
+                <?php foreach ($agendamentos as $a):
+                    $dataFormatada = date("d/m/Y", strtotime($a['data_convertida']));
+                    $horaFormatada = date("H:i", strtotime($a['horario']));
+                    if ($a['situacao'] == 'Agendado') $statusClass = 'status-agendado';
+                    elseif ($a['situacao'] == 'Concluído') $statusClass = 'status-concluido';
+                    elseif ($a['situacao'] == 'Cancelado') $statusClass = 'status-cancelado';
+                    elseif ($a['situacao'] == 'Pendente') $statusClass = 'status-pendente';
+                    else $statusClass = '';
+                ?>
+                    <div class="col-md-6">
+                        <div class="patient-card mb-4">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h5><?= htmlspecialchars($a['nome']) ?></h5>
+                                    <p class="mb-1"><i class="fas fa-calendar-day me-2"></i><?= "$dataFormatada - $horaFormatada" ?></p>
+                                    <p class="mb-1"><i class="fas fa-map-marker-alt me-2"></i><?= htmlspecialchars($a['rua_origem'] ?? '') ?></p>
+                                    <span class="badge bg-secondary"><?= htmlspecialchars($a['tipo_transporte'] ?? '-') ?></span>
+                                </div>
+                                <span class="status-badge <?= $statusClass ?>"><?= $a['situacao'] ?></span>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+                </div>
+            <?php else: ?>
+                <div class="alert alert-info mt-4">Nenhum agendamento encontrado neste período com esses filtros.</div>
+            <?php endif; ?>
         </div>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-
 </html>

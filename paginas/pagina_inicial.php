@@ -25,7 +25,7 @@
                     <a href="#funcionalidades" class="font-medium hover:text-teal-300 transition">Funcionalidades</a>
                     <a href="#vantagens" class="font-medium hover:text-teal-300 transition">Vantagens</a>
                     <a href="#contato" class="font-medium hover:text-teal-300 transition">Contato</a>
-                    <a href="/MedQ-2/paginas/abas_menu_principal/aba_entrar.php" class="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg transition-all hover:scale-105 hidden md:block">
+                    <a href="/MedCar/paginas/abas_menu_principal/aba_entrar.php" class="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg transition-all hover:scale-105 hidden md:block">
                         Entrar
                     </a> <!-- conectado a aba entrar, depois ver de botar a aba de cadastros -->
                     <a href="../includes/logout.php" class="font-medium hover:text-teal-300 transition">Logout</a>
@@ -50,7 +50,7 @@
             <a href="#funcionalidades" class="font-medium hover:text-teal-300 transition">Funcionalidades</a>
             <a href="#vantagens" class="font-medium hover:text-teal-300 transition">Vantagens</a>
             <a href="#contato" class="font-medium hover:text-teal-300 transition">Contato</a>
-            <a href="/MedQ-2/paginas/abas_menu_principal/aba_entrar.php" class="bg-teal-500 hover:bg-teal-600 text-white px-6 py-3 rounded-lg mt-4 transition-all hover:scale-105">
+            <a href="/MedCar/paginas/abas_menu_principal/aba_entrar.php" class="bg-teal-500 hover:bg-teal-600 text-white px-6 py-3 rounded-lg mt-4 transition-all hover:scale-105">
                 Entrar
             </a>
         </div>
@@ -69,7 +69,7 @@
                     </p>
                     <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
     <!-- Revisar essa parte pois ficou redundante ter a msm coisa, botar o cadastro aqui? -->
-                        <a href="/MedQ-2/paginas/abas_menu_principal/aba_entrar.php" class="bg-teal-500 hover:bg-teal-600 text-white font-medium py-3 px-8 rounded-lg transition-all hover:scale-105 text-center">
+                        <a href="/MedCar/paginas/abas_menu_principal/aba_entrar.php" class="bg-teal-500 hover:bg-teal-600 text-white font-medium py-3 px-8 rounded-lg transition-all hover:scale-105 text-center">
                             Começar Agora
                         </a>
                         <a href="#funcionalidades" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white font-medium py-3 px-8 rounded-lg transition-all hover:scale-105 text-center">

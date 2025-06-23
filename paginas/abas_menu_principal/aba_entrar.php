@@ -32,19 +32,6 @@
                     <i data-lucide="ambulance" class="h-6 w-6"></i>
                     <span>MedCar</span>
                 </a>
-
-                <!--
-                <div class="hidden md:flex space-x-6">
-                    <a href="/MedQ-2/area_cliente/menu_principal.php" class="font-medium hover:text-teal-300 transition">Home</a>
-                    <a href="aba_empresas.php" class="font-medium hover:text-teal-300 transition">Empresas</a>
-                    <a href="#" class="font-medium hover:text-teal-300 transition">Contato</a>
-                </div>
-                
-                <button id="mobile-menu-button" class="md:hidden text-white">
-                    <i data-lucide="menu" class="h-6 w-6"></i>
-                </button>
-                -->
-
             </div>
         </div>
     </nav>
@@ -56,7 +43,6 @@
                 <i data-lucide="x" class="h-6 w-6"></i>
             </button>
         </div>
-        
         <div class="flex flex-col items-center justify-center space-y-8 flex-grow text-xl">
             <a href="../menu_principal.php" class="font-medium hover:text-teal-300 transition">Home</a>
             <a href="aba_empresas.php" class="font-medium hover:text-teal-300 transition">Empresas</a>
@@ -79,7 +65,7 @@
     <!-- Choice Cards -->
     <section class="py-16 bg-gray-50">
         <div class="container mx-auto px-4">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <!-- Card Empresa -->
                 <div class="choice-card bg-white rounded-xl shadow-lg p-8 min-h-[400px] relative flex flex-col items-center text-center">
                     <div class="text-teal-500 mb-6">
@@ -111,27 +97,40 @@
                         Buscar Transporte
                     </a>
                 </div>
-            </div>
-        </div>
+
+              <!-- Card Motorista -->
+<div class="choice-card bg-white rounded-xl shadow-lg p-8 min-h-[400px] relative flex flex-col items-center text-center">
+    <div class="text-teal-500 mb-6">
+        <i data-lucide="car" class="h-16 w-16"></i>
+    </div>
+    <h3 class="text-2xl font-bold text-gray-800 mb-4">
+        Sou Motorista
+    </h3>
+    <p class="text-gray-600 mb-12">
+        Faça login para acessar suas viagens, documentos, pagamentos e treinamentos na plataforma MedCar.
+    </p>
+    <a href="../login_motorista.php" class="absolute bottom-8 bg-teal-500 hover:bg-teal-600 text-white font-medium py-3 px-8 rounded-full transition-all hover:scale-105 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50">
+        Entrar como Motorista
+    </a>
+</div>
+
     </section>
 
     <script>
-        // Initialize Lucide icons
         lucide.createIcons();
 
-        // Mobile menu functionality
         const mobileMenuButton = document.getElementById('mobile-menu-button');
         const closeMenuButton = document.getElementById('close-menu-button');
         const mobileMenu = document.getElementById('mobile-menu');
 
-        mobileMenuButton.addEventListener('click', () => {
-            mobileMenu.classList.add('open');
-        });
-
-        closeMenuButton.addEventListener('click', () => {
-            mobileMenu.classList.remove('open');
-        });
+        if(mobileMenuButton && closeMenuButton && mobileMenu) {
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.add('open');
+            });
+            closeMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.remove('open');
+            });
+        }
     </script>
 </body>
 </html>
-

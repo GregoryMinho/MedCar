@@ -112,50 +112,70 @@ if ($acao === 'listar') {
             padding-top: var(--navbar-height);
             min-height: 100vh;
         }
-
-        .vehicles-sidebar {
-            background: var(--primary-color);
-            color: white;
-            min-height: calc(100vh - var(--navbar-height));
-            padding: 20px;
-            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-            position: sticky;
-            top: var(--navbar-height);
-        }
-
         .vehicle-card {
             background: white;
             border-radius: 15px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
             transition: all 0.3s;
         }
-
         .status-badge {
             padding: 8px 15px;
             border-radius: 20px;
             font-size: 0.9em;
         }
-
         .status-disponivel {
             background: #28a745;
             color: white;
         }
-
         .status-em_uso {
             background: #ffc107;
             color: black;
         }
-
         .status-manutencao {
             background: #dc3545;
             color: white;
         }
-
         .maintenance-history {
             background: #f8f9fa;
             border-radius: 10px;
             padding: 15px;
             margin-top: 15px;
+        }
+        /* Sidebar styles for padrão menu lateral */
+        .menu-lateral {
+            background: var(--primary-color);
+            color: white;
+            min-height: calc(100vh - var(--navbar-height));
+            padding: 0;
+            position: sticky;
+            top: var(--navbar-height);
+            box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+            z-index: 2;
+        }
+        .menu-lateral nav {
+            padding: 24px 0;
+        }
+        .menu-lateral a, .menu-lateral button {
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 32px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            background: none;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background .15s;
+        }
+        .menu-lateral a.active, .menu-lateral a:hover, .menu-lateral button:hover {
+            background: #234372;
+            color: #38b2ac;
+        }
+        .menu-lateral .logout-btn {
+            color: #ffc107;
+            border: 1px solid #ffc107;
+            margin-top: 30px;
         }
     </style>
 </head>
@@ -163,46 +183,69 @@ if ($acao === 'listar') {
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top" style="background: var(--primary-color);">
         <div class="container">
-            <a class="navbar-brand" href="#">
+            <a class="navbar-brand d-flex align-items-center" href="#">
                 <i class="bi bi-truck me-2"></i>
-                MedCar Frota
+                MedCar
             </a>
             <div class="d-flex align-items-center">
-                <div class="text-white me-3">Gestão de Veículos</div>
-                <img src="https://source.unsplash.com/random/40x40/?icon" 
-                     class="rounded-circle" 
-                     alt="Foto do perfil do usuário"
-                     width="40"
-                     height="40">
+                <div class="text-white me-3">Gestão de Frota</div>
+                <img src="https://source.unsplash.com/random/40x40/?icon" class="rounded-circle" alt="Perfil" width="40" height="40">
             </div>
         </div>
     </nav>
 
     <!-- Vehicle Management Page -->
     <div class="vehicles-page">
-        <div class="row">
-            <!-- Sidebar -->
-            <div class="col-md-3 vehicles-sidebar">
-                <h5 class="mb-4"><i class="bi bi-menu-button me-2"></i>Menu</h5>
-                <div class="d-flex flex-column gap-3">
-                    <a href="dashboard.php" class="btn btn-outline-light text-start">
-                        <i class="bi bi-speedometer2 me-2"></i> Dashboard
+        <div class="row g-0">
+            <!-- Menu Lateral Padrão -->
+            <div class="col-md-3 menu-lateral d-none d-md-block">
+                <nav class="flex flex-col space-y-2">
+                    <a href="menu_principal.php">
+                        <i class="bi bi-graph-up"></i>
+                        Estatísticas
                     </a>
-                    <a href="gestao_veiculos.php" class="btn btn-light text-start">
-                        <i class="bi bi-truck me-2"></i> Frota
+                    <a href="agendamentos_pacientes.php">
+                        <i class="bi bi-calendar-event"></i>
+                        Agendamentos
                     </a>
-                    <a href="gestao_motoristas.php" class="btn btn-outline-light text-start">
-                        <i class="bi bi-people me-2"></i> Motoristas
+                    <a href="aprovar_agendamentos.php">
+                        <i class="bi bi-check-circle"></i>
+                        Aprovar Agendamentos
                     </a>
-                    <a href="agendamentos_pacientes.php" class="btn btn-outline-light text-start">
-                        <i class="bi bi-calendar-event me-2"></i> Agendamentos
+                    <a href="gestao_motoristas.php">
+                        <i class="bi bi-people"></i>
+                        Motoristas
                     </a>
-                </div>
+                    <a href="gestao_veiculos.php" class="active">
+                        <i class="bi bi-truck"></i>
+                        Frota
+                    </a>
+                    <a href="relatorios_financeiros.php">
+                        <i class="bi bi-graph-up-arrow"></i>
+                        Financeiro
+                    </a>
+                    <a href="relatorios.php">
+                        <i class="bi bi-file-earmark-text"></i>
+                        Relatórios
+                    </a>
+                    <a href="avaliacoes.php">
+                        <i class="bi bi-star"></i>
+                        Avaliações
+                    </a>
+                    <a href="batepapo_clientes.php">
+                        <i class="bi bi-chat-dots"></i>
+                        Bate-Papo
+                    </a>
+                  
+                </nav>
             </div>
 
             <!-- Main Content -->
             <div class="col-md-9 pt-4">
                 <div class="container">
+                    <a href="menu_principal.php" class="btn btn-secondary mb-3">
+                        <i class="bi bi-arrow-left me-2"></i>Voltar
+                    </a>
                     <?php if ($acao === 'form'): ?>
                         <!-- Edit/Create Form -->
                         <div class="vehicle-card p-4 mb-4">

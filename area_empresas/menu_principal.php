@@ -325,10 +325,7 @@ $conn = null; // Fecha conexão avaliações
                     <i class="bi bi-truck fs-5"></i> <!-- Ícone de veículo -->
                     Frota
                 </a>
-                <a href="relatorios_financeiros.php" class="flex items-center gap-3 ps-4 py-3 rounded-lg hover:bg-blue-800 transition">
-                    <i class="bi bi-graph-up fs-6"></i>
-                    <span>Financeiro</span>
-                </a>
+                
                 <a href="PowerBiDashFinanceiro.php" class="flex items-center gap-3 ps-4 py-3 rounded-lg hover:bg-blue-800 transition">
                     <i class="bi bi-coin"></i>
                     <span>Dashboard Financeiro</span>
